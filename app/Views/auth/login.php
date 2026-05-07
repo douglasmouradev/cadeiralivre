@@ -19,7 +19,7 @@ $flashError = \App\Helpers\Flash::get('error');
 </head>
 <body>
 <div class="auth-page">
-    <div class="auth-card">
+    <div class="auth-card auth-card--login">
         <div class="auth-brand">
             <img src="/assets/img/cadeiralivre-logo.png" width="160" height="160" alt="<?= e(app_name()) ?>">
         </div>
@@ -45,10 +45,11 @@ $flashError = \App\Helpers\Flash::get('error');
             </div>
             <button class="btn" type="submit" data-loading="1">Entrar</button>
         </form>
-        <p class="muted mt-1" style="text-align:center">ou</p>
-        <p class="mt-1"><a class="btn secondary" href="/primeiro-acesso" style="display:block;text-align:center;width:100%;box-sizing:border-box">Primeiro acesso (sou cliente)</a></p>
-        <p class="muted mt-1"><a href="/esqueci-senha">Esqueci a senha</a></p>
+        <p class="muted mt-1 auth-card__divider">ou</p>
+        <p class="mt-1"><a class="btn secondary auth-card__cta-secondary" href="/primeiro-acesso">Primeiro acesso (sou cliente)</a></p>
+        <p class="muted mt-1 auth-card__links"><a href="/esqueci-senha">Esqueci a senha</a></p>
     </div>
+    <?php require __DIR__ . '/../partials/auth_site_footer.php'; ?>
 </div>
 <script src="/assets/js/app.js" defer></script>
 </body>

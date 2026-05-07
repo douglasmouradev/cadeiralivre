@@ -16,7 +16,7 @@ declare(strict_types=1);
 </head>
 <body>
 <div class="auth-page">
-    <div class="auth-card">
+    <div class="auth-card auth-card--login">
         <div class="auth-brand">
             <img src="/assets/img/cadeiralivre-logo.png" width="160" height="160" alt="<?= e(app_name()) ?>">
         </div>
@@ -49,8 +49,9 @@ declare(strict_types=1);
             </div>
             <button class="btn" type="submit">Cadastrar</button>
         </form>
-        <p class="muted mt-1"><a href="/painel">Voltar ao painel</a></p>
+        <p class="muted mt-1 auth-card__links"><a href="/painel">Voltar ao painel</a></p>
     </div>
+    <?php require __DIR__ . '/../partials/auth_site_footer.php'; ?>
 </div>
 <script src="/assets/js/app.js" defer></script>
 </body>
