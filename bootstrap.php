@@ -20,6 +20,26 @@ if ($appEnv === 'local' && $appDebug) {
     ini_set('display_errors', '0');
 }
 
+// Nginx / PHP-FPM: HTTPS nem sempre vem em $_SERVER['HTTPS']; sem isto o cookie de sessão pode falhar em HTTPS.
+$forwardedProto = isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
+    ? strtolower((string) $_SERVER['HTTP_X_FORWARDED_PROTO'])
+    : '';
+if (
+    (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    || $forwardedProto === 'https'
+    || (isset($_SERVER['REQUEST_SCHEME']) && strtolower((string) $_SERVER['REQUEST_SCHEME']) === 'https')
+) {
+    $_SERVER['HTTPS'] = 'on';
+}
+
+$sessionDir = $root . '/storage/sessions';
+if (!is_dir($sessionDir)) {
+    @mkdir($sessionDir, 0770, true);
+}
+if (is_dir($sessionDir) && is_writable($sessionDir)) {
+    session_save_path($sessionDir);
+}
+
 ini_set('session.use_strict_mode', '1');
 ini_set('session.cookie_httponly', '1');
 ini_set('session.cookie_samesite', 'Lax');

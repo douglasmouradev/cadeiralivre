@@ -13,11 +13,11 @@ final class AuthMiddleware implements MiddlewareInterface
 {
     public function handle(Application $app, Request $request, callable $next): Response
     {
-        $userId = $_SESSION['user_id'] ?? null;
-        if (!is_int($userId) && !(is_string($userId) && ctype_digit($userId))) {
+        $userIdRaw = $_SESSION['user_id'] ?? null;
+        $id = filter_var($userIdRaw, FILTER_VALIDATE_INT);
+        if ($id === false || $id < 1) {
             return Response::redirect('/login');
         }
-        $id = (int) $userId;
         $userModel = new UserModel();
         $user = $userModel->findById($id);
         if ($user === null || !(bool) $user['is_active']) {
