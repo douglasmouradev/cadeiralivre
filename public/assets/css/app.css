@@ -501,13 +501,16 @@ input.field-error, select.field-error, textarea.field-error {
 }
 .auth-card--login form .row--checkbox.row {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  width: 100%;
   margin-bottom: 0.75rem;
+  text-align: left;
 }
 .auth-card--login form .row--checkbox label {
   display: inline-flex;
   flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0;
