@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 /** @var string $title */
 /** @var string $csrf */
+
+$flashSuccess = \App\Helpers\Flash::get('success');
+$flashError = \App\Helpers\Flash::get('error');
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -21,11 +24,17 @@ declare(strict_types=1);
             <img src="/assets/img/cadeiralivre-logo.png" width="160" height="160" alt="<?= e(app_name()) ?>">
         </div>
         <h1>Entrar</h1>
+        <?php if (is_string($flashSuccess) && $flashSuccess !== ''): ?>
+            <p class="alert alert-success" role="status"><?= e($flashSuccess) ?></p>
+        <?php endif; ?>
+        <?php if (is_string($flashError) && $flashError !== ''): ?>
+            <p class="alert alert-error" role="alert"><?= e($flashError) ?></p>
+        <?php endif; ?>
         <form method="post" action="/login" data-validate="1">
             <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
             <div class="row">
                 <label for="email">E-mail</label>
-                <input id="email" name="email" type="email" required autocomplete="username">
+                <input id="email" name="email" type="text" inputmode="email" autocomplete="username" required spellcheck="false">
             </div>
             <div class="row">
                 <label for="password">Senha</label>
