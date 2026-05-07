@@ -28,7 +28,7 @@ if ($ap !== null) {
     <div class="auth-card">
         <h1>Obrigado!</h1>
         <?php if ($ap !== null): ?>
-            <p>Seu agendamento foi registrado. Confira seu e-mail com o código de confirmação.</p>
+            <p>Seu agendamento foi registrado. Se informou e-mail, verifique a caixa de entrada para detalhes.</p>
             <dl class="thanks-summary muted" style="margin-top:1rem;font-size:0.95rem">
                 <dt style="font-weight:600;color:var(--ink,#1c1917);margin-top:0.5rem">Data e hora</dt>
                 <dd style="margin:0.15rem 0 0 0"><?= e($dtLabel) ?><?php if ($dtLabel !== ''): ?><span class="muted" style="display:block;font-size:0.85rem;margin-top:0.25rem">Fuso da barbearia: <?= e($tzId) ?>.</span><?php endif; ?></dd>
@@ -45,9 +45,6 @@ if ($ap !== null) {
                     <dd style="margin:0.15rem 0 0 0;white-space:pre-wrap"><?= e($notes) ?></dd>
                 <?php endif; ?>
             </dl>
-            <div class="form-actions mt-1">
-                <a class="btn" href="/agendar/<?= e($slug) ?>/confirmar?token=<?= e((string) $ap['public_token']) ?>">Confirmar com código</a>
-            </div>
         <?php else: ?>
             <p>Agendamento recebido.</p>
         <?php endif; ?>
