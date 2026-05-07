@@ -1,0 +1,20 @@
+# Ambiente e segredos
+.env
+.env.local
+.env.*.local
+
+# Dependências
+/vendor/
+
+# IDE / SO
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Logs e cache local
+*.log
+/storage/*.cache
+
+# aaPanel / deploy temporários (se existirem)
+*.tmp

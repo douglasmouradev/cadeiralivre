@@ -1,0 +1,44 @@
+<?php
+
+declare(strict_types=1);
+
+/** @var string $title */
+/** @var string $csrf */
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="<?= e($csrf) ?>">
+    <title><?= e($title) ?> — <?= e(app_name()) ?></title>
+    <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-brand">
+            <img src="/assets/img/cadeiralivre-logo.png" width="160" height="160" alt="<?= e(app_name()) ?>">
+        </div>
+        <h1>Entrar</h1>
+        <form method="post" action="/login" data-validate="1">
+            <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
+            <div class="row">
+                <label for="email">E-mail</label>
+                <input id="email" name="email" type="email" required autocomplete="username">
+            </div>
+            <div class="row">
+                <label for="password">Senha</label>
+                <input id="password" name="password" type="password" required autocomplete="current-password" minlength="8">
+            </div>
+            <div class="row">
+                <label><input type="checkbox" name="remember" value="1"> Lembrar por 30 dias</label>
+            </div>
+            <button class="btn" type="submit" data-loading="1">Entrar</button>
+        </form>
+        <p class="muted mt-1"><a href="/registrar">Criar barbearia</a> · <a href="/esqueci-senha">Esqueci a senha</a></p>
+    </div>
+</div>
+<script src="/assets/js/app.js" defer></script>
+</body>
+</html>

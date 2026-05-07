@@ -1,0 +1,20 @@
+CREATE TABLE tenants (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(120) NOT NULL,
+    slug VARCHAR(80) NOT NULL,
+    email VARCHAR(190) NOT NULL,
+    phone VARCHAR(40) NULL,
+    address VARCHAR(255) NULL,
+    city VARCHAR(100) NULL,
+    state VARCHAR(50) NULL,
+    logo_path VARCHAR(255) NULL,
+    primary_color VARCHAR(7) NOT NULL DEFAULT '#D4AF37',
+    timezone VARCHAR(64) NOT NULL DEFAULT 'America/Sao_Paulo',
+    status ENUM('active','suspended','trial') NOT NULL DEFAULT 'trial',
+    trial_ends_at DATETIME NULL,
+    plan ENUM('free','pro','enterprise') NOT NULL DEFAULT 'free',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_tenants_slug (slug),
+    KEY idx_tenants_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

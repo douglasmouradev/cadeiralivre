@@ -1,0 +1,20 @@
+CREATE TABLE users (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    tenant_id BIGINT UNSIGNED NULL,
+    name VARCHAR(120) NOT NULL,
+    email VARCHAR(190) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM('superadmin','owner','barber','receptionist') NOT NULL,
+    phone VARCHAR(40) NULL,
+    avatar_path VARCHAR(255) NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    email_verified_at DATETIME NULL,
+    remember_token VARCHAR(100) NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_users_tenant FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    UNIQUE KEY uq_users_email (email),
+    KEY idx_users_tenant (tenant_id),
+    KEY idx_users_email (email),
+    KEY idx_users_role (role)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
