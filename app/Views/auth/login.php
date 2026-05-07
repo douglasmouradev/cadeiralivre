@@ -48,8 +48,8 @@ $flashError = \App\Helpers\Flash::get('error');
         <p class="muted mt-1 auth-card__divider">ou</p>
         <p class="mt-1 auth-card__cta-wrap"><a class="btn secondary auth-card__cta-secondary" href="/primeiro-acesso">Primeiro acesso (sou cliente)</a></p>
         <p class="muted mt-1 auth-card__links"><a href="/esqueci-senha">Esqueci a senha</a></p>
+        <?php require __DIR__ . '/../partials/auth_site_footer.php'; ?>
     </div>
-    <?php require __DIR__ . '/../partials/auth_site_footer.php'; ?>
 </div>
 <script src="/assets/js/app.js" defer></script>
 </body>
