@@ -5,9 +5,9 @@ declare(strict_types=1);
 use Dotenv\Dotenv;
 
 /**
- * Carrega variáveis de ambiente: primeiro `barbershop-saas/.env`, senão `.env` na pasta pai.
+ * Carrega variáveis de ambiente: primeiro `cadeira-livre/.env`, senão `.env` na pasta pai.
  *
- * @param non-falsy-string $projectRoot Caminho absoluto da raiz do projeto (pasta barbershop-saas)
+ * @param non-falsy-string $projectRoot Caminho absoluto da raiz do projeto (pasta cadeira-livre)
  */
 function app_load_dotenv(string $projectRoot): bool
 {

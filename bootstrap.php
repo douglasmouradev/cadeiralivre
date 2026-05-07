@@ -27,7 +27,7 @@ if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
     ini_set('session.cookie_secure', '1');
 }
 
-session_name($_ENV['SESSION_NAME'] ?? 'barbershop_session');
+session_name($_ENV['SESSION_NAME'] ?? 'cadeira_livre_session');
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

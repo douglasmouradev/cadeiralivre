@@ -8,7 +8,7 @@ require $root . '/vendor/autoload.php';
 
 require $root . '/config/load_env.php';
 if (!app_load_dotenv($root)) {
-    fwrite(STDERR, "Nenhum .env encontrado. Coloque .env em barbershop-saas/ ou na pasta pai, ou copie de .env.example.\n");
+    fwrite(STDERR, "Nenhum .env encontrado. Coloque .env em cadeira-livre/ ou na pasta pai, ou copie de .env.example.\n");
     exit(1);
 }
 

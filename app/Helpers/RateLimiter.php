@@ -18,7 +18,7 @@ final class RateLimiter
         if ($maxHits < 1 || $windowSeconds < 1) {
             return true;
         }
-        $dir = sys_get_temp_dir() . '/barbershop_saas_rl';
+        $dir = sys_get_temp_dir() . '/cadeira_livre_saas_rl';
         if (!is_dir($dir) && !@mkdir($dir, 0700, true)) {
             return true;
         }

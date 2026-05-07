@@ -1,6 +1,6 @@
 {
-    "name": "barbershop/saas",
-    "description": "SaaS de agendamento para barbearias — PHP 8.3 MVC",
+    "name": "cadeira-livre/saas",
+    "description": "CadeiraLivre — SaaS de agendamento para barbearias — PHP 8.3 MVC",
     "type": "project",
     "license": "proprietary",
     "require": {

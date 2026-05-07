@@ -11,12 +11,12 @@ SaaS de agendamento para barbearias (**CadeiraLivre**) em **PHP 8.3**, **MySQL 8
 
 ## Instalação
 
-1. **Clone / copie** o diretório `barbershop-saas` para o servidor.
+1. **Clone / copie** o diretório `cadeira-livre` para o servidor.
 
 2. **Instale dependências**
 
    ```bash
-   cd barbershop-saas
+   cd cadeira-livre
    composer install --no-dev --optimize-autoloader
    ```
 
@@ -26,12 +26,12 @@ SaaS de agendamento para barbearias (**CadeiraLivre**) em **PHP 8.3**, **MySQL 8
    cp .env.example .env
    ```
 
-   Edite `.env` com host, banco, usuário, senha MySQL e URL da aplicação (`APP_URL`, por exemplo `http://localhost/barbershop-saas/public`).
+   Edite `.env` com host, banco, usuário, senha MySQL e URL da aplicação (`APP_URL`, por exemplo `http://localhost/cadeira-livre/public`).
 
 4. **Crie o banco vazio**
 
    ```sql
-   CREATE DATABASE barbershop_saas CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   CREATE DATABASE cadeira_livre_saas CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
 
 5. **Execute as migrations**
@@ -49,7 +49,7 @@ SaaS de agendamento para barbearias (**CadeiraLivre**) em **PHP 8.3**, **MySQL 8
    Opção B — linha de comando (troque `root` e o nome do banco pelos valores do seu `.env`):
 
    ```bash
-   mysql -h 127.0.0.1 -P 3306 -u root -p barbershop_saas < database/seeds/001_demo.sql
+   mysql -h 127.0.0.1 -P 3306 -u root -p cadeira_livre_saas < database/seeds/001_demo.sql
    ```
 
    O `-p` sozinho pede a senha; **não** use a palavra `USUARIO` — isso era só exemplo no texto antigo.
@@ -65,7 +65,7 @@ SaaS de agendamento para barbearias (**CadeiraLivre**) em **PHP 8.3**, **MySQL 8
 
    Aponte o virtual host para a pasta **`public/`** (não a raiz do projeto).
 
-   Apache (exemplo): `DocumentRoot /var/www/barbershop-saas/public`
+   Apache (exemplo): `DocumentRoot /var/www/cadeira-livre/public`
 
 ## Acesso demo (após seed)
 
