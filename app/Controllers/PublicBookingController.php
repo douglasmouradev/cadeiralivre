@@ -112,6 +112,31 @@ final class PublicBookingController extends Controller
         ]);
     }
 
+    public function myAppointments(string $slug): Response
+    {
+        $tenant = $this->tenantFromSlug($slug);
+        if ($tenant === null) {
+            return Response::html('<!DOCTYPE html><html><body><p>Barbearia não encontrada.</p></body></html>', 404);
+        }
+        $tid = (int) $tenant['id'];
+        $portal = $this->portalClientForTenant($tid);
+        if ($portal === null) {
+            Flash::set('error', 'Entre como cliente para ver seus agendamentos.');
+
+            return Response::redirect('/cliente/' . rawurlencode($slug) . '/entrar');
+        }
+        $rows = (new AppointmentModel())->forClient($tid, (int) $portal['id']);
+
+        return $this->view('public/my_appointments', [
+            'title' => 'Meus agendamentos — ' . $tenant['name'],
+            'tenant' => $tenant,
+            'slug' => $slug,
+            'portal_client' => $portal,
+            'appointments' => $rows,
+            'timezone' => (string) ($tenant['timezone'] ?? 'America/Sao_Paulo'),
+        ]);
+    }
+
     public function slots(string $slug): Response
     {
         $tenant = $this->tenantFromSlug($slug);

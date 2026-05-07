@@ -37,6 +37,8 @@ $flashError = Flash::get('error');
             <p class="booking-portal-links muted">
                 <?php if ($portalClient !== null): ?>
                     Olá, <strong><?= e((string) $portalClient['name']) ?></strong> —
+                    <a href="/agendar/<?= e($slug) ?>/meus-agendamentos">Meus agendamentos</a>
+                    ·
                     <a href="/cliente/<?= e($slug) ?>/sair">Sair da conta</a>
                 <?php else: ?>
                     <a href="/cliente/<?= e($slug) ?>/entrar">Entrar como cliente</a>

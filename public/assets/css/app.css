@@ -680,6 +680,12 @@ input.field-error, select.field-error, textarea.field-error {
 }
 .booking-portal-links strong { font-weight: 600; }
 
+.my-appointments-table-wrap {
+  overflow-x: auto;
+  margin-top: 0.85rem;
+  -webkit-overflow-scrolling: touch;
+}
+
 .booking-form .choice-stack {
   display: flex;
   flex-direction: column;
