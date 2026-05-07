@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Response;
+use App\Enums\UserRole;
 use App\Helpers\Flash;
 use App\Models\TenantModel;
 use App\Models\UserModel;
@@ -16,13 +17,18 @@ final class SettingsController extends Controller
     {
         $tid = $this->tenantId();
         $tenant = (new TenantModel())->findById($tid);
-        $user = (new UserModel())->findById($this->userId());
+        $userModel = new UserModel();
+        $user = $userModel->findById($this->userId());
+        $canManageTeam = in_array($this->userRole(), [UserRole::Owner->value, UserRole::Superadmin->value], true);
+        $administrativeStaff = $canManageTeam ? $userModel->listAdministrativeByTenant($tid) : [];
 
         return $this->view('settings/index', [
             'title' => 'Configurações',
             'tenant' => $tenant,
             'user' => $user,
             'currentNav' => 'settings',
+            'canManageTeam' => $canManageTeam,
+            'administrativeStaff' => $administrativeStaff,
         ]);
     }
 
@@ -101,6 +107,58 @@ final class SettingsController extends Controller
         }
         (new UserModel())->setAvatar($this->userId(), 'avatars/' . $name);
         Flash::set('success', 'Foto atualizada.');
+
+        return Response::redirect('/configuracoes');
+    }
+
+    /** Cria recepcionista ou co-dono (role owner) — apenas dono ou superadmin. */
+    public function storeStaffUser(): Response
+    {
+        if (!in_array($this->userRole(), [UserRole::Owner->value, UserRole::Superadmin->value], true)) {
+            Flash::set('error', 'Apenas o dono pode criar utilizadores da equipe administrativa.');
+
+            return Response::redirect('/configuracoes');
+        }
+
+        $tid = $this->tenantId();
+        $name = trim((string) $this->request->input('staff_name'));
+        $email = mb_strtolower(trim((string) $this->request->input('staff_email')));
+        $password = (string) $this->request->input('staff_password');
+        $role = trim((string) $this->request->input('staff_role'));
+
+        if ($name === '' || $email === '') {
+            Flash::set('error', 'Nome e e-mail são obrigatórios.');
+
+            return Response::redirect('/configuracoes');
+        }
+        if (strlen($password) < 8) {
+            Flash::set('error', 'A senha deve ter no mínimo 8 caracteres.');
+
+            return Response::redirect('/configuracoes');
+        }
+        $allowedRoles = [UserRole::Receptionist->value, UserRole::Owner->value];
+        if (!in_array($role, $allowedRoles, true)) {
+            Flash::set('error', 'Função inválida.');
+
+            return Response::redirect('/configuracoes');
+        }
+
+        $users = new UserModel();
+        if ($users->findByEmail($email) !== null) {
+            Flash::set('error', 'Este e-mail já está cadastrado.');
+
+            return Response::redirect('/configuracoes');
+        }
+
+        try {
+            $users->create($tid, $name, $email, password_hash($password, PASSWORD_BCRYPT), $role, null);
+        } catch (\Throwable) {
+            Flash::set('error', 'Não foi possível criar o utilizador.');
+
+            return Response::redirect('/configuracoes');
+        }
+
+        Flash::set('success', 'Utilizador criado. Ele pode entrar em /login com o e-mail e a senha definidos.');
 
         return Response::redirect('/configuracoes');
     }

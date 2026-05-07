@@ -54,6 +54,21 @@ final class UserModel
         return $stmt->fetchAll() ?: [];
     }
 
+    /** Donos e recepcionistas do tenant (não inclui barbeiros). */
+    /** @return list<array<string, mixed>> */
+    public function listAdministrativeByTenant(int $tenantId): array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT id, tenant_id, name, email, role, phone, is_active, created_at
+             FROM users
+             WHERE tenant_id = :tid AND role IN ('owner', 'receptionist')
+             ORDER BY FIELD(role, 'owner', 'receptionist'), name ASC"
+        );
+        $stmt->execute(['tid' => $tenantId]);
+
+        return $stmt->fetchAll() ?: [];
+    }
+
     public function create(
         ?int $tenantId,
         string $name,

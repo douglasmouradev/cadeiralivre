@@ -58,6 +58,7 @@ return static function (Router $r): void {
     $r->add('POST', '/configuracoes/logo', 'SettingsController@uploadLogo', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
     $r->add('POST', '/configuracoes/perfil', 'SettingsController@updateProfile', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
     $r->add('POST', '/configuracoes/avatar', 'SettingsController@uploadAvatar', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
+    $r->add('POST', '/configuracoes/equipe', 'SettingsController@storeStaffUser', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
 
     $r->add('GET', '/media/logo/{slug}', 'MediaController@tenantLogo', []);
 
