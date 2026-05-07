@@ -10,6 +10,7 @@ use App\Helpers\Flash;
 /** @var array<string, mixed> $portal_client */
 /** @var list<array<string, mixed>> $appointments */
 /** @var string $timezone */
+/** @var string $csrf */
 
 $brandHex = tenant_brand_hex(isset($tenant['primary_color']) ? (string) $tenant['primary_color'] : null);
 $flashSuccess = Flash::get('success');
@@ -21,6 +22,7 @@ $tzId = $timezone;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="<?= e($csrf) ?>">
     <meta name="theme-color" content="<?= e($brandHex) ?>">
     <title><?= e($title) ?></title>
     <link rel="stylesheet" href="/assets/css/app.css">
@@ -67,7 +69,8 @@ $tzId = $timezone;
                             <th>Serviço</th>
                             <th>Profissional</th>
                             <th>Status</th>
-                            <th>Valor</th>
+                            <th class="cell-nowrap">Valor</th>
+                            <th class="my-appointments-actions-th">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -78,13 +81,40 @@ $tzId = $timezone;
                             $st = AppointmentStatus::tryFrom((string) ($ap['status'] ?? ''));
                             $stLabel = $st !== null ? $st->label() : (string) ($ap['status'] ?? '—');
                             $price = (float) ($ap['price'] ?? 0);
+                            $statusRaw = (string) ($ap['status'] ?? '');
+                            $appointmentId = (int) ($ap['id'] ?? 0);
+                            $canConfirm = $statusRaw === AppointmentStatus::Pending->value;
+                            $canCancel = in_array(
+                                $statusRaw,
+                                [AppointmentStatus::Pending->value, AppointmentStatus::Confirmed->value],
+                                true,
+                            );
                             ?>
                             <tr>
                                 <td><?= e($dtLabel) ?></td>
                                 <td><?= e((string) ($ap['service_name'] ?? '—')) ?></td>
                                 <td><?= e((string) ($ap['barber_name'] ?? '—')) ?></td>
                                 <td><?= e($stLabel) ?></td>
-                                <td>R$ <?= e(number_format($price, 2, ',', '.')) ?></td>
+                                <td class="cell-nowrap">R$ <?= e(number_format($price, 2, ',', '.')) ?></td>
+                                <td class="my-appointment-actions">
+                                    <?php if ($canConfirm): ?>
+                                        <form method="post" action="/agendar/<?= e($slug) ?>/meus-agendamentos/confirmar" class="my-appointment-action-form" onsubmit="return confirm('Confirmar este agendamento?');">
+                                            <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
+                                            <input type="hidden" name="appointment_id" value="<?= $appointmentId ?>">
+                                            <button type="submit" class="btn secondary">Confirmar</button>
+                                        </form>
+                                    <?php endif; ?>
+                                    <?php if ($canCancel): ?>
+                                        <form method="post" action="/agendar/<?= e($slug) ?>/meus-agendamentos/cancelar" class="my-appointment-action-form" onsubmit="return confirm('Cancelar este agendamento? Esta ação não pode ser desfeita.');">
+                                            <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
+                                            <input type="hidden" name="appointment_id" value="<?= $appointmentId ?>">
+                                            <button type="submit" class="btn danger">Cancelar</button>
+                                        </form>
+                                    <?php endif; ?>
+                                    <?php if (!$canConfirm && !$canCancel): ?>
+                                        <span class="muted">—</span>
+                                    <?php endif; ?>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -93,5 +123,6 @@ $tzId = $timezone;
         <?php endif; ?>
     </div>
 </main>
+<script src="/assets/js/app.js" defer></script>
 </body>
 </html>

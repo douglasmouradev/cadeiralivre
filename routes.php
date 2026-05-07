@@ -76,6 +76,8 @@ return static function (Router $r): void {
 
     $r->add('GET', '/agendar/{slug}', 'PublicBookingController@index', []);
     $r->add('GET', '/agendar/{slug}/meus-agendamentos', 'PublicBookingController@myAppointments', []);
+    $r->add('POST', '/agendar/{slug}/meus-agendamentos/confirmar', 'PublicBookingController@portalAppointmentConfirm', ['CsrfMiddleware']);
+    $r->add('POST', '/agendar/{slug}/meus-agendamentos/cancelar', 'PublicBookingController@portalAppointmentCancel', ['CsrfMiddleware']);
     $r->add('GET', '/agendar/{slug}/slots.json', 'PublicBookingController@slots', []);
     $r->add('POST', '/agendar/{slug}', 'PublicBookingController@book', ['CsrfMiddleware']);
     $r->add('GET', '/agendar/{slug}/obrigado', 'PublicBookingController@thanks', []);

@@ -137,6 +137,93 @@ final class PublicBookingController extends Controller
         ]);
     }
 
+    public function portalAppointmentConfirm(string $slug): Response
+    {
+        $tenant = $this->tenantFromSlug($slug);
+        if ($tenant === null) {
+            return Response::redirect('/');
+        }
+        $tid = (int) $tenant['id'];
+        $portal = $this->portalClientForTenant($tid);
+        if ($portal === null) {
+            Flash::set('error', 'Entre como cliente para confirmar o agendamento.');
+
+            return Response::redirect('/cliente/' . rawurlencode($slug) . '/entrar');
+        }
+        $appointmentId = (int) $this->request->input('appointment_id');
+        if ($appointmentId <= 0) {
+            Flash::set('error', 'Agendamento inválido.');
+
+            return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos');
+        }
+        $ap = new AppointmentModel();
+        $row = $ap->find($tid, $appointmentId);
+        if ($row === null || (int) $row['client_id'] !== (int) $portal['id']) {
+            Flash::set('error', 'Agendamento não encontrado.');
+
+            return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos');
+        }
+        if ((string) $row['status'] !== AppointmentStatus::Pending->value) {
+            Flash::set('error', 'Este agendamento não está pendente de confirmação.');
+
+            return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos');
+        }
+        if ($ap->confirmPendingForPortalClient($tid, $appointmentId, (int) $portal['id'])) {
+            $ap->addHistory(
+                $appointmentId,
+                $tid,
+                AppointmentStatus::Pending->value,
+                AppointmentStatus::Confirmed->value,
+                null,
+                'Confirmado pelo cliente (portal)',
+            );
+            Flash::set('success', 'Agendamento confirmado.');
+        } else {
+            Flash::set('error', 'Não foi possível confirmar. Tente novamente.');
+        }
+
+        return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos');
+    }
+
+    public function portalAppointmentCancel(string $slug): Response
+    {
+        $tenant = $this->tenantFromSlug($slug);
+        if ($tenant === null) {
+            return Response::redirect('/');
+        }
+        $tid = (int) $tenant['id'];
+        $portal = $this->portalClientForTenant($tid);
+        if ($portal === null) {
+            Flash::set('error', 'Entre como cliente para cancelar o agendamento.');
+
+            return Response::redirect('/cliente/' . rawurlencode($slug) . '/entrar');
+        }
+        $appointmentId = (int) $this->request->input('appointment_id');
+        if ($appointmentId <= 0) {
+            Flash::set('error', 'Agendamento inválido.');
+
+            return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos');
+        }
+        $ap = new AppointmentModel();
+        $row = $ap->find($tid, $appointmentId);
+        if ($row === null || (int) $row['client_id'] !== (int) $portal['id']) {
+            Flash::set('error', 'Agendamento não encontrado.');
+
+            return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos');
+        }
+        $from = (string) $row['status'];
+        if (!in_array($from, [AppointmentStatus::Pending->value, AppointmentStatus::Confirmed->value], true)) {
+            Flash::set('error', 'Este agendamento não pode ser cancelado aqui.');
+
+            return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos');
+        }
+        $ap->updateStatus($tid, $appointmentId, AppointmentStatus::Cancelled->value, 'Cancelado pelo cliente (portal)');
+        $ap->addHistory($appointmentId, $tid, $from, AppointmentStatus::Cancelled->value, null, 'Portal cliente');
+        Flash::set('success', 'Agendamento cancelado.');
+
+        return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos');
+    }
+
     public function slots(string $slug): Response
     {
         $tenant = $this->tenantFromSlug($slug);

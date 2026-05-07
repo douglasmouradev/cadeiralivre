@@ -74,6 +74,18 @@ final class AppointmentModel
         return $stmt->rowCount() > 0;
     }
 
+    /** Pendente → confirmado com cliente autenticado no portal (sem código por e-mail). */
+    public function confirmPendingForPortalClient(int $tenantId, int $appointmentId, int $clientId): bool
+    {
+        $stmt = $this->pdo->prepare(
+            "UPDATE appointments SET status = 'confirmed', updated_at = NOW()
+             WHERE tenant_id = :t AND id = :id AND client_id = :c AND status = 'pending'"
+        );
+        $stmt->execute(['t' => $tenantId, 'id' => $appointmentId, 'c' => $clientId]);
+
+        return $stmt->rowCount() > 0;
+    }
+
     public function countOverlapping(
         int $tenantId,
         int $barberId,

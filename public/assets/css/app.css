@@ -685,6 +685,24 @@ input.field-error, select.field-error, textarea.field-error {
   margin-top: 0.85rem;
   -webkit-overflow-scrolling: touch;
 }
+.my-appointments-actions-th {
+  min-width: 9rem;
+}
+.my-appointment-actions {
+  vertical-align: middle;
+}
+.my-appointment-action-form {
+  display: inline-block;
+  margin: 0 0.35rem 0.35rem 0;
+}
+.my-appointment-action-form .btn {
+  padding: 0.4rem 0.65rem;
+  font-size: 0.82rem;
+}
+.table td.cell-nowrap,
+.table th.cell-nowrap {
+  white-space: nowrap;
+}
 
 .booking-form .choice-stack {
   display: flex;
