@@ -45,6 +45,8 @@ $flashError = \App\Helpers\Flash::get('error');
             </div>
             <button class="btn" type="submit" data-loading="1">Entrar</button>
         </form>
+        <p class="muted mt-1" style="text-align:center">ou</p>
+        <p class="mt-1"><a class="btn secondary" href="/primeiro-acesso" style="display:block;text-align:center;width:100%;box-sizing:border-box">Primeiro acesso (sou cliente)</a></p>
         <p class="muted mt-1"><a href="/registrar">Criar barbearia</a> · <a href="/esqueci-senha">Esqueci a senha</a></p>
     </div>
 </div>

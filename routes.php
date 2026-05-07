@@ -17,6 +17,12 @@ return static function (Router $r): void {
     $r->add('GET', '/redefinir-senha', 'AuthController@showReset', []);
     $r->add('POST', '/redefinir-senha', 'AuthController@reset', ['CsrfMiddleware']);
 
+    $r->add('GET', '/primeiro-acesso', 'ClientOnboardingController@showStep1', []);
+    $r->add('POST', '/primeiro-acesso', 'ClientOnboardingController@postStep1', ['CsrfMiddleware']);
+    $r->add('GET', '/primeiro-acesso/recomecar', 'ClientOnboardingController@restart', []);
+    $r->add('GET', '/primeiro-acesso/barbearias', 'ClientOnboardingController@showStep2', []);
+    $r->add('POST', '/primeiro-acesso/barbearias', 'ClientOnboardingController@postStep2', ['CsrfMiddleware']);
+
     $r->add('GET', '/painel', 'DashboardController@index', ['AuthMiddleware', 'AdminMiddleware']);
     $r->add('GET', '/painel/api/hoje', 'DashboardController@todayJson', ['AuthMiddleware', 'AdminMiddleware']);
 

@@ -36,6 +36,37 @@ final class TenantModel
         return $row !== false ? $row : null;
     }
 
+    /** Lista barbearias ativas para o cliente escolher (sem dados sensíveis). */
+    /** @return list<array{id: int, name: string, slug: string, city: ?string, state: ?string}> */
+    public function listPublicDirectory(): array
+    {
+        $stmt = $this->pdo->query(
+            "SELECT id, name, slug, city, state FROM tenants
+             WHERE status <> 'suspended'
+             ORDER BY name ASC"
+        );
+        if ($stmt === false) {
+            return [];
+        }
+        $rows = $stmt->fetchAll();
+        if (!is_array($rows)) {
+            return [];
+        }
+        /** @var list<array<string, mixed>> $rows */
+        $out = [];
+        foreach ($rows as $row) {
+            $out[] = [
+                'id' => (int) ($row['id'] ?? 0),
+                'name' => (string) ($row['name'] ?? ''),
+                'slug' => (string) ($row['slug'] ?? ''),
+                'city' => isset($row['city']) && $row['city'] !== null && $row['city'] !== '' ? (string) $row['city'] : null,
+                'state' => isset($row['state']) && $row['state'] !== null && $row['state'] !== '' ? (string) $row['state'] : null,
+            ];
+        }
+
+        return $out;
+    }
+
     /**
      * @param array{name: string, slug: string, email: string, phone: ?string, address: ?string, city: ?string, state: ?string, timezone: string} $data
      */
