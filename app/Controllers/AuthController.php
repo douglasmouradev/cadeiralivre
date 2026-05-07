@@ -82,10 +82,6 @@ final class AuthController extends Controller
 
     public function showRegister(): Response
     {
-        if (!empty($_SESSION['user_id'])) {
-            return Response::redirect($this->postAuthHomePath());
-        }
-
         return $this->view('auth/register', [
             'title' => 'Criar conta',
             'csrf' => Csrf::token(),

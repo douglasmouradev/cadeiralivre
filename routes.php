@@ -9,8 +9,8 @@ return static function (Router $r): void {
 
     $r->add('GET', '/login', 'AuthController@showLogin', []);
     $r->add('POST', '/login', 'AuthController@login', ['LoginRateLimitMiddleware', 'CsrfMiddleware']);
-    $r->add('GET', '/registrar', 'AuthController@showRegister', []);
-    $r->add('POST', '/registrar', 'AuthController@register', ['CsrfMiddleware']);
+    $r->add('GET', '/registrar', 'AuthController@showRegister', ['AuthMiddleware', 'OwnerMiddleware']);
+    $r->add('POST', '/registrar', 'AuthController@register', ['AuthMiddleware', 'OwnerMiddleware', 'CsrfMiddleware']);
     $r->add('GET', '/logout', 'AuthController@logout', []);
     $r->add('GET', '/esqueci-senha', 'AuthController@showForgot', []);
     $r->add('POST', '/esqueci-senha', 'AuthController@forgot', ['CsrfMiddleware']);

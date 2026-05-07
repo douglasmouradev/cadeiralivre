@@ -52,7 +52,7 @@ $flashError = Flash::get('error');
         </div>
         <button class="btn" type="submit" data-loading="1">Continuar</button>
     </form>
-    <p class="muted mt-1"><a href="/login">Entrar (equipe)</a> · <a href="/registrar">Criar barbearia</a></p>
+    <p class="muted mt-1"><a href="/login">Entrar (equipe)</a></p>
 </div>
 <script src="/assets/js/app.js" defer></script>
 </body>
