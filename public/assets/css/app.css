@@ -460,19 +460,50 @@ input.field-error, select.field-error, textarea.field-error {
   font-weight: 400;
 }
 .auth-card form > button.btn[type="submit"] {
+  display: flex;
   width: 100%;
+  max-width: 100%;
   justify-content: center;
+  align-items: center;
   box-sizing: border-box;
+}
+.auth-card--login a.btn.auth-card__cta-secondary {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  text-decoration: none;
+}
+.auth-card__cta-wrap {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+.auth-card--login form .row--checkbox {
+  text-align: center;
+}
+.auth-card--login form .row--checkbox label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  justify-content: center;
+  margin-bottom: 0;
+  font-weight: 500;
 }
 .auth-card__divider {
   text-align: center;
   margin: 0;
 }
 .auth-card__cta-secondary {
-  display: block;
+  display: flex;
   width: 100%;
-  text-align: center;
+  max-width: 100%;
+  justify-content: center;
+  align-items: center;
   box-sizing: border-box;
+  text-decoration: none;
 }
 .auth-card__links {
   text-align: center;

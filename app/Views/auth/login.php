@@ -40,13 +40,13 @@ $flashError = \App\Helpers\Flash::get('error');
                 <label for="password">Senha</label>
                 <input id="password" name="password" type="password" required autocomplete="current-password" minlength="8">
             </div>
-            <div class="row">
+            <div class="row row--checkbox">
                 <label><input type="checkbox" name="remember" value="1"> Lembrar por 30 dias</label>
             </div>
             <button class="btn" type="submit" data-loading="1">Entrar</button>
         </form>
         <p class="muted mt-1 auth-card__divider">ou</p>
-        <p class="mt-1"><a class="btn secondary auth-card__cta-secondary" href="/primeiro-acesso">Primeiro acesso (sou cliente)</a></p>
+        <p class="mt-1 auth-card__cta-wrap"><a class="btn secondary auth-card__cta-secondary" href="/primeiro-acesso">Primeiro acesso (sou cliente)</a></p>
         <p class="muted mt-1 auth-card__links"><a href="/esqueci-senha">Esqueci a senha</a></p>
     </div>
     <?php require __DIR__ . '/../partials/auth_site_footer.php'; ?>
