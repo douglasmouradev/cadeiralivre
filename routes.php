@@ -7,6 +7,16 @@ use App\Core\Router;
 return static function (Router $r): void {
     $r->add('GET', '/', 'HomeController@index', []);
 
+    $r->add('GET', '/privacidade', 'LegalController@privacy', []);
+    $r->add('GET', '/termos', 'LegalController@terms', []);
+    $r->add('GET', '/lgpd', 'LegalController@lgpd', []);
+
+    $r->add('POST', '/webhooks/stripe', 'StripeWebhookController@handle', []);
+
+    $r->add('GET', '/saas/tenants', 'SaasPlatformController@tenants', ['AuthMiddleware', 'SuperadminMiddleware']);
+    $r->add('POST', '/saas/tenants/{id}/suspender', 'SaasPlatformController@suspend', ['AuthMiddleware', 'SuperadminMiddleware', 'CsrfMiddleware']);
+    $r->add('POST', '/saas/tenants/{id}/reativar', 'SaasPlatformController@activate', ['AuthMiddleware', 'SuperadminMiddleware', 'CsrfMiddleware']);
+
     $r->add('GET', '/login', 'AuthController@showLogin', []);
     $r->add('POST', '/login', 'AuthController@login', ['LoginRateLimitMiddleware', 'CsrfMiddleware']);
     $r->add('GET', '/registrar', 'AuthController@showRegister', ['AuthMiddleware', 'OwnerMiddleware']);
@@ -58,8 +68,10 @@ return static function (Router $r): void {
     $r->add('POST', '/clientes/{id}', 'ClientController@update', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
 
     $r->add('GET', '/relatorios', 'ReportController@index', ['AuthMiddleware', 'AdminMiddleware']);
+    $r->add('GET', '/relatorios/exportar\.csv', 'ReportController@exportCsv', ['AuthMiddleware', 'AdminMiddleware']);
 
     $r->add('GET', '/configuracoes', 'SettingsController@index', ['AuthMiddleware', 'AdminMiddleware']);
+    $r->add('GET', '/configuracoes/assinatura', 'SettingsController@subscription', ['AuthMiddleware', 'AdminMiddleware']);
     $r->add('POST', '/configuracoes/tenant', 'SettingsController@updateTenant', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
     $r->add('POST', '/configuracoes/logo', 'SettingsController@uploadLogo', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
     $r->add('POST', '/configuracoes/perfil', 'SettingsController@updateProfile', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);

@@ -11,8 +11,10 @@ use App\Helpers\Flash;
 use App\Models\BarberModel;
 use App\Models\BlockedTimeModel;
 use App\Models\ServiceModel;
+use App\Models\TenantModel;
 use App\Models\UserModel;
 use App\Models\WorkingHoursModel;
+use App\Services\SubscriptionService;
 
 final class BarberController extends Controller
 {
@@ -50,6 +52,13 @@ final class BarberController extends Controller
         $phone = trim((string) $this->request->input('phone'));
         if (strlen($password) < 8) {
             Flash::set('error', 'Senha mínima de 8 caracteres.');
+
+            return Response::redirect('/barbeiros/novo');
+        }
+        $tenantRow = (new TenantModel())->findById($tid);
+        $barberLimit = (new SubscriptionService())->barberLimitMessage($tid, $tenantRow ?? []);
+        if ($barberLimit !== null) {
+            Flash::set('error', $barberLimit);
 
             return Response::redirect('/barbeiros/novo');
         }

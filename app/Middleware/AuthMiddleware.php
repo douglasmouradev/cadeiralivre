@@ -7,6 +7,7 @@ namespace App\Middleware;
 use App\Core\Application;
 use App\Core\Request;
 use App\Core\Response;
+use App\Enums\UserRole;
 use App\Models\UserModel;
 
 final class AuthMiddleware implements MiddlewareInterface
@@ -30,6 +31,21 @@ final class AuthMiddleware implements MiddlewareInterface
         $_SESSION['user_role'] = (string) $user['role'];
         $_SESSION['user_name'] = (string) $user['name'];
         $_SESSION['user_email'] = (string) $user['email'];
+
+        if ((string) $user['role'] === UserRole::Superadmin->value) {
+            $path = $request->path();
+            $allowedPrefixes = ['/saas', '/logout', '/registrar', '/esqueci-senha', '/redefinir-senha'];
+            $allowed = false;
+            foreach ($allowedPrefixes as $prefix) {
+                if ($path === $prefix || str_starts_with($path, $prefix . '/')) {
+                    $allowed = true;
+                    break;
+                }
+            }
+            if (!$allowed) {
+                return Response::redirect('/saas/tenants');
+            }
+        }
 
         return $next($request);
     }

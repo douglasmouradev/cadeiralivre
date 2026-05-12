@@ -15,6 +15,11 @@
 # Logs e cache local
 *.log
 /storage/*.cache
+.phpunit.cache/
+/storage/sessions/
 
 # aaPanel / deploy temporários (se existirem)
 *.tmp
+
+# Notas locais (credenciais demo estão no README)
+/acessos

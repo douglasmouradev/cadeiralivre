@@ -273,6 +273,19 @@ final class AppointmentModel
         return (int) $stmt->fetchColumn();
     }
 
+    /** Conta agendamentos não cancelados no mês civil (Y-m). */
+    public function countBookedInCalendarMonth(int $tenantId, string $yearMonth): int
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT COUNT(*) FROM appointments
+             WHERE tenant_id = :t AND status NOT IN ('cancelled','no_show')
+             AND DATE_FORMAT(start_datetime, '%Y-%m') = :ym"
+        );
+        $stmt->execute(['t' => $tenantId, 'ym' => $yearMonth]);
+
+        return (int) $stmt->fetchColumn();
+    }
+
     /** @return array<string, int|float> */
     public function dashboardStats(int $tenantId): array
     {

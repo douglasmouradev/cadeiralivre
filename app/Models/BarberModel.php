@@ -163,4 +163,12 @@ final class BarberModel
 
         return $stmt->fetchAll() ?: [];
     }
+
+    public function countForTenant(int $tenantId): int
+    {
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM barbers WHERE tenant_id = :t');
+        $stmt->execute(['t' => $tenantId]);
+
+        return (int) $stmt->fetchColumn();
+    }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\OutboundEmailModel;
 use PHPMailer\PHPMailer\Exception as MailerException;
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -16,6 +17,11 @@ final class MailService
 
     public function send(string $toEmail, string $toName, string $subject, string $htmlBody, string $altBody = ''): void
     {
+        if (!empty($this->config['queue'])) {
+            (new OutboundEmailModel())->enqueue($toEmail, $toName, $subject, $htmlBody);
+
+            return;
+        }
         $mail = new PHPMailer(true);
         $mail->CharSet = 'UTF-8';
         $host = (string) ($this->config['smtp_host'] ?? '');

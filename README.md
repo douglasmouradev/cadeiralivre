@@ -67,6 +67,65 @@ SaaS de agendamento para barbearias (**CadeiraLivre**) em **PHP 8.3**, **MySQL 8
 
    Apache (exemplo): `DocumentRoot /var/www/cadeira-livre/public`
 
+### Servidor embutido do PHP (só desenvolvimento)
+
+```bash
+php -S localhost:8000 -t public public/router.php
+```
+
+Defina `APP_URL=http://localhost:8000` no `.env`. O ficheiro `public/router.php` encaminha pedidos para `index.php` como o Apache faria com rewrite.
+
+### Docker (Nginx + PHP-FPM + MySQL)
+
+```bash
+docker compose up -d
+# após o MySQL aceitar ligações:
+docker compose exec app sh -c "composer install && php scripts/migrate.php"
+```
+
+Aplicação: `http://localhost:8080` (ajuste `APP_URL` no `docker-compose.yml` se mudar a porta). No `.env` use `DB_HOST=db` e a mesma base/credenciais que o serviço `db` do Compose.
+
+### Superadmin da plataforma
+
+Utilizador com papel `superadmin` acessa `/saas/tenants` (lista e suspender/reativar barbearias). Criação:
+
+```bash
+php scripts/create_superadmin.php admin@seu-dominio.com 'SenhaSegura8' 'Nome'
+```
+
+### Planos, limites e Stripe
+
+- Tabela `plan_definitions` define limites (barbeiros, agendamentos/mês) e preços de referência.
+- Novos tenants recebem plano `free` em trial (`subscription_status = trialing`).
+- Após o trial, é necessário `subscription_status` `active` ou `trialing` (ex. via Stripe) para continuar a operar.
+- Configure `STRIPE_SECRET_KEY` e `STRIPE_WEBHOOK_SECRET`; endpoint: `POST /webhooks/stripe`. Associe `stripe_price_id` em `plan_definitions` aos preços criados no Stripe e inclua `metadata[tenant_id]` na subscrição/checkout.
+
+### Fila de e-mail
+
+Com `MAIL_QUEUE=true`, os envios gravam-se em `outbound_emails`. Processe com cron:
+
+```bash
+php scripts/process_mail_queue.php
+```
+
+### Backup MySQL (exemplo)
+
+```bash
+chmod +x scripts/backup_mysql.sh
+./scripts/backup_mysql.sh
+```
+
+Gera `storage/backups/mysql_*.sql.gz`.
+
+### Testes e CI
+
+```bash
+composer install
+vendor/bin/phpunit
+```
+
+O workflow GitHub Actions (`.github/workflows/ci.yml`) corre migrations e PHPUnit.
+
 ## Acesso demo (após seed)
 
 - Painel: `APP_URL` → login **owner@demo.local** / **Senha1234**

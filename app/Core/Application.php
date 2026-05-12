@@ -9,6 +9,7 @@ use App\Exceptions\AppException;
 use App\Exceptions\HttpException;
 use App\Exceptions\NotFoundException;
 use App\Middleware\MiddlewareStack;
+use App\Services\AppLogger;
 use Closure;
 use Throwable;
 
@@ -70,6 +71,7 @@ final class Application
         } catch (AppException $e) {
             return Response::html($this->renderError(400, $e->getMessage()), 400);
         } catch (Throwable $e) {
+            AppLogger::exception($this->root, $e);
             $debug = (bool) ($this->config['debug'] ?? false);
             $msg = $debug ? $e->getMessage() : 'Erro interno do servidor.';
 

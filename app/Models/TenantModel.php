@@ -36,6 +36,16 @@ final class TenantModel
         return $row !== false ? $row : null;
     }
 
+    /** @return array<string, mixed>|null */
+    public function findByBillingSubscriptionId(string $subscriptionId): ?array
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM tenants WHERE billing_subscription_id = :s LIMIT 1');
+        $stmt->execute(['s' => $subscriptionId]);
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
     /** Lista barbearias ativas para o cliente escolher (sem dados sensíveis). */
     /** @return list<array{id: int, name: string, slug: string, city: ?string, state: ?string}> */
     public function listPublicDirectory(): array
@@ -72,9 +82,10 @@ final class TenantModel
      */
     public function create(array $data): int
     {
+        $planDefId = (new PlanDefinitionModel())->idForSignupDefault();
         $stmt = $this->pdo->prepare(
-            'INSERT INTO tenants (name, slug, email, phone, address, city, state, timezone, status, trial_ends_at, plan, created_at, updated_at)
-             VALUES (:name, :slug, :email, :phone, :address, :city, :state, :timezone, \'trial\', DATE_ADD(NOW(), INTERVAL 14 DAY), \'free\', NOW(), NOW())'
+            'INSERT INTO tenants (name, slug, email, phone, address, city, state, timezone, status, trial_ends_at, plan, plan_definition_id, subscription_status, created_at, updated_at)
+             VALUES (:name, :slug, :email, :phone, :address, :city, :state, :timezone, \'trial\', DATE_ADD(NOW(), INTERVAL 14 DAY), \'free\', :plan_def, \'trialing\', NOW(), NOW())'
         );
         $stmt->execute([
             'name' => $data['name'],
@@ -85,6 +96,7 @@ final class TenantModel
             'city' => $data['city'],
             'state' => $data['state'],
             'timezone' => $data['timezone'],
+            'plan_def' => $planDefId > 0 ? $planDefId : null,
         ]);
 
         return (int) $this->pdo->lastInsertId();
@@ -94,6 +106,57 @@ final class TenantModel
     public function update(int $tenantId, array $fields): void
     {
         $allowed = ['name', 'email', 'phone', 'address', 'city', 'state', 'logo_path', 'primary_color', 'timezone'];
+        $sets = [];
+        $params = ['tid' => $tenantId];
+        foreach ($allowed as $col) {
+            if (array_key_exists($col, $fields)) {
+                $sets[] = $col . ' = :' . $col;
+                $params[$col] = $fields[$col];
+            }
+        }
+        if ($sets === []) {
+            return;
+        }
+        $sets[] = 'updated_at = NOW()';
+        $sql = 'UPDATE tenants SET ' . implode(', ', $sets) . ' WHERE id = :tid';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+    }
+
+    /** @return list<array<string, mixed>> */
+    public function listAllForPlatform(): array
+    {
+        $sql = 'SELECT t.*, p.name AS plan_label, p.slug AS plan_slug
+                FROM tenants t
+                LEFT JOIN plan_definitions p ON p.id = t.plan_definition_id
+                ORDER BY t.id DESC';
+        $stmt = $this->pdo->query($sql);
+        if ($stmt === false) {
+            return [];
+        }
+
+        return $stmt->fetchAll() ?: [];
+    }
+
+    public function setStatus(int $tenantId, string $status): void
+    {
+        $stmt = $this->pdo->prepare('UPDATE tenants SET status = :s, updated_at = NOW() WHERE id = :id');
+        $stmt->execute(['s' => $status, 'id' => $tenantId]);
+    }
+
+    /**
+     * @param array{
+     *   subscription_status?: string,
+     *   billing_provider?: ?string,
+     *   billing_customer_id?: ?string,
+     *   billing_subscription_id?: ?string,
+     *   plan?: string,
+     *   plan_definition_id?: ?int
+     * } $fields
+     */
+    public function updateBilling(int $tenantId, array $fields): void
+    {
+        $allowed = ['subscription_status', 'billing_provider', 'billing_customer_id', 'billing_subscription_id', 'plan', 'plan_definition_id'];
         $sets = [];
         $params = ['tid' => $tenantId];
         foreach ($allowed as $col) {

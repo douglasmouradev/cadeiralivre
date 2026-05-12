@@ -18,6 +18,7 @@ use App\Models\ClientModel;
 use App\Models\ServiceModel;
 use App\Models\TenantModel;
 use App\Services\SlotService;
+use App\Services\SubscriptionService;
 use Throwable;
 
 final class ScheduleController extends Controller
@@ -76,6 +77,18 @@ final class ScheduleController extends Controller
         $tenantRow = (new TenantModel())->findById($tid);
         if ($tenantRow === null) {
             Flash::set('error', 'Configuração da conta inválida.');
+
+            return Response::redirect('/agenda');
+        }
+        $subSvc = new SubscriptionService();
+        if (!$subSvc->canOperate($tenantRow)) {
+            Flash::set('error', $subSvc->humanBlockReason($tenantRow));
+
+            return Response::redirect('/agenda');
+        }
+        $apptLimit = $subSvc->monthlyAppointmentLimitMessage($tid, $tenantRow);
+        if ($apptLimit !== null) {
+            Flash::set('error', $apptLimit);
 
             return Response::redirect('/agenda');
         }

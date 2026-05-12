@@ -20,6 +20,7 @@ final class Request
         private readonly array $headers,
         private readonly array $cookies,
         private readonly array $files,
+        private readonly string $rawPayload = '',
     ) {
     }
 
@@ -54,9 +55,9 @@ final class Request
 
         $body = $_POST;
         $contentType = $headers['content-type'] ?? '';
+        $rawInput = in_array($method, ['GET', 'HEAD'], true) ? '' : (string) file_get_contents('php://input');
         if ($method !== 'GET' && str_contains($contentType, 'application/json')) {
-            $raw = file_get_contents('php://input') ?: '';
-            $decoded = json_decode($raw, true);
+            $decoded = json_decode($rawInput, true);
             if (is_array($decoded)) {
                 $body = array_merge($body, $decoded);
             }
@@ -71,7 +72,14 @@ final class Request
             $headers,
             $_COOKIE,
             $_FILES,
+            $rawInput,
         );
+    }
+
+    /** Corpo bruto da requisição (ex.: Stripe webhook). */
+    public function getRawPayload(): string
+    {
+        return $this->rawPayload;
     }
 
     public function method(): string
@@ -142,4 +150,5 @@ final class Request
         $ua = $this->server['HTTP_USER_AGENT'] ?? null;
         return is_string($ua) ? $ua : null;
     }
+
 }

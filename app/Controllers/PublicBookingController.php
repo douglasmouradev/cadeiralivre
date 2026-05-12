@@ -19,10 +19,12 @@ use App\Models\ServiceModel;
 use App\Models\TenantModel;
 use App\Services\MailService;
 use App\Services\SlotService;
+use App\Services\SubscriptionService;
 use Throwable;
 
 final class PublicBookingController extends Controller
 {
+    /** Barbearia existente e não suspensa (pode ainda estar bloqueada por assinatura). */
     private function tenantFromSlug(string $slug): ?array
     {
         $t = (new TenantModel())->findBySlug($slug);
@@ -31,6 +33,22 @@ final class PublicBookingController extends Controller
         }
 
         return $t;
+    }
+
+    private function subscriptionBlocksPublic(array $tenant): bool
+    {
+        return !(new SubscriptionService())->canOperate($tenant);
+    }
+
+    private function publicSubscriptionClosedHtml(string $shopName): string
+    {
+        $n = e($shopName);
+
+        return '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+            . '<title>Indisponível — ' . $n . '</title>'
+            . '<style>body{font-family:system-ui,sans-serif;background:#f2efe8;color:#1c1917;padding:2rem;line-height:1.5}</style></head><body>'
+            . '<h1>Agendamentos indisponíveis</h1><p>A página de agendamentos de <strong>' . $n . '</strong> está temporariamente indisponível '
+            . '(período de teste ou assinatura inativa). Contacte a barbearia.</p></body></html>';
     }
 
     /** Cliente com sessão do portal (mesma tenant). */
@@ -97,6 +115,9 @@ final class PublicBookingController extends Controller
         if ($tenant === null) {
             return Response::html('<!DOCTYPE html><html><body><p>Barbearia não encontrada.</p></body></html>', 404);
         }
+        if ($this->subscriptionBlocksPublic($tenant)) {
+            return Response::html($this->publicSubscriptionClosedHtml((string) $tenant['name']), 403);
+        }
         $tid = (int) $tenant['id'];
         $services = (new ServiceModel())->allForTenant($tid, true);
         $barbers = (new BarberModel())->availableBarbersForTenant($tid);
@@ -117,6 +138,9 @@ final class PublicBookingController extends Controller
         $tenant = $this->tenantFromSlug($slug);
         if ($tenant === null) {
             return Response::html('<!DOCTYPE html><html><body><p>Barbearia não encontrada.</p></body></html>', 404);
+        }
+        if ($this->subscriptionBlocksPublic($tenant)) {
+            return Response::html($this->publicSubscriptionClosedHtml((string) $tenant['name']), 403);
         }
         $tid = (int) $tenant['id'];
         $portal = $this->portalClientForTenant($tid);
@@ -142,6 +166,11 @@ final class PublicBookingController extends Controller
         $tenant = $this->tenantFromSlug($slug);
         if ($tenant === null) {
             return Response::redirect('/');
+        }
+        if ($this->subscriptionBlocksPublic($tenant)) {
+            Flash::set('error', (new SubscriptionService())->humanBlockReason($tenant));
+
+            return Response::redirect('/agendar/' . rawurlencode($slug));
         }
         $tid = (int) $tenant['id'];
         $portal = $this->portalClientForTenant($tid);
@@ -191,6 +220,11 @@ final class PublicBookingController extends Controller
         if ($tenant === null) {
             return Response::redirect('/');
         }
+        if ($this->subscriptionBlocksPublic($tenant)) {
+            Flash::set('error', (new SubscriptionService())->humanBlockReason($tenant));
+
+            return Response::redirect('/agendar/' . rawurlencode($slug));
+        }
         $tid = (int) $tenant['id'];
         $portal = $this->portalClientForTenant($tid);
         if ($portal === null) {
@@ -230,6 +264,9 @@ final class PublicBookingController extends Controller
         if ($tenant === null) {
             return Response::json(['error' => 'not_found'], 404);
         }
+        if ($this->subscriptionBlocksPublic($tenant)) {
+            return Response::json(['error' => 'subscription_inactive'], 403);
+        }
         $tid = (int) $tenant['id'];
         $tz = (string) ($tenant['timezone'] ?? 'America/Sao_Paulo');
         $ip = $this->request->ip() ?? '0.0.0.0';
@@ -264,7 +301,15 @@ final class PublicBookingController extends Controller
         if ($tenant === null) {
             return Response::redirect('/');
         }
+        $subSvc = new SubscriptionService();
+        if (!$subSvc->canOperate($tenant)) {
+            return $this->bookingRedirectWithError($slug, $subSvc->humanBlockReason($tenant));
+        }
         $tid = (int) $tenant['id'];
+        $apptLimit = $subSvc->monthlyAppointmentLimitMessage($tid, $tenant);
+        if ($apptLimit !== null) {
+            return $this->bookingRedirectWithError($slug, $apptLimit);
+        }
         $tz = (string) ($tenant['timezone'] ?? 'America/Sao_Paulo');
         $clients = new ClientModel();
         $portal = $this->portalClientForTenant($tid);

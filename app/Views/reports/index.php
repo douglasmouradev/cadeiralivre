@@ -27,6 +27,9 @@ $d = $data;
             <button class="btn" type="submit">Aplicar</button>
         <?php endif; ?>
     </form>
+    <p class="mt-1">
+        <a class="btn secondary" href="/relatorios/exportar.csv?range=<?= e($r) ?>&amp;start=<?= e((string) $d['start']) ?>&amp;end=<?= e((string) $d['end']) ?>">Exportar receita por dia (CSV)</a>
+    </p>
 </div>
 
 <div class="grid two-col">

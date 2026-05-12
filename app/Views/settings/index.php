@@ -12,6 +12,7 @@ $administrativeStaff = $administrativeStaff ?? [];
 
 ob_start();
 ?>
+<p class="mb-1"><a class="btn secondary" href="/configuracoes/assinatura">Assinatura e limites do plano</a></p>
 <div class="grid two-col">
     <article class="card">
         <h3>Barbearia</h3>

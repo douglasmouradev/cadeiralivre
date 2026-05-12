@@ -10,4 +10,5 @@ return [
     'smtp_user' => $_ENV['MAIL_SMTP_USER'] ?? '',
     'smtp_pass' => $_ENV['MAIL_SMTP_PASS'] ?? '',
     'smtp_encryption' => $_ENV['MAIL_SMTP_ENCRYPTION'] ?? 'tls',
+    'queue' => filter_var($_ENV['MAIL_QUEUE'] ?? false, FILTER_VALIDATE_BOOL),
 ];

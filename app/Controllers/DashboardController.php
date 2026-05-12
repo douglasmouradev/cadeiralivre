@@ -9,6 +9,7 @@ use App\Enums\UserRole;
 use App\Models\AppointmentModel;
 use App\Models\BarberModel;
 use App\Models\TenantModel;
+use App\Services\SubscriptionService;
 
 final class DashboardController extends Controller
 {
@@ -34,6 +35,20 @@ final class DashboardController extends Controller
             $alerts[] = 'Possíveis horários vagos hoje: há barbeiros com pouca ocupação na agenda.';
         }
         $tenant = (new TenantModel())->findById($tid);
+        if (is_array($tenant)) {
+            $sub = new SubscriptionService();
+            if (!$sub->canOperate($tenant)) {
+                $alerts[] = $sub->humanBlockReason($tenant);
+            }
+            $bm = $sub->barberLimitMessage($tid, $tenant);
+            if ($bm !== null) {
+                $alerts[] = $bm;
+            }
+            $am = $sub->monthlyAppointmentLimitMessage($tid, $tenant);
+            if ($am !== null) {
+                $alerts[] = $am;
+            }
+        }
 
         return $this->view('dashboard/index', [
             'title' => 'Painel',

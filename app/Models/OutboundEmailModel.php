@@ -1,0 +1,63 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models;
+
+use App\Core\Database;
+use PDO;
+
+final class OutboundEmailModel
+{
+    private PDO $pdo;
+
+    public function __construct()
+    {
+        $this->pdo = Database::connection();
+    }
+
+    public function enqueue(string $toEmail, string $toName, string $subject, string $bodyHtml): int
+    {
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO outbound_emails (to_email, to_name, subject, body_html, attempts, available_at, created_at)
+             VALUES (:e, :n, :s, :b, 0, NOW(), NOW())'
+        );
+        $stmt->execute([
+            'e' => mb_strtolower($toEmail),
+            'n' => $toName,
+            's' => $subject,
+            'b' => $bodyHtml,
+        ]);
+
+        return (int) $this->pdo->lastInsertId();
+    }
+
+    /** @return list<array<string, mixed>> */
+    public function fetchPending(int $limit = 25): array
+    {
+        $lim = max(1, min(100, $limit));
+        $stmt = $this->pdo->prepare(
+            "SELECT * FROM outbound_emails
+             WHERE sent_at IS NULL AND attempts < 5 AND available_at <= NOW()
+             ORDER BY id ASC
+             LIMIT {$lim}"
+        );
+        $stmt->execute();
+
+        return $stmt->fetchAll() ?: [];
+    }
+
+    public function markSent(int $id): void
+    {
+        $stmt = $this->pdo->prepare('UPDATE outbound_emails SET sent_at = NOW() WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+    }
+
+    public function markRetry(int $id, string $error): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE outbound_emails SET attempts = attempts + 1, last_error = :err, available_at = DATE_ADD(NOW(), INTERVAL 5 MINUTE) WHERE id = :id'
+        );
+        $stmt->execute(['id' => $id, 'err' => mb_substr($error, 0, 500)]);
+    }
+}

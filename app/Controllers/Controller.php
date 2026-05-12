@@ -75,6 +75,10 @@ abstract class Controller
     /** Rota inicial após login (barbeiro → agenda; demais → painel). */
     protected function postAuthHomePath(): string
     {
+        if ($this->userRole() === UserRole::Superadmin->value) {
+            return '/saas/tenants';
+        }
+
         return $this->userRole() === UserRole::Barber->value ? '/agenda' : '/painel';
     }
 }

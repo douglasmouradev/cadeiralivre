@@ -7,8 +7,10 @@ namespace App\Controllers;
 use App\Core\Response;
 use App\Enums\UserRole;
 use App\Helpers\Flash;
+use App\Models\PlanDefinitionModel;
 use App\Models\TenantModel;
 use App\Models\UserModel;
+use App\Services\SubscriptionService;
 use App\Services\UploadService;
 
 final class SettingsController extends Controller
@@ -29,6 +31,22 @@ final class SettingsController extends Controller
             'currentNav' => 'settings',
             'canManageTeam' => $canManageTeam,
             'administrativeStaff' => $administrativeStaff,
+        ]);
+    }
+
+    public function subscription(): Response
+    {
+        $tid = $this->tenantId();
+        $tenant = (new TenantModel())->findById($tid);
+        $sub = new SubscriptionService();
+        $plan = is_array($tenant) ? $sub->planRowForTenant($tenant) : null;
+
+        return $this->view('settings/subscription', [
+            'title' => 'Assinatura e plano',
+            'tenant' => $tenant,
+            'plan' => $plan,
+            'plans' => (new PlanDefinitionModel())->all(),
+            'currentNav' => 'settings',
         ]);
     }
 
