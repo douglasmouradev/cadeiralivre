@@ -1,6 +1,38 @@
+<p align="center">
+  <img src="https://img.shields.io/badge/PHP-8.3-777BB4?style=flat-square&logo=php&logoColor=white" alt="PHP"/>
+  <img src="https://img.shields.io/badge/MySQL-8-4479A1?style=flat-square&logo=mysql&logoColor=white" alt="MySQL"/>
+  <img src="https://img.shields.io/badge/SaaS-Multi--tenant-0ea5e9?style=flat-square" alt="SaaS"/>
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker"/>
+</p>
+
+<h1 align="center">CadeiraLivre</h1>
+
+<p align="center">
+  <strong>SaaS multi-tenant de agendamento para barbearias</strong> — agenda por slug, portal do cliente, planos, Stripe, superadmin e páginas LGPD.
+</p>
+
+<p align="center">
+  <a href="https://portifolio-douglas-moura.vercel.app">Portfólio</a> ·
+  <a href="https://github.com/douglasmouradev">GitHub</a> ·
+  <a href="https://wa.me/5571997087082?text=Ol%C3%A1%20Douglas%2C%20tenho%20interesse%20no%20CadeiraLivre.">Solicitar implantação</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/github/actions/workflow/status/douglasmouradev/cadeiralivre/ci.yml?branch=main&label=CI&style=flat-square" alt="CI"/>
+</p>
+
+---
+
 # CadeiraLivre
 
 SaaS de agendamento para barbearias (**CadeiraLivre**) em **PHP 8.3**, **MySQL 8**, **MVC próprio** (sem framework), front **HTML/CSS/JS vanilla**.
+
+## Destaques
+
+- MVC próprio, **CSRF**, rate limit no login e **PDO**
+- **Docker**, **GitHub Actions** e **PHPUnit**
+- Superadmin da plataforma, **Stripe** e conformidade **LGPD**
+- Front **HTML/CSS/JS** vanilla
 
 ## Requisitos
 
