@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\AppointmentModel;
+use App\Models\BarberDateHoursModel;
 use App\Models\BarberModel;
 use App\Models\BlockedTimeModel;
 use App\Models\ServiceModel;
@@ -19,6 +20,7 @@ final class SlotService
         private readonly ServiceModel $services = new ServiceModel(),
         private readonly BarberModel $barbers = new BarberModel(),
         private readonly WorkingHoursModel $hours = new WorkingHoursModel(),
+        private readonly BarberDateHoursModel $dateHours = new BarberDateHoursModel(),
         private readonly BlockedTimeModel $blocked = new BlockedTimeModel(),
         private readonly AppointmentModel $appointments = new AppointmentModel(),
     ) {
@@ -40,27 +42,44 @@ final class SlotService
             return [];
         }
         $dow = (int) $day->format('w');
-        $rows = $this->hours->forBarber($tenantId, $barberId);
-        $wh = null;
-        foreach ($rows as $r) {
-            if ((int) $r['day_of_week'] === $dow) {
-                $wh = $r;
-                break;
+        $dateOverride = $this->dateHours->findForDate($tenantId, $barberId, $dateYmd);
+        if ($dateOverride !== null) {
+            if ((bool) $dateOverride['is_closed']) {
+                return [];
             }
+            $workStart = $day->setTime(
+                (int) substr((string) $dateOverride['start_time'], 0, 2),
+                (int) substr((string) $dateOverride['start_time'], 3, 2),
+                0
+            );
+            $workEnd = $day->setTime(
+                (int) substr((string) $dateOverride['end_time'], 0, 2),
+                (int) substr((string) $dateOverride['end_time'], 3, 2),
+                0
+            );
+        } else {
+            $rows = $this->hours->forBarber($tenantId, $barberId);
+            $wh = null;
+            foreach ($rows as $r) {
+                if ((int) $r['day_of_week'] === $dow) {
+                    $wh = $r;
+                    break;
+                }
+            }
+            if ($wh === null || (bool) $wh['is_day_off']) {
+                return [];
+            }
+            $workStart = $day->setTime(
+                (int) substr((string) $wh['start_time'], 0, 2),
+                (int) substr((string) $wh['start_time'], 3, 2),
+                0
+            );
+            $workEnd = $day->setTime(
+                (int) substr((string) $wh['end_time'], 0, 2),
+                (int) substr((string) $wh['end_time'], 3, 2),
+                0
+            );
         }
-        if ($wh === null || (bool) $wh['is_day_off']) {
-            return [];
-        }
-        $workStart = $day->setTime(
-            (int) substr((string) $wh['start_time'], 0, 2),
-            (int) substr((string) $wh['start_time'], 3, 2),
-            0
-        );
-        $workEnd = $day->setTime(
-            (int) substr((string) $wh['end_time'], 0, 2),
-            (int) substr((string) $wh['end_time'], 3, 2),
-            0
-        );
         if ($workEnd <= $workStart) {
             return [];
         }

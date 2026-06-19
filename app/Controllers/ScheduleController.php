@@ -13,10 +13,13 @@ use App\Helpers\MysqlNamedLock;
 use App\Helpers\RateLimiter;
 use App\Helpers\Str;
 use App\Models\AppointmentModel;
+use App\Models\BarberDateHoursModel;
 use App\Models\BarberModel;
+use App\Models\BlockedTimeModel;
 use App\Models\ClientModel;
 use App\Models\ServiceModel;
 use App\Models\TenantModel;
+use App\Models\WorkingHoursModel;
 use App\Services\SlotService;
 use App\Services\SubscriptionService;
 use Throwable;
@@ -52,6 +55,17 @@ final class ScheduleController extends Controller
         $services = (new ServiceModel())->allForTenant($tid, true);
         $clients = (new ClientModel())->searchQuick($tid, '', 200);
 
+        $availBarberId = $this->resolveAvailabilityBarberId($tid, $barbers, $barberFilter);
+        $hours = $availBarberId > 0
+            ? (new WorkingHoursModel())->forBarber($tid, $availBarberId)
+            : [];
+        $dateOverrides = $availBarberId > 0
+            ? (new BarberDateHoursModel())->listUpcoming($tid, $availBarberId)
+            : [];
+        $blocks = $availBarberId > 0
+            ? (new BlockedTimeModel())->forBarber($tid, $availBarberId)
+            : [];
+
         return $this->view('schedule/index', [
             'title' => 'Agenda',
             'mode' => $mode,
@@ -63,6 +77,10 @@ final class ScheduleController extends Controller
             'clients' => $clients,
             'currentNav' => 'schedule',
             'barberFilter' => $barberFilter,
+            'availBarberId' => $availBarberId,
+            'hours' => $hours,
+            'dateOverrides' => $dateOverrides,
+            'blocks' => $blocks,
         ]);
     }
 
@@ -334,5 +352,175 @@ final class ScheduleController extends Controller
         }
 
         return Response::json(['slots' => $data]);
+    }
+
+    public function saveHours(): Response
+    {
+        $tid = $this->tenantId();
+        $barberId = (int) $this->request->input('barber_id');
+        if (!$this->canManageBarberAvailability($tid, $barberId)) {
+            Flash::set('error', 'Profissional inválido.');
+
+            return Response::redirect('/agenda');
+        }
+        $rows = [];
+        for ($d = 0; $d <= 6; $d++) {
+            $st = (string) $this->request->input('start_' . $d);
+            $en = (string) $this->request->input('end_' . $d);
+            if (strlen($st) === 5) {
+                $st .= ':00';
+            }
+            if (strlen($en) === 5) {
+                $en .= ':00';
+            }
+            $rows[] = [
+                'day_of_week' => $d,
+                'start_time' => $st,
+                'end_time' => $en,
+                'is_day_off' => (bool) $this->request->input('off_' . $d),
+            ];
+        }
+        (new WorkingHoursModel())->replaceWeek($tid, $barberId, $rows);
+        Flash::set('success', 'Horário semanal salvo. Clientes já podem agendar nesses períodos.');
+
+        return Response::redirect('/agenda?barber_id=' . $barberId . '#disponibilidade');
+    }
+
+    public function saveDateHours(): Response
+    {
+        $tid = $this->tenantId();
+        $barberId = (int) $this->request->input('barber_id');
+        if (!$this->canManageBarberAvailability($tid, $barberId)) {
+            Flash::set('error', 'Profissional inválido.');
+
+            return Response::redirect('/agenda');
+        }
+        $date = trim((string) $this->request->input('work_date'));
+        if (\DateTimeImmutable::createFromFormat('Y-m-d', $date) === false) {
+            Flash::set('error', 'Data inválida.');
+
+            return Response::redirect('/agenda?barber_id=' . $barberId . '#disponibilidade');
+        }
+        $isClosed = (string) $this->request->input('date_closed') === '1';
+        $st = (string) $this->request->input('date_start');
+        $en = (string) $this->request->input('date_end');
+        if (strlen($st) === 5) {
+            $st .= ':00';
+        }
+        if (strlen($en) === 5) {
+            $en .= ':00';
+        }
+        if (!$isClosed && ($st === '' || $en === '')) {
+            Flash::set('error', 'Informe início e fim do horário ou marque o dia como fechado.');
+
+            return Response::redirect('/agenda?barber_id=' . $barberId . '#disponibilidade');
+        }
+        if (!$isClosed) {
+            $st = $st !== '' ? $st : '09:00:00';
+            $en = $en !== '' ? $en : '18:00:00';
+        } else {
+            $st = '00:00:00';
+            $en = '00:00:00';
+        }
+        (new BarberDateHoursModel())->upsert($tid, $barberId, $date, $st, $en, $isClosed);
+        Flash::set('success', $isClosed ? 'Dia marcado como fechado para agendamentos.' : 'Horário da data específica salvo.');
+
+        return Response::redirect('/agenda?barber_id=' . $barberId . '#disponibilidade');
+    }
+
+    public function deleteDateHours(int $id): Response
+    {
+        $tid = $this->tenantId();
+        $barberId = (int) $this->request->input('barber_id');
+        if (!$this->canManageBarberAvailability($tid, $barberId)) {
+            Flash::set('error', 'Profissional inválido.');
+
+            return Response::redirect('/agenda');
+        }
+        (new BarberDateHoursModel())->delete($tid, $id);
+        Flash::set('success', 'Exceção de data removida.');
+
+        return Response::redirect('/agenda?barber_id=' . $barberId . '#disponibilidade');
+    }
+
+    public function addBlock(): Response
+    {
+        $tid = $this->tenantId();
+        $barberId = (int) $this->request->input('barber_id');
+        if (!$this->canManageBarberAvailability($tid, $barberId)) {
+            Flash::set('error', 'Profissional inválido.');
+
+            return Response::redirect('/agenda');
+        }
+        $start = str_replace('T', ' ', trim((string) $this->request->input('block_start')));
+        $end = str_replace('T', ' ', trim((string) $this->request->input('block_end')));
+        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $start) === 1) {
+            $start .= ':00';
+        }
+        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $end) === 1) {
+            $end .= ':00';
+        }
+        (new BlockedTimeModel())->create(
+            $tid,
+            $barberId,
+            $start,
+            $end,
+            trim((string) $this->request->input('block_reason')) ?: null
+        );
+        Flash::set('success', 'Horário bloqueado (indisponível para clientes).');
+
+        return Response::redirect('/agenda?barber_id=' . $barberId . '#disponibilidade');
+    }
+
+    public function deleteBlock(int $blockId): Response
+    {
+        $tid = $this->tenantId();
+        $barberId = (int) $this->request->input('barber_id');
+        if (!$this->canManageBarberAvailability($tid, $barberId)) {
+            Flash::set('error', 'Profissional inválido.');
+
+            return Response::redirect('/agenda');
+        }
+        (new BlockedTimeModel())->delete($tid, $blockId);
+        Flash::set('success', 'Bloqueio removido.');
+
+        return Response::redirect('/agenda?barber_id=' . $barberId . '#disponibilidade');
+    }
+
+    /** @param list<array<string, mixed>> $barbers */
+    private function resolveAvailabilityBarberId(int $tenantId, array $barbers, ?int $barberFilter): int
+    {
+        if ($this->userRole() === UserRole::Barber->value) {
+            $b = (new BarberModel())->findByUserId($tenantId, $this->userId());
+
+            return $b !== null ? (int) $b['id'] : 0;
+        }
+        $requested = (int) ($this->request->query()['barber_id'] ?? 0);
+        if ($requested > 0) {
+            foreach ($barbers as $b) {
+                if ((int) $b['id'] === $requested) {
+                    return $requested;
+                }
+            }
+        }
+        if ($barberFilter !== null && $barberFilter > 0) {
+            return $barberFilter;
+        }
+
+        return $barbers !== [] ? (int) $barbers[0]['id'] : 0;
+    }
+
+    private function canManageBarberAvailability(int $tenantId, int $barberId): bool
+    {
+        if ($barberId < 1) {
+            return false;
+        }
+        if ($this->userRole() === UserRole::Barber->value) {
+            $b = (new BarberModel())->findByUserId($tenantId, $this->userId());
+
+            return $b !== null && (int) $b['id'] === $barberId;
+        }
+
+        return (new BarberModel())->find($tenantId, $barberId) !== null;
     }
 }

@@ -10,15 +10,164 @@ declare(strict_types=1);
 /** @var list<array<string, mixed>> $services */
 /** @var list<array<string, mixed>> $clients */
 /** @var int|null $barberFilter */
+/** @var int $availBarberId */
+/** @var list<array<string, mixed>> $hours */
+/** @var list<array<string, mixed>> $dateOverrides */
+/** @var list<array<string, mixed>> $blocks */
 
+$userRole = (string) ($_SESSION['user_role'] ?? '');
+$canPickBarber = $userRole !== 'barber' && count($barbers) > 1;
+$days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+$byDow = [];
+foreach ($hours as $h) {
+    $byDow[(int) $h['day_of_week']] = $h;
+}
 ob_start();
 ?>
 <div class="toolbar toolbar--start">
     <h2 class="toolbar__title">Agenda</h2>
-    <a class="btn secondary" href="/agenda?mode=week&date=<?= e($start) ?>">Semana</a>
-    <a class="btn secondary" href="/agenda?mode=day&date=<?= e($start) ?>">Dia</a>
+    <a class="btn secondary" href="/agenda?mode=week&date=<?= e($start) ?>&barber_id=<?= (int) $availBarberId ?>">Semana</a>
+    <a class="btn secondary" href="/agenda?mode=day&date=<?= e($start) ?>&barber_id=<?= (int) $availBarberId ?>">Dia</a>
     <button class="btn" type="button" id="open-new">Novo agendamento</button>
+    <a class="btn secondary" href="#disponibilidade">Horários disponíveis</a>
 </div>
+
+<section id="disponibilidade" class="card card--compact mb-1 availability-panel">
+    <h3 class="page-title page-title--section">Horários disponíveis para clientes</h3>
+    <p class="muted mb-1">Defina quando os clientes podem agendar online. O horário semanal vale como padrão; use data específica para exceções (feriado, plantão extra ou dia fechado).</p>
+
+    <?php if ($canPickBarber): ?>
+        <form method="get" action="/agenda" class="clients-search mb-1">
+            <input type="hidden" name="mode" value="<?= e($mode) ?>">
+            <input type="hidden" name="date" value="<?= e($start) ?>">
+            <label for="avail-barber-pick">Profissional</label>
+            <select name="barber_id" id="avail-barber-pick" onchange="this.form.submit()">
+                <?php foreach ($barbers as $b): ?>
+                    <option value="<?= (int) $b['id'] ?>" <?= (int) $b['id'] === $availBarberId ? 'selected' : '' ?>><?= e((string) $b['user_name']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </form>
+    <?php elseif ($availBarberId > 0): ?>
+        <?php foreach ($barbers as $b): ?>
+            <?php if ((int) $b['id'] === $availBarberId): ?>
+                <p class="muted mb-1">Profissional: <strong><?= e((string) $b['user_name']) ?></strong></p>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    <?php endif; ?>
+
+    <?php if ($availBarberId < 1): ?>
+        <p class="alert alert-error">Cadastre um profissional em Profissionais → Novo para liberar horários.</p>
+    <?php else: ?>
+
+    <h4>Horário semanal (padrão)</h4>
+    <form method="post" action="/agenda/horarios" class="mb-1">
+        <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
+        <input type="hidden" name="barber_id" value="<?= (int) $availBarberId ?>">
+        <?php for ($d = 0; $d <= 6; $d++):
+            $h = $byDow[$d] ?? ['start_time' => '09:00:00', 'end_time' => '18:00:00', 'is_day_off' => 0];
+            ?>
+            <div class="form-row-hours">
+                <strong><?= e($days[$d]) ?></strong>
+                <div>
+                    <label>Início</label>
+                    <input type="time" name="start_<?= $d ?>" value="<?= e(substr((string) $h['start_time'], 0, 5)) ?>">
+                </div>
+                <div>
+                    <label>Fim</label>
+                    <input type="time" name="end_<?= $d ?>" value="<?= e(substr((string) $h['end_time'], 0, 5)) ?>">
+                </div>
+                <label><input type="checkbox" name="off_<?= $d ?>" value="1" <?= ((int) $h['is_day_off'] === 1) ? 'checked' : '' ?>> Folga</label>
+            </div>
+        <?php endfor; ?>
+        <button class="btn" type="submit">Salvar horário semanal</button>
+    </form>
+
+    <h4>Data específica</h4>
+    <form method="post" action="/agenda/data-especifica" class="card card--compact mb-1">
+        <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
+        <input type="hidden" name="barber_id" value="<?= (int) $availBarberId ?>">
+        <div class="form-row-datetime">
+            <div>
+                <label for="work_date">Data</label>
+                <input type="date" name="work_date" id="work_date" required value="<?= e(date('Y-m-d')) ?>">
+            </div>
+            <div>
+                <label for="date_start">Início</label>
+                <input type="time" name="date_start" id="date_start" value="09:00">
+            </div>
+            <div>
+                <label for="date_end">Fim</label>
+                <input type="time" name="date_end" id="date_end" value="18:00">
+            </div>
+        </div>
+        <div class="row row--checkbox">
+            <label><input type="checkbox" name="date_closed" value="1"> Fechado neste dia (sem agendamentos)</label>
+        </div>
+        <button class="btn secondary" type="submit">Salvar data específica</button>
+    </form>
+
+    <?php if ($dateOverrides !== []): ?>
+        <ul class="list mb-1">
+            <?php foreach ($dateOverrides as $ov): ?>
+                <li class="list-row-between">
+                    <span>
+                        <?= e((string) $ov['work_date']) ?>
+                        <?php if ((bool) $ov['is_closed']): ?>
+                            — <em>Fechado</em>
+                        <?php else: ?>
+                            — <?= e(substr((string) $ov['start_time'], 0, 5)) ?> às <?= e(substr((string) $ov['end_time'], 0, 5)) ?>
+                        <?php endif; ?>
+                    </span>
+                    <form method="post" action="/agenda/data-especifica/<?= (int) $ov['id'] ?>/excluir" class="form-inline" onsubmit="return App.confirm('Remover exceção desta data?');">
+                        <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
+                        <input type="hidden" name="barber_id" value="<?= (int) $availBarberId ?>">
+                        <button class="btn danger" type="submit">Excluir</button>
+                    </form>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    <?php endif; ?>
+
+    <h4>Bloquear horários (pausa, almoço, compromisso)</h4>
+    <form method="post" action="/agenda/bloqueios" class="card card--compact mb-1">
+        <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
+        <input type="hidden" name="barber_id" value="<?= (int) $availBarberId ?>">
+        <div class="form-row-datetime">
+            <div>
+                <label>Início</label>
+                <input type="datetime-local" name="block_start" required>
+            </div>
+            <div>
+                <label>Fim</label>
+                <input type="datetime-local" name="block_end" required>
+            </div>
+        </div>
+        <div class="row">
+            <label>Motivo (opcional)</label>
+            <input name="block_reason" placeholder="Ex.: almoço, curso">
+        </div>
+        <button class="btn secondary" type="submit">Bloquear horário</button>
+    </form>
+
+    <?php if ($blocks !== []): ?>
+        <ul class="list">
+            <?php foreach ($blocks as $bl): ?>
+                <li class="list-row-between">
+                    <span><?= e((string) $bl['start_datetime']) ?> → <?= e((string) $bl['end_datetime']) ?><?php if (!empty($bl['reason'])): ?> — <?= e((string) $bl['reason']) ?><?php endif; ?></span>
+                    <form method="post" action="/agenda/bloqueios/<?= (int) $bl['id'] ?>/excluir" class="form-inline" onsubmit="return App.confirm('Remover bloqueio?');">
+                        <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
+                        <input type="hidden" name="barber_id" value="<?= (int) $availBarberId ?>">
+                        <button class="btn danger" type="submit">Excluir</button>
+                    </form>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    <?php else: ?>
+        <p class="muted">Nenhum bloqueio cadastrado.</p>
+    <?php endif; ?>
+
+    <?php endif; ?>
+</section>
 
 <div class="card">
     <table class="table">

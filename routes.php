@@ -60,6 +60,11 @@ return static function (Router $r): void {
     $r->add('POST', '/agenda/status', 'ScheduleController@updateStatus', ['AuthMiddleware', 'StaffMiddleware', 'CsrfMiddleware']);
     $r->add('POST', '/agenda/reagendar', 'ScheduleController@reschedule', ['AuthMiddleware', 'StaffMiddleware', 'CsrfMiddleware']);
     $r->add('GET', '/agenda/slots.json', 'ScheduleController@slotsJson', ['AuthMiddleware', 'StaffMiddleware']);
+    $r->add('POST', '/agenda/horarios', 'ScheduleController@saveHours', ['AuthMiddleware', 'StaffMiddleware', 'CsrfMiddleware']);
+    $r->add('POST', '/agenda/data-especifica', 'ScheduleController@saveDateHours', ['AuthMiddleware', 'StaffMiddleware', 'CsrfMiddleware']);
+    $r->add('POST', '/agenda/data-especifica/{id}/excluir', 'ScheduleController@deleteDateHours', ['AuthMiddleware', 'StaffMiddleware', 'CsrfMiddleware']);
+    $r->add('POST', '/agenda/bloqueios', 'ScheduleController@addBlock', ['AuthMiddleware', 'StaffMiddleware', 'CsrfMiddleware']);
+    $r->add('POST', '/agenda/bloqueios/{blockId}/excluir', 'ScheduleController@deleteBlock', ['AuthMiddleware', 'StaffMiddleware', 'CsrfMiddleware']);
 
     $r->add('GET', '/clientes', 'ClientController@index', ['AuthMiddleware', 'AdminMiddleware']);
     $r->add('GET', '/clientes/exportar', 'ClientController@export', ['AuthMiddleware', 'AdminMiddleware']);
