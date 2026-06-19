@@ -70,11 +70,9 @@ foreach ([OWNER_EMAIL, PRO_EMAIL] as $email) {
 
 $passwordHash = password_hash(DEFAULT_PASSWORD, PASSWORD_BCRYPT);
 
-$pdo = Database::connection();
-$pdo->beginTransaction();
-
 try {
-    $tenantId = $tenants->create([
+    Database::transaction(static function () use ($tenants, $users, $passwordHash): void {
+        $tenantId = $tenants->create([
         'name' => STORE_NAME,
         'slug' => SLUG,
         'email' => OWNER_EMAIL,
@@ -83,84 +81,82 @@ try {
         'city' => null,
         'state' => null,
         'timezone' => 'America/Sao_Paulo',
-    ]);
-
-    $tenants->update($tenantId, [
-        'logo_path' => LOGO_DEST,
-        'primary_color' => BRAND_COLOR,
-        'city' => 'Salvador',
-        'state' => 'BA',
-    ]);
-
-    $pdo->prepare("UPDATE tenants SET status = 'active', trial_ends_at = NULL WHERE id = :id")
-        ->execute(['id' => $tenantId]);
-
-    $users->create(
-        $tenantId,
-        'Adriele Cardoso',
-        OWNER_EMAIL,
-        $passwordHash,
-        UserRole::Owner->value,
-        null,
-    );
-
-    $proUserId = $users->create(
-        $tenantId,
-        'Adriele Cardoso',
-        PRO_EMAIL,
-        $passwordHash,
-        UserRole::Barber->value,
-        null,
-    );
-
-    $barbers = new BarberModel();
-    $barberId = $barbers->create($tenantId, $proUserId, [
-        'bio' => 'Especialista em nail design, alongamento em gel e nail art.',
-        'specialties' => ['manicure', 'gel', 'nail art', 'spa das mãos'],
-        'commission_percent' => 100.0,
-        'is_available' => true,
-    ]);
-
-    $services = new ServiceModel();
-    $catalog = [
-        ['Manicure tradicional', 'Cutícula, lixamento e esmaltação.', 45, 45.00, 'Manicure', 0],
-        ['Alongamento em gel', 'Aplicação completa com gel builder.', 120, 150.00, 'Alongamento', 1],
-        ['Manutenção de alongamento', 'Manutenção periódica do alongamento.', 90, 90.00, 'Alongamento', 2],
-        ['Esmaltação em gel', 'Esmaltação com acabamento em gel.', 45, 50.00, 'Manicure', 3],
-        ['Nail art', 'Arte personalizada nas unhas.', 30, 35.00, 'Nail art', 4],
-        ['Spa das mãos', 'Hidratação profunda e massagem relaxante.', 60, 55.00, 'Spa', 5],
-        ['Pedicure spa', 'Cuidados completos para os pés.', 60, 65.00, 'Pedicure', 6],
-    ];
-
-    $serviceIds = [];
-    foreach ($catalog as [$name, $desc, $minutes, $price, $category, $order]) {
-        $serviceIds[] = $services->create($tenantId, [
-            'name' => $name,
-            'description' => $desc,
-            'duration_minutes' => $minutes,
-            'price' => $price,
-            'category' => $category,
-            'is_active' => true,
-            'display_order' => $order,
         ]);
-    }
 
-    $barbers->syncServices($tenantId, $barberId, $serviceIds, []);
+        $tenants->update($tenantId, [
+            'logo_path' => LOGO_DEST,
+            'primary_color' => BRAND_COLOR,
+            'city' => 'Salvador',
+            'state' => 'BA',
+        ]);
 
-    $week = [];
-    for ($dow = 0; $dow <= 6; $dow++) {
-        $week[] = [
-            'day_of_week' => $dow,
-            'start_time' => '09:00:00',
-            'end_time' => $dow === 0 ? '00:00:00' : ($dow === 6 ? '14:00:00' : '18:00:00'),
-            'is_day_off' => $dow === 0,
+        Database::connection()->prepare("UPDATE tenants SET status = 'active', trial_ends_at = NULL WHERE id = :id")
+            ->execute(['id' => $tenantId]);
+
+        $users->create(
+            $tenantId,
+            'Adriele Cardoso',
+            OWNER_EMAIL,
+            $passwordHash,
+            UserRole::Owner->value,
+            null,
+        );
+
+        $proUserId = $users->create(
+            $tenantId,
+            'Adriele Cardoso',
+            PRO_EMAIL,
+            $passwordHash,
+            UserRole::Barber->value,
+            null,
+        );
+
+        $barbers = new BarberModel();
+        $barberId = $barbers->create($tenantId, $proUserId, [
+            'bio' => 'Especialista em nail design, alongamento em gel e nail art.',
+            'specialties' => ['manicure', 'gel', 'nail art', 'spa das mãos'],
+            'commission_percent' => 100.0,
+            'is_available' => true,
+        ]);
+
+        $services = new ServiceModel();
+        $catalog = [
+            ['Manicure tradicional', 'Cutícula, lixamento e esmaltação.', 45, 45.00, 'Manicure', 0],
+            ['Alongamento em gel', 'Aplicação completa com gel builder.', 120, 150.00, 'Alongamento', 1],
+            ['Manutenção de alongamento', 'Manutenção periódica do alongamento.', 90, 90.00, 'Alongamento', 2],
+            ['Esmaltação em gel', 'Esmaltação com acabamento em gel.', 45, 50.00, 'Manicure', 3],
+            ['Nail art', 'Arte personalizada nas unhas.', 30, 35.00, 'Nail art', 4],
+            ['Spa das mãos', 'Hidratação profunda e massagem relaxante.', 60, 55.00, 'Spa', 5],
+            ['Pedicure spa', 'Cuidados completos para os pés.', 60, 65.00, 'Pedicure', 6],
         ];
-    }
-    (new WorkingHoursModel())->replaceWeek($tenantId, $barberId, $week);
 
-    $pdo->commit();
+        $serviceIds = [];
+        foreach ($catalog as [$name, $desc, $minutes, $price, $category, $order]) {
+            $serviceIds[] = $services->create($tenantId, [
+                'name' => $name,
+                'description' => $desc,
+                'duration_minutes' => $minutes,
+                'price' => $price,
+                'category' => $category,
+                'is_active' => true,
+                'display_order' => $order,
+            ]);
+        }
+
+        $barbers->syncServices($tenantId, $barberId, $serviceIds, []);
+
+        $week = [];
+        for ($dow = 0; $dow <= 6; $dow++) {
+            $week[] = [
+                'day_of_week' => $dow,
+                'start_time' => '09:00:00',
+                'end_time' => $dow === 0 ? '00:00:00' : ($dow === 6 ? '14:00:00' : '18:00:00'),
+                'is_day_off' => $dow === 0,
+            ];
+        }
+        (new WorkingHoursModel())->replaceWeek($tenantId, $barberId, $week);
+    });
 } catch (Throwable $e) {
-    $pdo->rollBack();
     fwrite(STDERR, 'Erro ao criar loja: ' . $e->getMessage() . PHP_EOL);
     exit(1);
 }

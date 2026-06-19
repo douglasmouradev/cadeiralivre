@@ -29,7 +29,10 @@ final class WorkingHoursModel
 
     public function replaceWeek(int $tenantId, int $barberId, array $rows): void
     {
-        $this->pdo->beginTransaction();
+        $ownTransaction = !$this->pdo->inTransaction();
+        if ($ownTransaction) {
+            $this->pdo->beginTransaction();
+        }
         try {
             $del = $this->pdo->prepare('DELETE FROM working_hours WHERE tenant_id = :t AND barber_id = :b');
             $del->execute(['t' => $tenantId, 'b' => $barberId]);
@@ -47,9 +50,13 @@ final class WorkingHoursModel
                     'off' => (int) (bool) ($r['is_day_off'] ?? false),
                 ]);
             }
-            $this->pdo->commit();
+            if ($ownTransaction) {
+                $this->pdo->commit();
+            }
         } catch (\Throwable $e) {
-            $this->pdo->rollBack();
+            if ($ownTransaction && $this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
             throw $e;
         }
     }
