@@ -311,20 +311,26 @@ final class AppointmentModel
     /** @return list<array<string, mixed>> */
     public function revenueLast30Days(int $tenantId): array
     {
-        $sql = "WITH RECURSIVE dates AS (
-            SELECT CURDATE() - INTERVAL 29 DAY AS d
-            UNION ALL
-            SELECT d + INTERVAL 1 DAY FROM dates WHERE d < CURDATE()
-        )
-        SELECT DATE_FORMAT(d.d, '%Y-%m-%d') AS day,
-               COALESCE(SUM(CASE WHEN p.status = 'paid' AND DATE(p.paid_at) = d.d THEN p.amount END), 0) AS total
-        FROM dates d
-        LEFT JOIN payments p ON p.tenant_id = :t AND DATE(p.paid_at) = d.d
-        GROUP BY d.d
-        ORDER BY d.d ASC";
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = $this->pdo->prepare(
+            "SELECT DATE(p.paid_at) AS day, SUM(p.amount) AS total
+             FROM payments p
+             WHERE p.tenant_id = :t AND p.status = 'paid' AND p.paid_at IS NOT NULL
+               AND DATE(p.paid_at) >= CURDATE() - INTERVAL 29 DAY
+             GROUP BY DATE(p.paid_at)
+             ORDER BY day ASC"
+        );
         $stmt->execute(['t' => $tenantId]);
+        $byDay = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $byDay[(string) $row['day']] = (float) $row['total'];
+        }
 
-        return $stmt->fetchAll() ?: [];
+        $out = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $day = (new \DateTimeImmutable('today -' . $i . ' days'))->format('Y-m-d');
+            $out[] = ['day' => $day, 'total' => $byDay[$day] ?? 0.0];
+        }
+
+        return $out;
     }
 }
