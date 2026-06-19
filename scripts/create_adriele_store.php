@@ -53,6 +53,7 @@ if ($existing !== null) {
     fwrite(STDOUT, "A loja já existe; logo republicada.\n");
     fwrite(STDOUT, "Agendamento: /agendar/" . SLUG . "\n");
     fwrite(STDOUT, "Logo: " . tenant_logo_url(SLUG) . "\n");
+    fwrite(STDOUT, "Para garantir acesso admin da Adriele: php scripts/ensure_adriele_admin.php\n");
     exit(0);
 }
 
