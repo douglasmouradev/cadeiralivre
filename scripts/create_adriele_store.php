@@ -34,29 +34,32 @@ const BRAND_COLOR = '#C4A052';
 const LOGO_SOURCE = 'public/assets/img/brands/adriele-cardoso-logo.png';
 const LOGO_DEST = 'logos/adriele-cardoso.png';
 
-$tenants = new TenantModel();
-if ($tenants->findBySlug(SLUG) !== null) {
-    fwrite(STDOUT, "A loja já existe (slug \"" . SLUG . "\").\n");
-    fwrite(STDOUT, "Agendamento: /agendar/" . SLUG . "\n");
-    exit(0);
-}
-
 $logoSourcePath = $root . '/' . LOGO_SOURCE;
-$logoDestDir = $root . '/storage/uploads/logos';
-$logoDestPath = $logoDestDir . '/adriele-cardoso.png';
-
 if (!is_readable($logoSourcePath)) {
     fwrite(STDERR, "Logo não encontrada: {$logoSourcePath}\n");
     exit(1);
 }
 
-if (!is_dir($logoDestDir) && !mkdir($logoDestDir, 0770, true) && !is_dir($logoDestDir)) {
-    fwrite(STDERR, "Não foi possível criar {$logoDestDir}\n");
-    exit(1);
+$tenants = new TenantModel();
+$existing = $tenants->findBySlug(SLUG);
+if ($existing !== null) {
+    try {
+        tenant_logo_publish($root, SLUG, $logoSourcePath, 'adriele-cardoso.png');
+        $tenants->update((int) $existing['id'], ['logo_path' => LOGO_DEST]);
+    } catch (Throwable $e) {
+        fwrite(STDERR, 'Erro ao sincronizar logo: ' . $e->getMessage() . PHP_EOL);
+        exit(1);
+    }
+    fwrite(STDOUT, "A loja já existe; logo republicada.\n");
+    fwrite(STDOUT, "Agendamento: /agendar/" . SLUG . "\n");
+    fwrite(STDOUT, "Logo: " . tenant_logo_url(SLUG) . "\n");
+    exit(0);
 }
 
-if (!copy($logoSourcePath, $logoDestPath)) {
-    fwrite(STDERR, "Não foi possível copiar a logo para storage.\n");
+try {
+    tenant_logo_publish($root, SLUG, $logoSourcePath, 'adriele-cardoso.png');
+} catch (Throwable $e) {
+    fwrite(STDERR, 'Erro ao publicar logo: ' . $e->getMessage() . PHP_EOL);
     exit(1);
 }
 

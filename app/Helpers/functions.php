@@ -42,6 +42,66 @@ if (!function_exists('tenant_brand_hex')) {
     }
 }
 
+if (!function_exists('tenant_logo_url')) {
+    /**
+     * URL pública da logo do tenant (estático em public/ ou rota PHP).
+     */
+    function tenant_logo_url(string $slug): string
+    {
+        $safe = preg_replace('/[^a-zA-Z0-9\-_]/', '', $slug) ?? '';
+        if ($safe === '') {
+            return '/loja-logo/' . rawurlencode($slug);
+        }
+        $root = dirname(__DIR__, 2);
+        $static = $root . '/public/assets/tenant-logos/' . $safe . '.png';
+        if (is_file($static)) {
+            return '/assets/tenant-logos/' . rawurlencode($safe) . '.png';
+        }
+
+        return '/loja-logo/' . rawurlencode($slug);
+    }
+}
+
+if (!function_exists('tenant_logo_publish')) {
+    /**
+     * Copia a logo para storage/uploads e public/assets/tenant-logos/{slug}.png.
+     *
+     * @return non-empty-string Caminho relativo em storage (ex.: logos/arquivo.png)
+     */
+    function tenant_logo_publish(string $projectRoot, string $slug, string $sourceAbsolutePath, ?string $storageBasename = null): string
+    {
+        if (!is_readable($sourceAbsolutePath)) {
+            throw new \RuntimeException('Arquivo de logo ilegível: ' . $sourceAbsolutePath);
+        }
+        $safeSlug = preg_replace('/[^a-zA-Z0-9\-_]/', '', $slug) ?? '';
+        if ($safeSlug === '') {
+            throw new \InvalidArgumentException('Slug inválido para logo.');
+        }
+        $basename = $storageBasename ?? ($safeSlug . '.png');
+        $basename = basename(str_replace(['..', '\\'], '', $basename));
+
+        $storageDir = $projectRoot . '/storage/uploads/logos';
+        if (!is_dir($storageDir) && !mkdir($storageDir, 0770, true) && !is_dir($storageDir)) {
+            throw new \RuntimeException('Não foi possível criar ' . $storageDir);
+        }
+        $storagePath = $storageDir . '/' . $basename;
+        if (!copy($sourceAbsolutePath, $storagePath)) {
+            throw new \RuntimeException('Não foi possível copiar logo para storage.');
+        }
+
+        $publicDir = $projectRoot . '/public/assets/tenant-logos';
+        if (!is_dir($publicDir) && !mkdir($publicDir, 0755, true) && !is_dir($publicDir)) {
+            throw new \RuntimeException('Não foi possível criar ' . $publicDir);
+        }
+        $publicPath = $publicDir . '/' . $safeSlug . '.png';
+        if (!copy($sourceAbsolutePath, $publicPath)) {
+            throw new \RuntimeException('Não foi possível publicar logo estática.');
+        }
+
+        return 'logos/' . $basename;
+    }
+}
+
 if (!function_exists('format_datetime_in_tenant_tz')) {
     /**
      * Formata data/hora guardada como relógio local da barbearia (Y-m-d H:i:s).

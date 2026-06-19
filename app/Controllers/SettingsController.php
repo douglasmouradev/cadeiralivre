@@ -88,7 +88,18 @@ final class SettingsController extends Controller
 
             return Response::redirect('/configuracoes');
         }
-        (new TenantModel())->update($tid, ['logo_path' => 'logos/' . $name]);
+        $tenant = (new TenantModel())->findById($tid);
+        $logoRel = 'logos/' . $name;
+        (new TenantModel())->update($tid, ['logo_path' => $logoRel]);
+        if (is_array($tenant) && isset($tenant['slug']) && is_string($tenant['slug'])) {
+            $storageFile = $this->app->root() . '/storage/uploads/' . $logoRel;
+            if (is_readable($storageFile)) {
+                try {
+                    tenant_logo_publish($this->app->root(), $tenant['slug'], $storageFile, $name);
+                } catch (\Throwable) {
+                }
+            }
+        }
         Flash::set('success', 'Logo atualizada.');
 
         return Response::redirect('/configuracoes');

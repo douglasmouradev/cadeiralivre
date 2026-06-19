@@ -79,6 +79,7 @@ return static function (Router $r): void {
     $r->add('POST', '/configuracoes/equipe', 'SettingsController@storeStaffUser', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
 
     $r->add('GET', '/media/logo/{slug}', 'MediaController@tenantLogo', []);
+    $r->add('GET', '/loja-logo/{slug}', 'MediaController@tenantLogo', []);
 
     $r->add('GET', '/cliente/{slug}/entrar', 'ClientPortalController@showLogin', []);
     $r->add('POST', '/cliente/{slug}/entrar', 'ClientPortalController@login', ['LoginRateLimitMiddleware', 'CsrfMiddleware']);

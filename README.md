@@ -177,7 +177,7 @@ O workflow GitHub Actions (`.github/workflows/ci.yml`) corre migrations e PHPUni
 - CSRF em formulários POST sensíveis (login incluído).
 - Rate limit de login: 5 tentativas / 15 minutos (sessão).
 - Headers de segurança em `public/.htaccess` e CSP básica em `public/index.php`.
-- Uploads fora do document root em `storage/uploads/`; logos servidas via `/media/logo/{slug}`.
+- Uploads fora do document root em `storage/uploads/`; logos servidas via `/assets/tenant-logos/{slug}.png` (estático) ou `/loja-logo/{slug}`.
 
 ## Estrutura principal
 
