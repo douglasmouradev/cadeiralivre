@@ -28,7 +28,7 @@ $priceFmt = static function (int $cents): string {
 <section class="card">
     <h3>Planos disponíveis</h3>
     <table class="table">
-        <thead><tr><th>Nome</th><th>Slug</th><th>Barbeiros máx.</th><th>Agend./mês</th><th>Preço</th></tr></thead>
+        <thead><tr><th>Nome</th><th>Slug</th><th>Profissionais máx.</th><th>Agend./mês</th><th>Preço</th></tr></thead>
         <tbody>
         <?php foreach ($plans as $p): ?>
             <tr>

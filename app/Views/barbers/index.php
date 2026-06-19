@@ -7,7 +7,7 @@ declare(strict_types=1);
 ob_start();
 ?>
 <div class="toolbar">
-    <h2 class="toolbar__title">Barbeiros</h2>
+    <h2 class="toolbar__title">Profissionais</h2>
     <a class="btn" href="/barbeiros/novo">Novo</a>
 </div>
 <div class="card">
@@ -27,7 +27,7 @@ ob_start();
                         <input type="hidden" name="available" value="<?= ((int) $b['is_available'] === 1) ? '0' : '1' ?>">
                         <button class="btn secondary" type="submit"><?= ((int) $b['is_available'] === 1) ? 'Pausar' : 'Ativar' ?></button>
                     </form>
-                    <form method="post" action="/barbeiros/<?= (int) $b['id'] ?>/desativar" onsubmit="return App.confirm('Desativar este barbeiro?');">
+                    <form method="post" action="/barbeiros/<?= (int) $b['id'] ?>/desativar" onsubmit="return App.confirm('Desativar este profissional?');">
                         <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
                         <button class="btn danger" type="submit">Desativar</button>
                     </form>

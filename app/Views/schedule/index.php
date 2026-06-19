@@ -23,7 +23,7 @@ ob_start();
 <div class="card">
     <table class="table">
         <thead>
-        <tr><th>Data/Hora</th><th>Cliente</th><th>Serviço</th><th>Barbeiro</th><th>Obs.</th><th>Status</th><th>Ações</th></tr>
+        <tr><th>Data/Hora</th><th>Cliente</th><th>Serviço</th><th>Profissional</th><th>Obs.</th><th>Status</th><th>Ações</th></tr>
         </thead>
         <tbody>
         <?php foreach ($appointments as $a): ?>
@@ -107,7 +107,7 @@ ob_start();
                 </select>
             </div>
             <div class="row">
-                <label>Barbeiro</label>
+                <label>Profissional</label>
                 <select name="barber_id" id="f-barber" required>
                     <?php foreach ($barbers as $b): ?>
                         <?php if ($barberFilter !== null && $barberFilter > 0 && (int) $b['id'] !== $barberFilter) { continue; } ?>

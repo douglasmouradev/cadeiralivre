@@ -54,7 +54,7 @@ ob_start();
 <?php if ($canManageTeam): ?>
 <article class="card mt-1">
     <h3>Equipe administrativa</h3>
-    <p class="muted mb-1">Crie contas para <strong>recepção</strong> ou outro <strong>administrador</strong> (co-dono com o mesmo acesso ao painel). Para cortes na agenda, use <a href="/barbeiros/novo">Barbeiros → Novo</a>.</p>
+    <p class="muted mb-1">Crie contas para <strong>recepção</strong> ou outro <strong>administrador</strong> (co-dono com o mesmo acesso ao painel). Para atendimentos na agenda, use <a href="/barbeiros/novo">Profissionais → Novo</a>.</p>
     <?php if ($administrativeStaff !== []): ?>
     <table class="table mb-1">
         <thead><tr><th>Nome</th><th>E-mail</th><th>Função</th><th>Ativo</th></tr></thead>

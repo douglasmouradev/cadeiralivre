@@ -58,7 +58,7 @@ $flashError = Flash::get('error');
 
     <div class="stepper" id="steps" role="list" aria-label="Etapas do agendamento">
         <div class="step active" data-step="1" role="listitem">Serviço</div>
-        <div class="step" data-step="2" role="listitem">Barbeiro</div>
+        <div class="step" data-step="2" role="listitem">Profissional</div>
         <div class="step" data-step="3" role="listitem">Data</div>
         <div class="step" data-step="4" role="listitem">Horário</div>
         <div class="step" data-step="5" role="listitem">Seus dados</div>
@@ -87,12 +87,12 @@ $flashError = Flash::get('error');
 
         <section class="booking-panel" data-panel="2" hidden>
             <h3>Profissional</h3>
-            <div class="choice-stack" role="radiogroup" aria-label="Modo de escolha do barbeiro">
-                <label><input type="radio" name="barber_mode_choice" value="one" checked> Escolher barbeiro</label>
+            <div class="choice-stack" role="radiogroup" aria-label="Modo de escolha do profissional">
+                <label><input type="radio" name="barber_mode_choice" value="one" checked> Escolher profissional</label>
                 <label><input type="radio" name="barber_mode_choice" value="any"> Qualquer disponível</label>
             </div>
             <div class="row" id="barber-select-wrap">
-                <label for="pub-barber">Barbeiro</label>
+                <label for="pub-barber">Profissional</label>
                 <select name="barber_id" id="pub-barber" required>
                     <option value="">Selecione…</option>
                     <?php foreach ($barbers as $b): ?>

@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 ob_start();
 ?>
-<h2 class="page-title">Novo barbeiro</h2>
+<h2 class="page-title">Novo profissional</h2>
 <form method="post" action="/barbeiros" data-validate="1" class="card card--compact">
     <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
     <div class="row">

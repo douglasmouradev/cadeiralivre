@@ -13,7 +13,7 @@ $specs = is_string($specRaw) ? (json_decode($specRaw, true) ?: []) : (array) $sp
 
 ob_start();
 ?>
-<h2 class="page-title">Editar barbeiro</h2>
+<h2 class="page-title">Editar profissional</h2>
 <form method="post" action="/barbeiros/<?= (int) $barber['id'] ?>" class="card card--compact mb-1">
     <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
     <div class="row">

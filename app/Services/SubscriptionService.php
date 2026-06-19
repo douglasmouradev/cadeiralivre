@@ -78,7 +78,7 @@ final class SubscriptionService
         $max = (int) $max;
         $current = (new BarberModel())->countForTenant($tenantId);
         if ($current >= $max) {
-            return 'Limite de barbeiros do plano atingido (' . $max . '). Faça upgrade em Configurações → Assinatura.';
+            return 'Limite de profissionais do plano atingido (' . $max . '). Faça upgrade em Configurações → Assinatura.';
         }
 
         return null;

@@ -32,7 +32,7 @@ final class DashboardController extends Controller
             $alerts[] = 'Existem ' . $pending . ' agendamento(s) pendentes de confirmação.';
         }
         if ($barberCount > 0 && $todayCount < $barberCount) {
-            $alerts[] = 'Possíveis horários vagos hoje: há barbeiros com pouca ocupação na agenda.';
+            $alerts[] = 'Possíveis horários vagos hoje: há profissionais com pouca ocupação na agenda.';
         }
         $tenant = (new TenantModel())->findById($tid);
         if (is_array($tenant)) {

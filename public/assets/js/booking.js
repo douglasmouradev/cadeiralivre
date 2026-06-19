@@ -36,7 +36,7 @@
       }
       if (next === '3') {
         if (barberMode() === 'one' && barber && !barber.value) {
-          window.App?.toast?.('Selecione um barbeiro ou marque “qualquer disponível”.', 'warn');
+          window.App?.toast?.('Selecione um profissional ou marque “qualquer disponível”.', 'warn');
           return;
         }
       }
@@ -157,7 +157,7 @@
       if (barber && !barber.value) {
         if (barberMode() === 'one') {
           e.preventDefault();
-          window.App?.toast?.('Selecione o barbeiro.', 'warn');
+          window.App?.toast?.('Selecione o profissional.', 'warn');
           show(2);
         }
       }

@@ -34,7 +34,7 @@ $d = $data;
 
 <div class="grid two-col">
     <article class="card">
-        <h3>Receita por barbeiro</h3>
+        <h3>Receita por profissional</h3>
         <table class="table">
             <?php foreach ($d['byBarber'] as $row): ?>
                 <tr><td><?= e((string) $row['barber_name']) ?></td><td>R$ <?= e(number_format((float) $row['total'], 2, ',', '.')) ?></td></tr>

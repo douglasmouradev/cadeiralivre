@@ -24,7 +24,7 @@ final class BarberController extends Controller
         $rows = (new BarberModel())->listWithUser($tid);
 
         return $this->view('barbers/index', [
-            'title' => 'Barbeiros',
+            'title' => 'Profissionais',
             'barbers' => $rows,
             'currentNav' => 'barbers',
         ]);
@@ -36,7 +36,7 @@ final class BarberController extends Controller
         $services = (new ServiceModel())->allForTenant($tid, true);
 
         return $this->view('barbers/form', [
-            'title' => 'Novo barbeiro',
+            'title' => 'Novo profissional',
             'barber' => null,
             'services' => $services,
             'currentNav' => 'barbers',
@@ -85,11 +85,11 @@ final class BarberController extends Controller
             $pdo->commit();
         } catch (\Throwable) {
             $pdo->rollBack();
-            Flash::set('error', 'Não foi possível criar o barbeiro.');
+            Flash::set('error', 'Não foi possível criar o profissional.');
 
             return Response::redirect('/barbeiros/novo');
         }
-        Flash::set('success', 'Barbeiro cadastrado.');
+        Flash::set('success', 'Profissional cadastrado.');
 
         return Response::redirect('/barbeiros');
     }
@@ -99,7 +99,7 @@ final class BarberController extends Controller
         $tid = $this->tenantId();
         $b = (new BarberModel())->find($tid, $id);
         if ($b === null) {
-            Flash::set('error', 'Barbeiro não encontrado.');
+            Flash::set('error', 'Profissional não encontrado.');
 
             return Response::redirect('/barbeiros');
         }
@@ -109,7 +109,7 @@ final class BarberController extends Controller
         $blocks = (new BlockedTimeModel())->forBarber($tid, $id);
 
         return $this->view('barbers/edit', [
-            'title' => 'Editar barbeiro',
+            'title' => 'Editar profissional',
             'barber' => $b,
             'services' => $services,
             'selectedServices' => $selected,
@@ -124,7 +124,7 @@ final class BarberController extends Controller
         $tid = $this->tenantId();
         $barbers = new BarberModel();
         if ($barbers->find($tid, $id) === null) {
-            Flash::set('error', 'Barbeiro não encontrado.');
+            Flash::set('error', 'Profissional não encontrado.');
 
             return Response::redirect('/barbeiros');
         }
@@ -136,7 +136,7 @@ final class BarberController extends Controller
         ]);
         $sids = array_map(intval(...), (array) $this->request->input('service_ids', []));
         $barbers->syncServices($tid, $id, $sids, []);
-        Flash::set('success', 'Barbeiro atualizado.');
+        Flash::set('success', 'Profissional atualizado.');
 
         return Response::redirect('/barbeiros/' . $id . '/editar');
     }
@@ -220,7 +220,7 @@ final class BarberController extends Controller
     {
         $tid = $this->tenantId();
         (new BarberModel())->deactivate($tid, $id);
-        Flash::set('success', 'Barbeiro desativado.');
+        Flash::set('success', 'Profissional desativado.');
 
         return Response::redirect('/barbeiros');
     }

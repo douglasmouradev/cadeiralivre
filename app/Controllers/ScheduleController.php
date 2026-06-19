@@ -180,8 +180,8 @@ final class ScheduleController extends Controller
                 'BAD_BARBER' => 'Profissional inválido ou indisponível.',
                 'BAD_DATETIME' => 'Data/hora inválida.',
                 'BAD_SLOT' => 'Horário fora da grade disponível para este profissional.',
-                'OVERLAP' => 'Horário indisponível para este barbeiro.',
-                'BARBER_SERVICE' => 'Barbeiro não realiza este serviço.',
+                'OVERLAP' => 'Horário indisponível para este profissional.',
+                'BARBER_SERVICE' => 'Profissional não realiza este serviço.',
             ];
             $code = $e->getMessage();
             $msg = $map[$code] ?? null;
