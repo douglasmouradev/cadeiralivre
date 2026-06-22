@@ -1540,3 +1540,33 @@ form.form-inline {
 .admin-shell--saas .main-area {
   min-width: 0;
 }
+
+/* Landing pública */
+.landing-body { background: #0f0f0f; color: #f5f5f5; margin: 0; }
+.landing-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1rem 1.5rem; max-width: 1100px; margin: 0 auto;
+}
+.landing-brand { display: flex; align-items: center; gap: 0.65rem; color: inherit; text-decoration: none; font-weight: 600; }
+.landing-nav { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+.landing-nav a { color: #ddd; text-decoration: none; }
+.landing-hero { padding: 4rem 1.5rem; max-width: 1100px; margin: 0 auto; }
+.landing-hero h1 { font-family: 'DM Serif Display', Georgia, serif; font-size: clamp(2rem, 5vw, 3rem); font-weight: 400; margin: 0 0 1rem; }
+.landing-lead { font-size: 1.1rem; color: #bbb; max-width: 36rem; }
+.landing-eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.75rem; color: #d4af37; }
+.landing-cta { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem; }
+.btn--lg { padding: 0.85rem 1.35rem; }
+.landing-features, .landing-plans { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+.landing-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; }
+.landing-feature-card, .landing-plan-card { background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 1.25rem; }
+.landing-plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1rem; margin-top: 1rem; }
+.landing-plan-price { font-size: 1.5rem; font-weight: 600; }
+.landing-plan-price span { font-size: 0.9rem; font-weight: 400; color: #999; }
+.landing-footer { text-align: center; padding: 2rem; color: #888; font-size: 0.9rem; }
+.onboarding-checklist { display: grid; gap: 1rem; }
+.onboarding-step--done { border-left: 3px solid var(--success, #15803d); }
+.onboarding-link-input { width: 100%; font-family: monospace; font-size: 0.85rem; }
+.pagination { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+.pill--success { background: color-mix(in srgb, #15803d 15%, #fff); color: #15803d; }
+.status-list { list-style: none; padding: 0; }
+.slot-pick-grid { display: flex; flex-wrap: wrap; gap: 0.35rem; }

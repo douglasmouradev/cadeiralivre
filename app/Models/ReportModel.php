@@ -126,4 +126,24 @@ final class ReportModel
 
         return $stmt->fetchAll() ?: [];
     }
+
+    /** @return list<array<string, mixed>> */
+    public function inactiveClients(int $tenantId, int $days = 90): array
+    {
+        $days = max(30, min($days, 365));
+        $stmt = $this->pdo->prepare(
+            "SELECT c.id, c.name, c.email, c.phone, MAX(a.start_datetime) AS last_visit
+             FROM clients c
+             LEFT JOIN appointments a ON a.client_id = c.id AND a.tenant_id = c.tenant_id
+                AND a.status NOT IN ('cancelled','no_show')
+             WHERE c.tenant_id = :t AND c.deleted_at IS NULL
+             GROUP BY c.id, c.name, c.email, c.phone
+             HAVING last_visit IS NULL OR last_visit < DATE_SUB(NOW(), INTERVAL :d DAY)
+             ORDER BY last_visit IS NULL DESC, last_visit ASC
+             LIMIT 20"
+        );
+        $stmt->execute(['t' => $tenantId, 'd' => $days]);
+
+        return $stmt->fetchAll() ?: [];
+    }
 }

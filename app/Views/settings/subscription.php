@@ -10,9 +10,15 @@ ob_start();
 $priceFmt = static function (int $cents): string {
     return 'R$ ' . number_format($cents / 100, 2, ',', '.');
 };
+$checkoutMsg = (string) ($_GET['checkout'] ?? '');
 ?>
 <section class="card mb-1">
     <h3>Plano atual</h3>
+    <?php if ($checkoutMsg === 'success'): ?>
+        <p class="alert alert-success">Pagamento recebido! A assinatura será atualizada em instantes.</p>
+    <?php elseif ($checkoutMsg === 'cancel'): ?>
+        <p class="alert alert-error">Checkout cancelado.</p>
+    <?php endif; ?>
     <?php if (is_array($plan)): ?>
         <p><strong><?= e((string) $plan['name']) ?></strong> (<?= e((string) $plan['slug']) ?>)</p>
         <p class="muted">Preço de referência mensal: <?= $priceFmt((int) $plan['monthly_price_cents']) ?>.</p>
@@ -23,24 +29,33 @@ $priceFmt = static function (int $cents): string {
     <?php else: ?>
         <p class="muted">Plano não definido. Execute as migrations mais recentes.</p>
     <?php endif; ?>
-    <p class="mt-1">Para cobrança automática, configure <code>STRIPE_SECRET_KEY</code>, preços em Stripe e <code>stripe_price_id</code> na tabela <code>plan_definitions</code>. O webhook <code>/webhooks/stripe</code> atualiza o estado da conta.</p>
 </section>
 <section class="card">
-    <h3>Planos disponíveis</h3>
-    <table class="table">
-        <thead><tr><th>Nome</th><th>Slug</th><th>Profissionais máx.</th><th>Agend./mês</th><th>Preço</th></tr></thead>
-        <tbody>
-        <?php foreach ($plans as $p): ?>
-            <tr>
-                <td><?= e((string) $p['name']) ?></td>
-                <td><code><?= e((string) $p['slug']) ?></code></td>
-                <td><?= isset($p['max_barbers']) && $p['max_barbers'] !== null ? (int) $p['max_barbers'] : '∞' ?></td>
-                <td><?= isset($p['max_appointments_per_month']) && $p['max_appointments_per_month'] !== null ? (int) $p['max_appointments_per_month'] : '∞' ?></td>
-                <td><?= $priceFmt((int) $p['monthly_price_cents']) ?></td>
-            </tr>
+    <h3>Assinar ou mudar de plano</h3>
+    <p class="muted mb-1">Pagamento seguro via Stripe. Configure <code>STRIPE_SECRET_KEY</code> e <code>stripe_price_id</code> nos planos.</p>
+    <div class="landing-plans-grid">
+        <?php foreach ($plans as $p):
+            $slug = (string) $p['slug'];
+            if ($slug === 'free') {
+                continue;
+            }
+            $hasStripe = trim((string) ($p['stripe_price_id'] ?? '')) !== '';
+            ?>
+            <article class="landing-plan-card">
+                <h4><?= e((string) $p['name']) ?></h4>
+                <p><?= $priceFmt((int) $p['monthly_price_cents']) ?>/mês</p>
+                <?php if ($hasStripe): ?>
+                    <form method="post" action="/configuracoes/assinatura/checkout">
+                        <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
+                        <input type="hidden" name="plan" value="<?= e($slug) ?>">
+                        <button type="submit" class="btn">Assinar <?= e((string) $p['name']) ?></button>
+                    </form>
+                <?php else: ?>
+                    <p class="muted">Preço Stripe não configurado.</p>
+                <?php endif; ?>
+            </article>
         <?php endforeach; ?>
-        </tbody>
-    </table>
+    </div>
     <p class="muted mt-1"><a href="/configuracoes">← Voltar às configurações</a></p>
 </section>
 <?php

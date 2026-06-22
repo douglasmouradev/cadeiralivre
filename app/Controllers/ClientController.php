@@ -8,23 +8,61 @@ use App\Core\Response;
 use App\Helpers\Flash;
 use App\Models\AppointmentModel;
 use App\Models\ClientModel;
+use App\Models\TenantAuditModel;
 
 final class ClientController extends Controller
 {
+    private const PER_PAGE = 15;
+
     public function index(): Response
     {
         $tid = $this->tenantId();
         $page = max(1, (int) ($this->request->query()['page'] ?? 1));
         $q = isset($this->request->query()['q']) ? trim((string) $this->request->query()['q']) : null;
-        $res = (new ClientModel())->paginate($tid, $page, 15, $q);
+        $res = (new ClientModel())->paginate($tid, $page, self::PER_PAGE, $q);
+        $totalPages = max(1, (int) ceil($res['total'] / self::PER_PAGE));
 
         return $this->view('clients/index', [
             'title' => 'Clientes',
             'result' => $res,
             'q' => $q ?? '',
             'page' => $page,
+            'totalPages' => $totalPages,
+            'perPage' => self::PER_PAGE,
             'currentNav' => 'clients',
         ]);
+    }
+
+    public function createForm(): Response
+    {
+        return $this->view('clients/form', [
+            'title' => 'Novo cliente',
+            'client' => ['id' => 0, 'name' => '', 'email' => '', 'phone' => '', 'birth_date' => '', 'notes' => ''],
+            'isNew' => true,
+            'currentNav' => 'clients',
+        ]);
+    }
+
+    public function create(): Response
+    {
+        $tid = $this->tenantId();
+        $data = [
+            'name' => trim((string) $this->request->input('name')),
+            'email' => trim((string) $this->request->input('email')),
+            'phone' => trim((string) $this->request->input('phone')),
+            'birth_date' => trim((string) $this->request->input('birth_date')),
+            'notes' => trim((string) $this->request->input('notes')),
+        ];
+        if ($data['name'] === '') {
+            Flash::set('error', 'Informe o nome do cliente.');
+
+            return Response::redirect('/clientes/novo');
+        }
+        $id = (new ClientModel())->create($tid, $data);
+        (new TenantAuditModel())->log($tid, $this->userId(), 'client_create', ['client_id' => $id, 'name' => $data['name']]);
+        Flash::set('success', 'Cliente cadastrado.');
+
+        return Response::redirect('/clientes/' . $id);
     }
 
     public function show(int $id): Response
@@ -92,16 +130,21 @@ final class ClientController extends Controller
         }
         $apptCount = $m->countAppointments($tid, $id);
         try {
-            $m->deleteWithAppointments($tid, $id);
+            $m->softDelete($tid, $id);
         } catch (\Throwable) {
             Flash::set('error', 'Não foi possível excluir o cliente.');
 
             return Response::redirect('/clientes/' . $id);
         }
+        (new TenantAuditModel())->log($tid, $this->userId(), 'client_delete', [
+            'client_id' => $id,
+            'name' => (string) ($client['name'] ?? ''),
+            'appointments' => $apptCount,
+        ]);
         $name = (string) ($client['name'] ?? 'Cliente');
         $msg = $apptCount > 0
-            ? "Cliente \"{$name}\" excluído com {$apptCount} agendamento(s) vinculado(s)."
-            : "Cliente \"{$name}\" excluído.";
+            ? "Cliente \"{$name}\" removido da lista ({$apptCount} agendamento(s) no histórico)."
+            : "Cliente \"{$name}\" removido.";
         Flash::set('success', $msg);
 
         return Response::redirect('/clientes');

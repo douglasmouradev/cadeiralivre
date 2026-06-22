@@ -81,6 +81,23 @@ $d = $data;
         </tbody>
     </table>
 </div>
+
+<?php if (!empty($d['inactiveClients'])): ?>
+<div class="card card--compact">
+    <h3>Clientes inativos (90+ dias)</h3>
+    <table class="table">
+        <thead><tr><th>Nome</th><th>Última visita</th></tr></thead>
+        <tbody>
+        <?php foreach ($d['inactiveClients'] as $c): ?>
+            <tr>
+                <td><?= e((string) $c['name']) ?></td>
+                <td class="muted"><?= !empty($c['last_visit']) ? e((string) $c['last_visit']) : 'Nunca' ?></td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+<?php endif; ?>
 <?php
 $content = ob_get_clean();
 require __DIR__ . '/../layouts/admin.php';

@@ -4,12 +4,24 @@ declare(strict_types=1);
 
 /** @var string $csrf */
 
+/** @var list<string> $templates */
+
+use App\Services\TenantTemplateService;
+
 ob_start();
 ?>
 <section class="card" style="max-width: 520px;">
     <p class="muted mb-1">Cria uma nova loja na plataforma com dono e credenciais de acesso.</p>
     <form method="post" action="/saas/loja/nova" data-validate="1">
         <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
+        <div class="row">
+            <label for="template">Modelo de serviços</label>
+            <select id="template" name="template">
+                <?php foreach (($templates ?? TenantTemplateService::slugs()) as $tpl): ?>
+                    <option value="<?= e($tpl) ?>"><?= e(TenantTemplateService::label($tpl)) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
         <div class="row">
             <label for="shop_name">Nome da loja</label>
             <input id="shop_name" name="shop_name" required>

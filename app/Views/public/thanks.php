@@ -54,6 +54,12 @@ $location = is_array($tenant) ? trim((string) ($tenant['address'] ?? '') . ', ' 
                 <?php endif; ?>
             </dl>
             <?php if ($startRaw !== ''): ?>
+            <?php if ($startRaw !== '' && is_array($tenant) && !empty($tenant['phone'])):
+                $waMsg = 'Olá! Confirmo meu agendamento em ' . $storeName . ' em ' . $dtLabel . '.';
+                $waUrl = whatsapp_link((string) $tenant['phone'], $waMsg);
+                if ($waUrl !== ''): ?>
+                <a class="btn secondary" href="<?= e($waUrl) ?>" target="_blank" rel="noopener">Confirmar no WhatsApp</a>
+            <?php endif; endif; ?>
             <div class="form-actions thanks-actions">
                 <button type="button" class="btn secondary" id="btn-add-calendar">Adicionar ao calendário</button>
                 <a class="btn" href="/agendar/<?= e($slug) ?>/meus-agendamentos">Ver meus agendamentos</a>

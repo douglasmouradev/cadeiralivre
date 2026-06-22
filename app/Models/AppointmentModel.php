@@ -263,6 +263,30 @@ final class AppointmentModel
         return $stmt->fetchAll() ?: [];
     }
 
+    /** Agendamentos confirmados nas próximas 24–25h sem lembrete enviado. */
+    /** @return list<array<string, mixed>> */
+    public function dueForReminder(int $hoursAhead = 24): array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT a.*, c.name AS client_name, c.email AS client_email, c.phone AS client_phone,
+                    s.name AS service_name, u.name AS barber_name, t.name AS tenant_name, t.slug AS tenant_slug, t.phone AS tenant_phone
+             FROM appointments a
+             INNER JOIN clients c ON c.id = a.client_id
+             INNER JOIN services s ON s.id = a.service_id
+             INNER JOIN barbers b ON b.id = a.barber_id
+             INNER JOIN users u ON u.id = b.user_id
+             INNER JOIN tenants t ON t.id = a.tenant_id
+             WHERE a.status IN ('pending','confirmed')
+               AND a.reminder_sent_at IS NULL
+               AND a.start_datetime BETWEEN DATE_ADD(NOW(), INTERVAL :h HOUR) AND DATE_ADD(NOW(), INTERVAL :h2 HOUR)
+               AND c.deleted_at IS NULL"
+        );
+        $h = max(1, min($hoursAhead, 48));
+        $stmt->execute(['h' => $h, 'h2' => $h + 1]);
+
+        return $stmt->fetchAll() ?: [];
+    }
+
     public function countPendingConfirmation(int $tenantId): int
     {
         $stmt = $this->pdo->prepare(

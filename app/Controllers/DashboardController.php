@@ -19,6 +19,9 @@ final class DashboardController extends Controller
             return Response::redirect('/agenda');
         }
         $tid = $this->tenantId();
+        if ($this->userRole() === UserRole::Owner->value && !(new TenantModel())->isOnboardingComplete($tid)) {
+            return Response::redirect('/onboarding');
+        }
         $appts = new AppointmentModel();
         $stats = $appts->dashboardStats($tid);
         $chart = $appts->revenueLast30Days($tid);

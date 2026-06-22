@@ -130,4 +130,29 @@ final class SaasPlatformModel
 
         return is_array($row) ? $row : [];
     }
+
+    /** Lojas sem agendamento recente (risco de churn). */
+    /** @return list<array<string, mixed>> */
+    public function inactiveTenants(int $daysWithoutAppointment = 30): array
+    {
+        $days = max(7, min($daysWithoutAppointment, 90));
+        $stmt = $this->pdo->prepare(
+            "SELECT t.id, t.name, t.slug, t.subscription_status,
+                    (SELECT MAX(a.start_datetime) FROM appointments a
+                     WHERE a.tenant_id = t.id AND a.status NOT IN ('cancelled','no_show')) AS last_appt
+             FROM tenants t
+             WHERE t.status <> 'suspended'
+               AND t.created_at < DATE_SUB(NOW(), INTERVAL :days DAY)
+               AND NOT EXISTS (
+                   SELECT 1 FROM appointments a
+                   WHERE a.tenant_id = t.id
+                     AND a.start_datetime >= DATE_SUB(NOW(), INTERVAL :days2 DAY)
+                     AND a.status NOT IN ('cancelled','no_show')
+               )
+             ORDER BY t.name ASC
+             LIMIT 15"
+        );
+        $stmt->execute(['days' => $days, 'days2' => $days]);
+        return $stmt->fetchAll() ?: [];
+    }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 /** @var array<string, int|float> $stats */
 /** @var list<array<string, mixed>> $trialsExpiring */
 /** @var list<array<string, mixed>> $pastDueTenants */
+/** @var list<array<string, mixed>> $churnRisk */
 /** @var list<array<string, mixed>> $recentLogs */
 /** @var string $csrf */
 
@@ -34,6 +35,22 @@ ob_start();
         <p class="muted stat-sub">últimos 30 dias</p>
     </article>
 </section>
+
+<?php if ($churnRisk !== []): ?>
+<section class="card saas-alert-card saas-alert-card--warn mb-1">
+    <h2>Risco de churn (sem agendamentos em 30 dias)</h2>
+    <ul class="saas-alert-list">
+        <?php foreach ($churnRisk as $t): ?>
+            <li>
+                <a href="/saas/tenants/<?= (int) ($t['id'] ?? 0) ?>"><?= e((string) ($t['name'] ?? '')) ?></a>
+                <?php if (!empty($t['last_appt'])): ?>
+                    <span class="muted">último: <?= e((string) $t['last_appt']) ?></span>
+                <?php endif; ?>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+</section>
+<?php endif; ?>
 
 <?php if ($trialsExpiring !== [] || $pastDueTenants !== []): ?>
 <section class="grid saas-alerts-grid">

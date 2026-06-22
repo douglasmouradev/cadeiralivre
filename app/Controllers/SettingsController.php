@@ -10,6 +10,7 @@ use App\Helpers\Flash;
 use App\Models\PlanDefinitionModel;
 use App\Models\TenantModel;
 use App\Models\UserModel;
+use App\Services\StripeBillingService;
 use App\Services\SubscriptionService;
 use App\Services\UploadService;
 
@@ -72,10 +73,44 @@ final class SettingsController extends Controller
             'timezone' => trim((string) $this->request->input('timezone')),
             'public_tagline' => trim((string) $this->request->input('public_tagline')) ?: null,
             'instagram_url' => $instagram !== '' ? $instagram : null,
+            'webhook_url' => trim((string) $this->request->input('webhook_url')) ?: null,
         ]);
         Flash::set('success', 'Dados da loja salvos.');
 
         return Response::redirect('/configuracoes');
+    }
+
+    public function startCheckout(): Response
+    {
+        $tid = $this->tenantId();
+        $planSlug = trim((string) $this->request->input('plan'));
+        $plan = (new PlanDefinitionModel())->findBySlug($planSlug);
+        if ($plan === null) {
+            Flash::set('error', 'Plano inválido.');
+
+            return Response::redirect('/configuracoes/assinatura');
+        }
+        $priceId = trim((string) ($plan['stripe_price_id'] ?? ''));
+        if ($priceId === '') {
+            Flash::set('error', 'Este plano ainda não tem preço Stripe configurado. Contacte o suporte.');
+
+            return Response::redirect('/configuracoes/assinatura');
+        }
+        $base = rtrim((string) ($this->app->config()['url'] ?? ''), '/');
+        try {
+            $url = (new StripeBillingService())->createCheckoutUrl(
+                $tid,
+                $priceId,
+                $base . '/configuracoes/assinatura?checkout=success',
+                $base . '/configuracoes/assinatura?checkout=cancel',
+            );
+        } catch (\Throwable $e) {
+            Flash::set('error', 'Não foi possível iniciar o pagamento. Verifique STRIPE_SECRET_KEY.');
+
+            return Response::redirect('/configuracoes/assinatura');
+        }
+
+        return Response::redirect($url);
     }
 
     public function uploadLogo(): Response

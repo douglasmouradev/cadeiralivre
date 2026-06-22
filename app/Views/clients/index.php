@@ -9,11 +9,17 @@ declare(strict_types=1);
 /** @var string $currentNav */
 /** @var string $csrf */
 
+/** @var int $totalPages */
+/** @var int $perPage */
+
 ob_start();
 ?>
 <div class="toolbar">
     <h2 class="toolbar__title">Clientes</h2>
-    <a class="btn secondary" href="/clientes/exportar">Exportar CSV</a>
+    <div class="td-actions">
+        <a class="btn" href="/clientes/novo">Novo cliente</a>
+        <a class="btn secondary" href="/clientes/exportar">Exportar CSV</a>
+    </div>
 </div>
 <form class="card card--compact clients-search" method="get" action="/clientes">
     <input name="q" type="search" value="<?= e($q) ?>" placeholder="Buscar nome, e-mail ou telefone" aria-label="Buscar clientes">
@@ -39,7 +45,17 @@ ob_start();
         <?php endforeach; ?>
         </tbody>
     </table>
-    <p class="muted">Total: <?= (int) $result['total'] ?> · Página <?= (int) $page ?></p>
+    <p class="muted">Total: <?= (int) $result['total'] ?> · Página <?= (int) $page ?> de <?= (int) ($totalPages ?? 1) ?></p>
+    <?php if (($totalPages ?? 1) > 1): ?>
+        <nav class="pagination" aria-label="Paginação">
+            <?php if ($page > 1): ?>
+                <a class="btn secondary" href="/clientes?page=<?= $page - 1 ?><?= $q !== '' ? '&q=' . rawurlencode($q) : '' ?>">← Anterior</a>
+            <?php endif; ?>
+            <?php if ($page < ($totalPages ?? 1)): ?>
+                <a class="btn secondary" href="/clientes?page=<?= $page + 1 ?><?= $q !== '' ? '&q=' . rawurlencode($q) : '' ?>">Próxima →</a>
+            <?php endif; ?>
+        </nav>
+    <?php endif; ?>
 </div>
 <?php
 $content = ob_get_clean();

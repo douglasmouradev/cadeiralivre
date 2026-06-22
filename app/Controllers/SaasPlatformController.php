@@ -13,8 +13,10 @@ use App\Helpers\Str;
 use App\Models\PlanDefinitionModel;
 use App\Models\SaasAuditModel;
 use App\Models\SaasPlatformModel;
+use App\Models\BarberModel;
 use App\Models\TenantModel;
 use App\Models\UserModel;
+use App\Services\TenantTemplateService;
 
 final class SaasPlatformController extends Controller
 {
@@ -24,6 +26,7 @@ final class SaasPlatformController extends Controller
         $stats = $platform->platformStats();
         $trialsExpiring = $platform->trialsExpiringSoon(7);
         $pastDue = $platform->listTenantsFiltered(null, 'active', 'past_due', 'created_desc');
+        $churnRisk = $platform->inactiveTenants(30);
         $recentLogs = (new SaasAuditModel())->recent(15);
 
         return $this->view('saas/dashboard', [
@@ -31,6 +34,7 @@ final class SaasPlatformController extends Controller
             'stats' => $stats,
             'trialsExpiring' => $trialsExpiring,
             'pastDueTenants' => $pastDue,
+            'churnRisk' => $churnRisk,
             'recentLogs' => $recentLogs,
             'currentNav' => 'dashboard',
         ]);
@@ -297,6 +301,7 @@ final class SaasPlatformController extends Controller
     {
         return $this->view('saas/new_tenant', [
             'title' => 'Nova loja',
+            'templates' => TenantTemplateService::slugs(),
             'currentNav' => 'new_tenant',
         ]);
     }
@@ -309,6 +314,7 @@ final class SaasPlatformController extends Controller
         $phone = trim((string) $this->request->input('phone'));
         $owner = trim((string) $this->request->input('owner_name'));
         $password = (string) $this->request->input('password');
+        $template = trim((string) $this->request->input('template'));
 
         if ($name === '' || $slug === '' || $email === '' || $owner === '') {
             Flash::set('error', 'Preencha todos os campos obrigatórios.');
@@ -356,6 +362,26 @@ final class SaasPlatformController extends Controller
                 UserRole::Owner->value,
                 $phone !== '' ? $phone : null,
             );
+            if ($template !== '' && $template !== 'empty' && in_array($template, TenantTemplateService::slugs(), true)) {
+                $proEmail = 'pro+' . $slug . '@' . preg_replace('/^.*@/', '', $email);
+                if ($users->findByEmail($proEmail) === null) {
+                    $proUid = $users->create(
+                        $tenantId,
+                        $owner,
+                        $proEmail,
+                        $hash,
+                        UserRole::Barber->value,
+                        $phone !== '' ? $phone : null,
+                    );
+                    $barberId = (new BarberModel())->create($tenantId, $proUid, [
+                        'bio' => '',
+                        'specialties' => [],
+                        'commission_percent' => 100.0,
+                        'is_available' => true,
+                    ]);
+                    (new TenantTemplateService())->apply($tenantId, $barberId, $template);
+                }
+            }
             $pdo->commit();
         } catch (\Throwable) {
             $pdo->rollBack();
@@ -367,6 +393,7 @@ final class SaasPlatformController extends Controller
         (new SaasAuditModel())->log($this->userId(), 'tenant_create', $tenantId, [
             'name' => $name,
             'slug' => $slug,
+            'template' => $template,
         ]);
         Flash::set('success', 'Loja criada com sucesso.');
 

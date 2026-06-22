@@ -6,6 +6,10 @@ use App\Core\Router;
 
 return static function (Router $r): void {
     $r->add('GET', '/', 'HomeController@index', []);
+    $r->add('GET', '/status', 'HomeController@status', []);
+
+    $r->add('GET', '/onboarding', 'OnboardingController@index', ['AuthMiddleware', 'AdminMiddleware']);
+    $r->add('POST', '/onboarding/concluir', 'OnboardingController@complete', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
 
     $r->add('GET', '/privacidade', 'LegalController@privacy', []);
     $r->add('GET', '/termos', 'LegalController@terms', []);
@@ -30,6 +34,8 @@ return static function (Router $r): void {
 
     $r->add('GET', '/login', 'AuthController@showLogin', []);
     $r->add('POST', '/login', 'AuthController@login', ['LoginRateLimitMiddleware', 'CsrfMiddleware']);
+    $r->add('GET', '/cadastro', 'AuthController@showRegister', []);
+    $r->add('POST', '/cadastro', 'AuthController@register', ['CsrfMiddleware']);
     $r->add('GET', '/registrar', 'AuthController@showRegister', ['AuthMiddleware', 'OwnerMiddleware']);
     $r->add('POST', '/registrar', 'AuthController@register', ['AuthMiddleware', 'OwnerMiddleware', 'CsrfMiddleware']);
     $r->add('GET', '/logout', 'AuthController@logout', []);
@@ -78,6 +84,8 @@ return static function (Router $r): void {
     $r->add('POST', '/agenda/bloqueios/{blockId}/excluir', 'ScheduleController@deleteBlock', ['AuthMiddleware', 'StaffMiddleware', 'CsrfMiddleware']);
 
     $r->add('GET', '/clientes', 'ClientController@index', ['AuthMiddleware', 'AdminMiddleware']);
+    $r->add('GET', '/clientes/novo', 'ClientController@createForm', ['AuthMiddleware', 'AdminMiddleware']);
+    $r->add('POST', '/clientes', 'ClientController@create', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
     $r->add('GET', '/clientes/exportar', 'ClientController@export', ['AuthMiddleware', 'AdminMiddleware']);
     $r->add('GET', '/clientes/{id}', 'ClientController@show', ['AuthMiddleware', 'AdminMiddleware']);
     $r->add('GET', '/clientes/{id}/editar', 'ClientController@editForm', ['AuthMiddleware', 'AdminMiddleware']);
@@ -89,6 +97,7 @@ return static function (Router $r): void {
 
     $r->add('GET', '/configuracoes', 'SettingsController@index', ['AuthMiddleware', 'AdminMiddleware']);
     $r->add('GET', '/configuracoes/assinatura', 'SettingsController@subscription', ['AuthMiddleware', 'AdminMiddleware']);
+    $r->add('POST', '/configuracoes/assinatura/checkout', 'SettingsController@startCheckout', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
     $r->add('POST', '/configuracoes/tenant', 'SettingsController@updateTenant', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
     $r->add('POST', '/configuracoes/logo', 'SettingsController@uploadLogo', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
     $r->add('POST', '/configuracoes/capa', 'SettingsController@uploadCover', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
@@ -111,6 +120,8 @@ return static function (Router $r): void {
     $r->add('GET', '/agendar/{slug}/meus-agendamentos', 'PublicBookingController@myAppointments', []);
     $r->add('POST', '/agendar/{slug}/meus-agendamentos/confirmar', 'PublicBookingController@portalAppointmentConfirm', ['CsrfMiddleware']);
     $r->add('POST', '/agendar/{slug}/meus-agendamentos/cancelar', 'PublicBookingController@portalAppointmentCancel', ['CsrfMiddleware']);
+    $r->add('GET', '/agendar/{slug}/meus-agendamentos/{id}/reagendar', 'PublicBookingController@portalRescheduleForm', []);
+    $r->add('POST', '/agendar/{slug}/meus-agendamentos/{id}/reagendar', 'PublicBookingController@portalReschedule', ['CsrfMiddleware']);
     $r->add('GET', '/agendar/{slug}/slots.json', 'PublicBookingController@slots', []);
     $r->add('POST', '/agendar/{slug}', 'PublicBookingController@book', ['CsrfMiddleware']);
     $r->add('GET', '/agendar/{slug}/obrigado', 'PublicBookingController@thanks', []);

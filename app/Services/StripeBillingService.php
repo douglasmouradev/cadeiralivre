@@ -100,6 +100,40 @@ final class StripeBillingService
         }
     }
 
+    /** Cria sessão Stripe Checkout e devolve a URL de redirecionamento. */
+    public function createCheckoutUrl(int $tenantId, string $stripePriceId, string $successUrl, string $cancelUrl): string
+    {
+        $tenant = (new TenantModel())->findById($tenantId);
+        if ($tenant === null) {
+            throw new \RuntimeException('Loja não encontrada.');
+        }
+        if ($stripePriceId === '') {
+            throw new \RuntimeException('Plano sem preço Stripe configurado.');
+        }
+        $stripe = $this->client();
+        $customerId = (string) ($tenant['billing_customer_id'] ?? '');
+        $params = [
+            'mode' => 'subscription',
+            'line_items' => [['price' => $stripePriceId, 'quantity' => 1]],
+            'success_url' => $successUrl,
+            'cancel_url' => $cancelUrl,
+            'metadata' => ['tenant_id' => (string) $tenantId],
+            'subscription_data' => ['metadata' => ['tenant_id' => (string) $tenantId]],
+        ];
+        if ($customerId !== '') {
+            $params['customer'] = $customerId;
+        } else {
+            $params['customer_email'] = (string) ($tenant['email'] ?? '');
+        }
+        $session = $stripe->checkout->sessions->create($params);
+        $url = (string) ($session->url ?? '');
+        if ($url === '') {
+            throw new \RuntimeException('Stripe não retornou URL de checkout.');
+        }
+
+        return $url;
+    }
+
     private function client(): \Stripe\StripeClient
     {
         $key = $_ENV['STRIPE_SECRET_KEY'] ?? '';

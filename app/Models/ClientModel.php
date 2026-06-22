@@ -16,11 +16,16 @@ final class ClientModel
         $this->pdo = Database::connection();
     }
 
+    private function activeClause(): string
+    {
+        return ' AND deleted_at IS NULL';
+    }
+
     /** @return array{rows: list<array<string, mixed>>, total: int} */
     public function paginate(int $tenantId, int $page, int $perPage, ?string $search): array
     {
         $offset = max(0, ($page - 1) * $perPage);
-        $where = 'tenant_id = :t';
+        $where = 'tenant_id = :t' . $this->activeClause();
         $params = ['t' => $tenantId];
         if ($search !== null && $search !== '') {
             $where .= ' AND (name LIKE :q1 OR email LIKE :q2 OR phone LIKE :q3)';
@@ -53,7 +58,7 @@ final class ClientModel
         if ($e === '') {
             return null;
         }
-        $stmt = $this->pdo->prepare('SELECT * FROM clients WHERE tenant_id = :t AND email = :e LIMIT 1');
+        $stmt = $this->pdo->prepare('SELECT * FROM clients WHERE tenant_id = :t AND email = :e AND deleted_at IS NULL LIMIT 1');
         $stmt->execute(['t' => $tenantId, 'e' => $e]);
         $row = $stmt->fetch();
 
@@ -109,7 +114,7 @@ final class ClientModel
     /** @return array<string, mixed>|null */
     public function find(int $tenantId, int $id): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM clients WHERE tenant_id = :t AND id = :id LIMIT 1');
+        $stmt = $this->pdo->prepare('SELECT * FROM clients WHERE tenant_id = :t AND id = :id AND deleted_at IS NULL LIMIT 1');
         $stmt->execute(['t' => $tenantId, 'id' => $id]);
         $row = $stmt->fetch();
 
@@ -155,7 +160,7 @@ final class ClientModel
     public function searchQuick(int $tenantId, string $q, int $limit = 20): array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT * FROM clients WHERE tenant_id = :t AND (name LIKE :q1 OR email LIKE :q2 OR phone LIKE :q3)
+            'SELECT * FROM clients WHERE tenant_id = :t AND deleted_at IS NULL AND (name LIKE :q1 OR email LIKE :q2 OR phone LIKE :q3)
              ORDER BY name ASC LIMIT :lim'
         );
         $sq = '%' . $q . '%';
@@ -177,27 +182,21 @@ final class ClientModel
         return (int) $stmt->fetchColumn();
     }
 
-    /** Remove cliente e agendamentos vinculados (histórico, pagamentos e avaliações em cascata). */
+    /** Soft delete: oculta cliente da lista sem apagar histórico de agendamentos. */
+    public function softDelete(int $tenantId, int $clientId): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE clients SET deleted_at = NOW(), updated_at = NOW() WHERE tenant_id = :t AND id = :id AND deleted_at IS NULL'
+        );
+        $stmt->execute(['t' => $tenantId, 'id' => $clientId]);
+        if ($stmt->rowCount() === 0) {
+            throw new \RuntimeException('Cliente não encontrado.');
+        }
+    }
+
+    /** @deprecated Use softDelete — mantido para script de limpeza. */
     public function deleteWithAppointments(int $tenantId, int $clientId): void
     {
-        $this->pdo->beginTransaction();
-        try {
-            $stmt = $this->pdo->prepare('SELECT id FROM appointments WHERE tenant_id = :t AND client_id = :c');
-            $stmt->execute(['t' => $tenantId, 'c' => $clientId]);
-            $ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
-            if (is_array($ids) && $ids !== []) {
-                $del = $this->pdo->prepare('DELETE FROM appointments WHERE tenant_id = :t AND client_id = :c');
-                $del->execute(['t' => $tenantId, 'c' => $clientId]);
-            }
-            $delClient = $this->pdo->prepare('DELETE FROM clients WHERE tenant_id = :t AND id = :id');
-            $delClient->execute(['t' => $tenantId, 'id' => $clientId]);
-            if ($delClient->rowCount() === 0) {
-                throw new \RuntimeException('Cliente não encontrado.');
-            }
-            $this->pdo->commit();
-        } catch (\Throwable $e) {
-            $this->pdo->rollBack();
-            throw $e;
-        }
+        $this->softDelete($tenantId, $clientId);
     }
 }

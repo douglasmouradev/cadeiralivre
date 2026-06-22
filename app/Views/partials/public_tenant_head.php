@@ -15,6 +15,7 @@ if ($ogImage === '' && !empty($tenant['logo_path'])) {
 }
 $favicon = !empty($tenant['logo_path']) ? tenant_logo_url($slug) : '/assets/img/cadeiralivre-logo.png';
 ?>
+<link rel="manifest" href="/manifest.json">
 <link rel="icon" href="<?= e($favicon) ?>" type="image/png">
 <meta name="description" content="<?= e($ogDesc) ?>">
 <meta property="og:type" content="website">

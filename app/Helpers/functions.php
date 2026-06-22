@@ -385,3 +385,29 @@ if (!function_exists('saas_audit_action_label')) {
         };
     }
 }
+
+if (!function_exists('whatsapp_link')) {
+    function whatsapp_link(string $phone, string $message): string
+    {
+        $digits = preg_replace('/\D+/', '', $phone) ?? '';
+        if ($digits === '') {
+            return '';
+        }
+        if (!str_starts_with($digits, '55') && strlen($digits) >= 10 && strlen($digits) <= 11) {
+            $digits = '55' . $digits;
+        }
+
+        return 'https://wa.me/' . $digits . '?text=' . rawurlencode($message);
+    }
+}
+
+if (!function_exists('tenant_audit_action_label')) {
+    function tenant_audit_action_label(string $action): string
+    {
+        return match ($action) {
+            'client_create' => 'Cliente cadastrado',
+            'client_delete' => 'Cliente removido',
+            default => $action,
+        };
+    }
+}

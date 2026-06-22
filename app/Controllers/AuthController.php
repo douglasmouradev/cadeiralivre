@@ -82,6 +82,10 @@ final class AuthController extends Controller
 
     public function showRegister(): Response
     {
+        if (!empty($_SESSION['user_id'])) {
+            return Response::redirect($this->postAuthHomePath());
+        }
+
         return $this->view('auth/register', [
             'title' => 'Criar conta',
             'csrf' => Csrf::token(),
@@ -90,6 +94,7 @@ final class AuthController extends Controller
 
     public function register(): Response
     {
+        $back = !empty($_SESSION['user_id']) ? '/registrar' : '/cadastro';
         $name = trim((string) $this->request->input('shop_name'));
         $slug = Str::slug(trim((string) $this->request->input('slug')));
         $email = mb_strtolower(trim((string) $this->request->input('email')));
@@ -100,19 +105,19 @@ final class AuthController extends Controller
         if (strlen($password) < 8) {
             Flash::set('error', 'A senha deve ter no mínimo 8 caracteres.');
 
-            return Response::redirect('/registrar');
+            return Response::redirect($back);
         }
         $tenants = new TenantModel();
         if ($tenants->findBySlug($slug) !== null) {
             Flash::set('error', 'Este identificador (slug) já está em uso.');
 
-            return Response::redirect('/registrar');
+            return Response::redirect($back);
         }
         $users = new UserModel();
         if ($users->findByEmail($email) !== null) {
             Flash::set('error', 'Este e-mail já está cadastrado.');
 
-            return Response::redirect('/registrar');
+            return Response::redirect($back);
         }
 
         $pdo = Database::connection();
@@ -142,7 +147,7 @@ final class AuthController extends Controller
             $pdo->rollBack();
             Flash::set('error', 'Não foi possível concluir o cadastro. Tente novamente.');
 
-            return Response::redirect('/registrar');
+            return Response::redirect($back);
         }
 
         session_regenerate_id(true);
@@ -153,7 +158,7 @@ final class AuthController extends Controller
         $_SESSION['user_email'] = $email;
         Flash::set('success', 'Loja criada com sucesso.');
 
-        return Response::redirect('/painel');
+        return Response::redirect('/onboarding');
     }
 
     public function logout(): Response

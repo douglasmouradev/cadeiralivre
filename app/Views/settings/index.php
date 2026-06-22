@@ -48,6 +48,10 @@ ob_start();
                 Prévia da cor nos botões da página pública
             </div>
             <div class="row"><label>Fuso</label><input name="timezone" value="<?= e((string) ($tenant['timezone'] ?? 'America/Sao_Paulo')) ?>"></div>
+            <div class="row">
+                <label>Webhook (URL para automações)</label>
+                <input name="webhook_url" type="url" placeholder="https://seu-n8n.com/webhook/..." value="<?= e((string) ($tenant['webhook_url'] ?? '')) ?>">
+            </div>
             <button class="btn" type="submit">Salvar</button>
         </form>
         <form method="post" action="/configuracoes/logo" enctype="multipart/form-data" class="mt-1">

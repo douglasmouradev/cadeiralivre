@@ -105,6 +105,7 @@ $tzId = $timezone;
                                         </form>
                                     <?php endif; ?>
                                     <?php if ($canCancel): ?>
+                                        <a class="btn secondary" href="/agendar/<?= e($slug) ?>/meus-agendamentos/<?= $appointmentId ?>/reagendar">Reagendar</a>
                                         <form method="post" action="/agendar/<?= e($slug) ?>/meus-agendamentos/cancelar" class="my-appointment-action-form" onsubmit="return confirm('Cancelar este agendamento? Esta ação não pode ser desfeita.');">
                                             <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
                                             <input type="hidden" name="appointment_id" value="<?= $appointmentId ?>">

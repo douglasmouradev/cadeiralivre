@@ -34,6 +34,7 @@ final class ReportController extends Controller
             'commissions' => $rep->commissionsByBarber($tid, $start->format('Y-m-d'), $end->format('Y-m-d')),
             'cancellations' => $rep->cancellationStats($tid, $start->format('Y-m-d'), $end->format('Y-m-d')),
             'peaks' => $rep->peakHours($tid, $start->format('Y-m-d'), $end->format('Y-m-d')),
+            'inactiveClients' => $rep->inactiveClients($tid, 90),
             'start' => $start->format('Y-m-d'),
             'end' => $end->format('Y-m-d'),
             'range' => $range,

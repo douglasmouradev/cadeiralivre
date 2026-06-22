@@ -1,0 +1,16 @@
+{
+  "name": "CadeiraLivre",
+  "short_name": "CadeiraLivre",
+  "description": "Agendamento online para barbearias e salões",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#1a1a1a",
+  "icons": [
+    {
+      "src": "/assets/img/cadeiralivre-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

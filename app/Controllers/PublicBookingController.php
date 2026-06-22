@@ -636,4 +636,115 @@ final class PublicBookingController extends Controller
 
         return $this->view('public/review_done', ['title' => 'Obrigado']);
     }
+
+    public function portalRescheduleForm(string $slug, int $id): Response
+    {
+        $tenant = $this->tenantFromSlug($slug);
+        if ($tenant === null) {
+            return Response::html('<!DOCTYPE html><html><body><p>Loja não encontrada.</p></body></html>', 404);
+        }
+        if ($this->subscriptionBlocksPublic($tenant)) {
+            return Response::html($this->publicSubscriptionClosedHtml((string) $tenant['name']), 403);
+        }
+        $tid = (int) $tenant['id'];
+        $portal = $this->portalClientForTenant($tid);
+        if ($portal === null) {
+            Flash::set('error', 'Entre como cliente para reagendar.');
+
+            return Response::redirect('/cliente/' . rawurlencode($slug) . '/entrar');
+        }
+        $ap = new AppointmentModel();
+        $row = $ap->find($tid, $id);
+        if ($row === null || (int) $row['client_id'] !== (int) $portal['id']) {
+            Flash::set('error', 'Agendamento não encontrado.');
+
+            return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos');
+        }
+        if (!in_array((string) $row['status'], [AppointmentStatus::Pending->value, AppointmentStatus::Confirmed->value], true)) {
+            Flash::set('error', 'Este agendamento não pode ser reagendado.');
+
+            return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos');
+        }
+
+        return $this->view('public/reschedule', [
+            'title' => 'Reagendar — ' . $tenant['name'],
+            'tenant' => $tenant,
+            'slug' => $slug,
+            'appointment' => $row,
+            'service_id' => (int) $row['service_id'],
+            'barber_id' => (int) $row['barber_id'],
+            'timezone' => (string) ($tenant['timezone'] ?? 'America/Sao_Paulo'),
+        ]);
+    }
+
+    public function portalReschedule(string $slug, int $id): Response
+    {
+        $tenant = $this->tenantFromSlug($slug);
+        if ($tenant === null) {
+            return Response::redirect('/');
+        }
+        if ($this->subscriptionBlocksPublic($tenant)) {
+            Flash::set('error', (new SubscriptionService())->humanBlockReason($tenant));
+
+            return Response::redirect('/agendar/' . rawurlencode($slug));
+        }
+        $tid = (int) $tenant['id'];
+        $portal = $this->portalClientForTenant($tid);
+        if ($portal === null) {
+            Flash::set('error', 'Entre como cliente.');
+
+            return Response::redirect('/cliente/' . rawurlencode($slug) . '/entrar');
+        }
+        $ap = new AppointmentModel();
+        $row = $ap->find($tid, $id);
+        if ($row === null || (int) $row['client_id'] !== (int) $portal['id']) {
+            Flash::set('error', 'Agendamento não encontrado.');
+
+            return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos');
+        }
+        if (!in_array((string) $row['status'], [AppointmentStatus::Pending->value, AppointmentStatus::Confirmed->value], true)) {
+            Flash::set('error', 'Este agendamento não pode ser reagendado.');
+
+            return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos');
+        }
+        $tz = (string) ($tenant['timezone'] ?? 'America/Sao_Paulo');
+        $start = (string) $this->request->input('start_datetime');
+        $startDt = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $start) ?: \DateTimeImmutable::createFromFormat('Y-m-d\TH:i', $start);
+        if ($startDt === false) {
+            Flash::set('error', 'Horário inválido.');
+
+            return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos/' . $id . '/reagendar');
+        }
+        $startStr = $startDt->format('Y-m-d H:i:s');
+        $serviceId = (int) $row['service_id'];
+        $barberId = (int) $row['barber_id'];
+        $svc = (new ServiceModel())->find($tid, $serviceId);
+        if ($svc === null) {
+            Flash::set('error', 'Serviço inválido.');
+
+            return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos');
+        }
+        $endStr = $startDt->add(new \DateInterval('PT' . (int) $svc['duration_minutes'] . 'M'))->format('Y-m-d H:i:s');
+        $slotSvc = new SlotService();
+        if (!$slotSvc->isPublicSlotValid($tid, $serviceId, $barberId, $startStr, $tz, 'one')) {
+            Flash::set('error', 'Horário indisponível. Escolha outro.');
+
+            return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos/' . $id . '/reagendar');
+        }
+        if ($ap->countOverlapping($tid, $barberId, $startStr, $endStr, $id) > 0) {
+            Flash::set('error', 'Conflito de horário.');
+
+            return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos/' . $id . '/reagendar');
+        }
+        $from = (string) $row['start_datetime'];
+        $ap->reschedule($tid, $id, $startStr, $endStr);
+        $ap->addHistory($id, $tid, (string) $row['status'], (string) $row['status'], null, 'Reagendado pelo cliente de ' . $from . ' para ' . $startStr);
+        (new TenantModel())->dispatchWebhook($tid, 'appointment.rescheduled', [
+            'appointment_id' => $id,
+            'start_datetime' => $startStr,
+        ]);
+        Flash::set('success', 'Agendamento reagendado.');
+
+        return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos');
+    }
 }
