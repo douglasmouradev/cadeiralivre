@@ -11,6 +11,8 @@ use App\Exceptions\NotFoundException;
 use App\Middleware\MiddlewareStack;
 use App\Services\AppLogger;
 use Closure;
+use ReflectionMethod;
+use ReflectionNamedType;
 use Throwable;
 
 final class Application
@@ -98,7 +100,47 @@ final class Application
             throw new NotFoundException('Ação não encontrada.');
         }
 
-        return $controller->{$action}(...array_values($params));
+        $method = new ReflectionMethod($controller, $action);
+        $args = $this->resolveActionArguments($method, $params);
+
+        return $controller->{$action}(...$args);
+    }
+
+    /**
+     * Converte parâmetros da rota (strings) para os tipos declarados no controlador.
+     *
+     * @param array<string, mixed> $params
+     * @return list<mixed>
+     */
+    private function resolveActionArguments(ReflectionMethod $method, array $params): array
+    {
+        $values = array_values($params);
+        $args = [];
+        foreach ($method->getParameters() as $i => $param) {
+            if (array_key_exists($i, $values)) {
+                $value = $values[$i];
+            } elseif ($param->isDefaultValueAvailable()) {
+                $args[] = $param->getDefaultValue();
+                continue;
+            } else {
+                $value = null;
+            }
+
+            $type = $param->getType();
+            if ($type instanceof ReflectionNamedType && $type->isBuiltin() && $value !== null) {
+                $value = match ($type->getName()) {
+                    'int' => is_int($value) ? $value : (is_numeric($value) ? (int) $value : $value),
+                    'float' => is_float($value) ? $value : (is_numeric($value) ? (float) $value : $value),
+                    'bool' => is_bool($value) ? $value : filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? (bool) $value,
+                    'string' => (string) $value,
+                    default => $value,
+                };
+            }
+
+            $args[] = $value;
+        }
+
+        return $args;
     }
 
     private function renderError(int $code, string $message): string
