@@ -75,6 +75,7 @@ return static function (Router $r): void {
     $r->add('GET', '/agenda', 'ScheduleController@index', ['AuthMiddleware', 'StaffMiddleware']);
     $r->add('POST', '/agenda', 'ScheduleController@store', ['AuthMiddleware', 'StaffMiddleware', 'CsrfMiddleware']);
     $r->add('POST', '/agenda/status', 'ScheduleController@updateStatus', ['AuthMiddleware', 'StaffMiddleware', 'CsrfMiddleware']);
+    $r->add('POST', '/agenda/{id}/excluir', 'ScheduleController@destroy', ['AuthMiddleware', 'StaffMiddleware', 'CsrfMiddleware']);
     $r->add('POST', '/agenda/reagendar', 'ScheduleController@reschedule', ['AuthMiddleware', 'StaffMiddleware', 'CsrfMiddleware']);
     $r->add('GET', '/agenda/slots.json', 'ScheduleController@slotsJson', ['AuthMiddleware', 'StaffMiddleware']);
     $r->add('POST', '/agenda/horarios', 'ScheduleController@saveHours', ['AuthMiddleware', 'StaffMiddleware', 'CsrfMiddleware']);

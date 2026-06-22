@@ -268,6 +268,39 @@ final class ScheduleController extends Controller
         return Response::redirect('/agenda');
     }
 
+    public function destroy(int $id): Response
+    {
+        $tid = $this->tenantId();
+        $ap = new AppointmentModel();
+        $row = $ap->find($tid, $id);
+        if ($row === null) {
+            Flash::set('error', 'Agendamento não encontrado.');
+
+            return Response::redirect('/agenda');
+        }
+        $st = (string) ($row['status'] ?? '');
+        $deletable = in_array($st, [
+            AppointmentStatus::Cancelled->value,
+            AppointmentStatus::NoShow->value,
+            AppointmentStatus::Completed->value,
+        ], true);
+        if (!$deletable && !in_array($this->userRole(), [UserRole::Owner->value, UserRole::Superadmin->value], true)) {
+            Flash::set('error', 'Cancele o agendamento antes de excluir.');
+
+            return Response::redirect('/agenda');
+        }
+        try {
+            $ap->delete($tid, $id);
+        } catch (\Throwable) {
+            Flash::set('error', 'Não foi possível excluir o agendamento.');
+
+            return Response::redirect('/agenda');
+        }
+        Flash::set('success', 'Agendamento excluído.');
+
+        return Response::redirect('/agenda');
+    }
+
     public function reschedule(): Response
     {
         $tid = $this->tenantId();

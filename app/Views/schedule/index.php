@@ -207,6 +207,11 @@ ob_start();
                         AppointmentStatus::InProgress->value,
                     ], true);
                     $canCancel = $canComplete;
+                    $canDelete = in_array($stRaw, [
+                        AppointmentStatus::Cancelled->value,
+                        AppointmentStatus::NoShow->value,
+                        AppointmentStatus::Completed->value,
+                    ], true);
                     $apptId = (int) $a['id'];
                     ?>
                     <?php if ($canConfirm): ?>
@@ -234,7 +239,13 @@ ob_start();
                         <button class="btn danger" type="submit">Cancelar</button>
                     </form>
                     <?php endif; ?>
-                    <?php if (!$canConfirm && !$canComplete && !$canCancel): ?>
+                    <?php if ($canDelete): ?>
+                    <form method="post" action="/agenda/<?= $apptId ?>/excluir" class="form-inline" data-confirm="Excluir este agendamento permanentemente?">
+                        <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
+                        <button class="btn danger" type="submit">Excluir</button>
+                    </form>
+                    <?php endif; ?>
+                    <?php if (!$canConfirm && !$canComplete && !$canCancel && !$canDelete): ?>
                         <span class="muted">—</span>
                     <?php endif; ?>
                 </td>

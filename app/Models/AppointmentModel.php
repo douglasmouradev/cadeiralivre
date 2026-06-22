@@ -357,4 +357,13 @@ final class AppointmentModel
 
         return $out;
     }
+
+    public function delete(int $tenantId, int $id): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM appointments WHERE tenant_id = :t AND id = :id');
+        $stmt->execute(['t' => $tenantId, 'id' => $id]);
+        if ($stmt->rowCount() === 0) {
+            throw new \RuntimeException('Agendamento não encontrado.');
+        }
+    }
 }
