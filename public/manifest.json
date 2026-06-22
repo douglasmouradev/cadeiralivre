@@ -4,13 +4,26 @@
   "description": "Agendamento online para barbearias e salões",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f0f0f",
-  "theme_color": "#1a1a1a",
+  "background_color": "#f7f4ef",
+  "theme_color": "#7c5e3c",
   "icons": [
     {
-      "src": "/assets/img/cadeiralivre-logo.png",
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

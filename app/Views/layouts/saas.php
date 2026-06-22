@@ -21,6 +21,8 @@ $userName = (string) ($_SESSION['user_name'] ?? '');
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="<?= e($csrf ?? \App\Helpers\Csrf::token()) ?>">
     <title><?= e($title ?? 'Plataforma') ?> — <?= e(app_name()) ?></title>
+    <?php require __DIR__ . '/../partials/site_favicons.php'; ?>
+    <link rel="manifest" href="/manifest.json">
     <link rel="stylesheet" href="<?= e(asset_version('/assets/css/app.css')) ?>">
 </head>
 <body class="admin-body">

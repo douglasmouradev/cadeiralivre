@@ -13,10 +13,13 @@ $ogImage = (string) ($og_image ?? '');
 if ($ogImage === '' && !empty($tenant['logo_path'])) {
     $ogImage = app_base_url() . tenant_logo_url($slug);
 }
-$favicon = !empty($tenant['logo_path']) ? tenant_logo_url($slug) : '/assets/img/cadeiralivre-logo.png';
 ?>
 <link rel="manifest" href="/manifest.json">
-<link rel="icon" href="<?= e($favicon) ?>" type="image/png">
+<?php if (!empty($tenant['logo_path'])): ?>
+<link rel="icon" href="<?= e(tenant_logo_url($slug)) ?>" type="image/png">
+<?php else: ?>
+<?php require __DIR__ . '/site_favicons.php'; ?>
+<?php endif; ?>
 <meta name="description" content="<?= e($ogDesc) ?>">
 <meta property="og:type" content="website">
 <meta property="og:title" content="<?= e($ogTitle) ?>">

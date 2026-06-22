@@ -61,6 +61,7 @@ $faqItems = [
     <meta name="twitter:image" content="<?= e($ogImage) ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <?php require __DIR__ . '/../partials/site_favicons.php'; ?>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#f7f4ef">
     <title><?= e($title) ?></title>

@@ -12,6 +12,8 @@ declare(strict_types=1);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title><?= e($title) ?></title>
+    <?php require __DIR__ . '/../partials/site_favicons.php'; ?>
+    <link rel="manifest" href="/manifest.json">
     <link rel="stylesheet" href="/assets/css/app.css">
 </head>
 <body class="public-body">
