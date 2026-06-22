@@ -17,6 +17,29 @@ foreach ($plans as $i => $p) {
 if ($featuredPlanIndex === null && $planCount >= 2) {
     $featuredPlanIndex = (int) floor($planCount / 2);
 }
+
+$demoUrl = (string) ($demoBookingUrl ?? '/agendar/adriele-cardoso-nail-design');
+$pageUrl = rtrim((string) ($baseUrl ?? ''), '/') ?: '';
+$ogImage = $pageUrl !== '' ? $pageUrl . '/assets/img/cadeiralivre-logo.png' : '/assets/img/cadeiralivre-logo.png';
+$waPhone = preg_replace('/\D+/', '', (string) ($supportWhatsApp ?? '5571997087082')) ?: '5571997087082';
+$waMsg = rawurlencode('Olá! Tenho interesse no ' . app_name() . '.');
+$waUrl = 'https://wa.me/' . $waPhone . '?text=' . $waMsg;
+$tenantCount = max(0, (int) ($activeTenants ?? 0));
+
+$planFeatureMap = [
+    'free' => ['Portal do cliente', 'Lembretes por e-mail', 'Página pública personalizada'],
+    'pro' => ['Lembretes WhatsApp', 'Relatórios e comissões', 'Exportação CSV', 'PWA no celular'],
+    'enterprise' => ['Profissionais ilimitados', 'Agendamentos ilimitados', 'Relatórios completos', 'Equipe sem limites'],
+];
+
+$faqItems = [
+    ['Preciso de CNPJ para usar?', 'Não. Pessoa física ou jurídica pode usar o ' . app_name() . ' — ideal para profissionais autônomos e estabelecimentos.'],
+    ['O trial limita funcionalidades?', 'Não. Durante os 14 dias de teste você usa o painel completo, conforme o plano escolhido.'],
+    ['Meus profissionais acessam o sistema?', 'Sim. Cada um pode ter login próprio com permissões de profissional ou recepcionista.'],
+    ['O cliente paga para agendar?', 'Não. O agendamento pelo link público é gratuito para o seu cliente.'],
+    ['Posso mudar de plano depois?', 'Sim. Upgrade ou downgrade pelo painel, com cobrança proporcional via Stripe.'],
+    ['Consigo exportar meus dados?', 'Sim. Relatórios e lista de clientes podem ser exportados em CSV a qualquer momento.'],
+];
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -24,6 +47,20 @@ if ($featuredPlanIndex === null && $planCount >= 2) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="Agendamento online multi-tenant para barbearias, nail designers e salões. Trial grátis, portal do cliente e painel completo.">
+    <link rel="canonical" href="<?= e($pageUrl !== '' ? $pageUrl . '/' : '/') ?>">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:site_name" content="<?= e(app_name()) ?>">
+    <meta property="og:title" content="<?= e($title) ?>">
+    <meta property="og:description" content="Agendamento online para barbearias e salões. Link público, portal do cliente, lembretes e painel completo. 14 dias grátis.">
+    <meta property="og:url" content="<?= e($pageUrl !== '' ? $pageUrl . '/' : '/') ?>">
+    <meta property="og:image" content="<?= e($ogImage) ?>">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?= e($title) ?>">
+    <meta name="twitter:description" content="Agendamento online para barbearias e salões. 14 dias grátis.">
+    <meta name="twitter:image" content="<?= e($ogImage) ?>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#f7f4ef">
     <title><?= e($title) ?></title>
@@ -36,7 +73,7 @@ if ($featuredPlanIndex === null && $planCount >= 2) {
 <header class="landing-header">
     <div class="landing-shell landing-header__inner">
         <a href="/" class="landing-brand">
-            <img src="/assets/img/cadeiralivre-logo.png" width="44" height="44" alt="">
+            <img src="/assets/img/cadeiralivre-logo.png" width="44" height="44" alt="<?= e(app_name()) ?>">
             <span class="landing-brand__name"><?= e(app_name()) ?></span>
         </a>
         <button type="button" class="landing-nav-toggle" id="landing-nav-toggle" aria-controls="landing-nav" aria-expanded="false" aria-label="Abrir menu">
@@ -66,10 +103,11 @@ if ($featuredPlanIndex === null && $planCount >= 2) {
                 <p class="landing-kicker"><span class="landing-kicker__dot" aria-hidden="true"></span>Agendamento para salões e barbearias</p>
                 <h1>Sua cadeira.<br>Seu horário.<br><span class="landing-accent-line">Online.</span></h1>
                 <p class="landing-lead">Um link para o cliente agendar, um painel para você comandar a equipe — sem planilha, sem troca infinita de mensagens.</p>
-                <div class="landing-cta">
+                <div class="landing-cta landing-cta--row">
                     <a class="btn landing-btn-primary landing-btn-primary--lg" href="/cadastro">Abrir minha loja</a>
-                    <p class="landing-cta-note">14 dias grátis · sem cartão</p>
+                    <a class="btn landing-btn-outline landing-btn-outline--lg" href="<?= e($demoUrl) ?>" target="_blank" rel="noopener">Ver demonstração</a>
                 </div>
+                <p class="landing-cta-note">14 dias grátis · sem cartão</p>
                 <ul class="landing-hero__stats" aria-label="Destaques">
                     <li><strong>24h</strong><span>Agendamento online</span></li>
                     <li><strong>100%</strong><span>Na nuvem</span></li>
@@ -77,8 +115,9 @@ if ($featuredPlanIndex === null && $planCount >= 2) {
                 </ul>
                 <p class="landing-hero-foot">Já tem conta? <a href="/login">Entrar no painel</a></p>
             </div>
-            <aside class="landing-preview" aria-hidden="true">
+            <aside class="landing-preview">
                 <div class="landing-preview__halo" aria-hidden="true"></div>
+                <a class="landing-preview__link" href="<?= e($demoUrl) ?>" target="_blank" rel="noopener" aria-label="Ver demonstração ao vivo — Adriele Nail Design">
                 <div class="landing-preview__frame">
                     <div class="landing-preview__bar">
                         <span></span><span></span><span></span>
@@ -94,7 +133,36 @@ if ($featuredPlanIndex === null && $planCount >= 2) {
                         </ul>
                     </div>
                 </div>
+                <span class="landing-preview__caption">Exemplo real · clique para agendar</span>
+                </a>
             </aside>
+        </div>
+    </section>
+
+    <section class="landing-proof" aria-label="Prova social">
+        <div class="landing-shell landing-proof__inner">
+            <article class="landing-proof__case">
+                <img class="landing-proof__logo" src="/assets/img/brands/adriele-cardoso-logo.png" width="56" height="56" alt="Adriele Nail Design" loading="lazy">
+                <div>
+                    <p class="landing-proof__label">Loja em produção</p>
+                    <h3>Adriele Nail Design</h3>
+                    <p>Nail designer usando o <?= e(app_name()) ?> para receber agendamentos online com página própria e identidade visual.</p>
+                    <a class="landing-proof__link" href="<?= e($demoUrl) ?>" target="_blank" rel="noopener">Ver página de agendamento →</a>
+                </div>
+            </article>
+            <?php if ($tenantCount > 0): ?>
+            <ul class="landing-proof__stats">
+                <li><strong><?= e((string) $tenantCount) ?></strong><span><?= $tenantCount === 1 ? 'Loja ativa' : 'Lojas ativas' ?></span></li>
+                <li><strong>14</strong><span>Dias de trial</span></li>
+                <li><strong>LGPD</strong><span>Conformidade</span></li>
+            </ul>
+            <?php else: ?>
+            <ul class="landing-proof__stats">
+                <li><strong>14</strong><span>Dias de trial</span></li>
+                <li><strong>0</strong><span>Taxa p/ cliente</span></li>
+                <li><strong>LGPD</strong><span>Conformidade</span></li>
+            </ul>
+            <?php endif; ?>
         </div>
     </section>
 
@@ -279,6 +347,8 @@ if ($featuredPlanIndex === null && $planCount >= 2) {
                 <?php foreach ($plans as $i => $p):
                     $isFeatured = $featuredPlanIndex !== null && $i === $featuredPlanIndex;
                     $cardClass = 'landing-plan' . ($isFeatured ? ' landing-plan--featured' : '');
+                    $slug = (string) ($p['slug'] ?? '');
+                    $extras = $planFeatureMap[$slug] ?? ['Portal do cliente', 'Lembretes automáticos', 'Relatórios básicos'];
                     ?>
                 <article class="<?= e($cardClass) ?>">
                     <?php if ($isFeatured): ?>
@@ -292,6 +362,9 @@ if ($featuredPlanIndex === null && $planCount >= 2) {
                     <ul class="landing-plan__features">
                         <li><span>Profissionais</span><strong><?= isset($p['max_barbers']) && $p['max_barbers'] !== null ? (int) $p['max_barbers'] : '∞' ?></strong></li>
                         <li><span>Agendamentos/mês</span><strong><?= isset($p['max_appointments_per_month']) && $p['max_appointments_per_month'] !== null ? (int) $p['max_appointments_per_month'] : '∞' ?></strong></li>
+                        <?php foreach ($extras as $feat): ?>
+                        <li class="landing-plan__feat-extra"><span><?= e($feat) ?></span><strong aria-hidden="true">✓</strong></li>
+                        <?php endforeach; ?>
                     </ul>
                     <a class="btn <?= $isFeatured ? 'landing-btn-primary' : 'landing-btn-outline' ?>" href="/cadastro">
                         <?= (int) $p['monthly_price_cents'] === 0 ? 'Começar grátis' : 'Experimentar' ?>
@@ -308,32 +381,14 @@ if ($featuredPlanIndex === null && $planCount >= 2) {
                 <p class="landing-kicker">Perguntas frequentes</p>
                 <h2>Dúvidas comuns</h2>
             </header>
-            <dl class="landing-faq__list">
-                <div class="landing-faq__item">
-                    <dt>Preciso de CNPJ para usar?</dt>
-                    <dd>Não. Pessoa física ou jurídica pode usar o <?= e(app_name()) ?> — ideal para profissionais autônomos e estabelecimentos.</dd>
-                </div>
-                <div class="landing-faq__item">
-                    <dt>O trial limita funcionalidades?</dt>
-                    <dd>Não. Durante os 14 dias de teste você usa o painel completo, conforme o plano escolhido.</dd>
-                </div>
-                <div class="landing-faq__item">
-                    <dt>Meus profissionais acessam o sistema?</dt>
-                    <dd>Sim. Cada um pode ter login próprio com permissões de profissional ou recepcionista.</dd>
-                </div>
-                <div class="landing-faq__item">
-                    <dt>O cliente paga para agendar?</dt>
-                    <dd>Não. O agendamento pelo link público é gratuito para o seu cliente.</dd>
-                </div>
-                <div class="landing-faq__item">
-                    <dt>Posso mudar de plano depois?</dt>
-                    <dd>Sim. Upgrade ou downgrade pelo painel, com cobrança proporcional via Stripe.</dd>
-                </div>
-                <div class="landing-faq__item">
-                    <dt>Consigo exportar meus dados?</dt>
-                    <dd>Sim. Relatórios e lista de clientes podem ser exportados em CSV a qualquer momento.</dd>
-                </div>
-            </dl>
+            <div class="landing-faq__list">
+                <?php foreach ($faqItems as $faq): ?>
+                <details class="landing-faq__item">
+                    <summary><?= e($faq[0]) ?></summary>
+                    <p><?= e($faq[1]) ?></p>
+                </details>
+                <?php endforeach; ?>
+            </div>
         </div>
     </section>
 
@@ -355,6 +410,7 @@ if ($featuredPlanIndex === null && $planCount >= 2) {
     <div class="landing-shell landing-footer__inner">
         <p class="landing-footer__brand"><?= e(app_name()) ?></p>
         <nav class="landing-footer__links">
+            <a href="<?= e($waUrl) ?>" target="_blank" rel="noopener">WhatsApp</a>
             <a href="/privacidade">Privacidade</a>
             <a href="/termos">Termos</a>
             <a href="/lgpd">LGPD</a>
@@ -363,6 +419,30 @@ if ($featuredPlanIndex === null && $planCount >= 2) {
         <p class="landing-footer__copy">© <?= e((string) date('Y')) ?> · Feito para quem vive de agenda cheia</p>
     </div>
 </footer>
+
+<div class="landing-sticky-cta" id="landing-sticky-cta" hidden>
+    <a class="btn landing-btn-primary" href="/cadastro">Teste grátis — 14 dias</a>
+    <a class="btn landing-btn-outline landing-btn-outline--compact" href="<?= e($demoUrl) ?>" target="_blank" rel="noopener">Demo</a>
+</div>
+
+<script type="application/ld+json"><?= json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'SoftwareApplication',
+    'name' => app_name(),
+    'applicationCategory' => 'BusinessApplication',
+    'operatingSystem' => 'Web',
+    'offers' => ['@type' => 'Offer', 'price' => '0', 'priceCurrency' => 'BRL', 'description' => 'Trial de 14 dias'],
+    'description' => 'Agendamento online para barbearias, nail designers e salões.',
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
+<script type="application/ld+json"><?= json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'FAQPage',
+    'mainEntity' => array_map(static fn (array $item): array => [
+        '@type' => 'Question',
+        'name' => $item[0],
+        'acceptedAnswer' => ['@type' => 'Answer', 'text' => $item[1]],
+    ], $faqItems),
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
 <script src="<?= e(asset_version('/assets/js/app.js')) ?>" defer></script>
 </body>
 </html>

@@ -97,6 +97,32 @@
     });
   }
 
+  const landingSticky = document.getElementById('landing-sticky-cta');
+  const landingFinalCta = document.querySelector('.landing-final-cta');
+  if (landingSticky instanceof HTMLElement) {
+    const hero = document.querySelector('.landing-hero');
+    const toggleSticky = () => {
+      if (window.innerWidth > 768) {
+        landingSticky.hidden = true;
+        landingSticky.classList.remove('is-visible');
+        return;
+      }
+      const scrollY = window.scrollY || window.pageYOffset;
+      const heroBottom = hero instanceof HTMLElement ? hero.offsetTop + hero.offsetHeight : 400;
+      let hideNearFooter = false;
+      if (landingFinalCta instanceof HTMLElement) {
+        const rect = landingFinalCta.getBoundingClientRect();
+        hideNearFooter = rect.top < window.innerHeight * 0.85;
+      }
+      const show = scrollY > heroBottom - 80 && !hideNearFooter && !document.body.classList.contains('landing-nav-open');
+      landingSticky.hidden = !show;
+      landingSticky.classList.toggle('is-visible', show);
+    };
+    toggleSticky();
+    window.addEventListener('scroll', toggleSticky, { passive: true });
+    window.addEventListener('resize', toggleSticky);
+  }
+
   const polishBarberPickCards = () => {
     const heroLogo = document.querySelector('.store-hero__logo');
     const logoSrc = heroLogo instanceof HTMLImageElement ? heroLogo.src : '';
