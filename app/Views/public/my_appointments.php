@@ -16,6 +16,10 @@ $brandHex = tenant_brand_hex(isset($tenant['primary_color']) ? (string) $tenant[
 $flashSuccess = Flash::get('success');
 $flashError = Flash::get('error');
 $tzId = $timezone;
+$location = trim(implode(' · ', array_filter([
+    trim((string) ($tenant['city'] ?? '')),
+    trim((string) ($tenant['state'] ?? '')),
+])));
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -25,25 +29,33 @@ $tzId = $timezone;
     <meta name="csrf-token" content="<?= e($csrf) ?>">
     <meta name="theme-color" content="<?= e($brandHex) ?>">
     <title><?= e($title) ?></title>
+    <?php require __DIR__ . '/../partials/public_tenant_head.php'; ?>
     <link rel="stylesheet" href="<?= e(asset_version('/assets/css/app.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_version('/assets/css/booking.css')) ?>">
 </head>
-<body class="public-body public-theme" style="--tenant-accent: <?= e($brandHex) ?>;">
-<main class="public-page">
-    <header class="public-header">
-        <?php if (!empty($tenant['logo_path'])): ?>
-            <img class="public-header__logo" src="<?= e(tenant_logo_url($slug)) ?>" alt="<?= e((string) $tenant['name']) ?>">
-        <?php endif; ?>
-        <div>
-            <h1 class="public-header__title"><?= e((string) $tenant['name']) ?></h1>
-            <p class="muted"><?= e(trim((string) ($tenant['city'] ?? '') . ' ' . (string) ($tenant['state'] ?? ''))) ?></p>
-            <p class="booking-portal-links muted">
-                Olá, <strong><?= e((string) $portal_client['name']) ?></strong> —
-                <a href="/agendar/<?= e($slug) ?>">Agendar horário</a>
-                ·
-                <a href="/agendar/<?= e($slug) ?>/meus-agendamentos" aria-current="page">Meus agendamentos</a>
-                ·
-                <a href="/cliente/<?= e($slug) ?>/sair">Sair da conta</a>
-            </p>
+<body class="public-body public-theme booking-premium" style="--tenant-accent: <?= e($brandHex) ?>;">
+<main class="public-page portal-page booking-premium__main">
+    <header class="store-hero store-hero--compact">
+        <div class="store-hero__overlay">
+            <div class="store-hero__brand">
+                <?php if (!empty($tenant['logo_path'])): ?>
+                    <img class="store-hero__logo" src="<?= e(tenant_logo_url($slug)) ?>" alt="">
+                <?php endif; ?>
+                <div>
+                    <h1 class="store-hero__title"><?= e((string) $tenant['name']) ?></h1>
+                    <?php if ($location !== ''): ?>
+                        <p class="store-hero__meta"><?= e($location) ?></p>
+                    <?php endif; ?>
+                    <p class="store-hero__user muted">
+                        Olá, <strong><?= e((string) $portal_client['name']) ?></strong> —
+                        <a href="/agendar/<?= e($slug) ?>">Agendar horário</a>
+                        ·
+                        <a href="/agendar/<?= e($slug) ?>/meus-agendamentos" aria-current="page">Meus agendamentos</a>
+                        ·
+                        <a href="/cliente/<?= e($slug) ?>/sair">Sair</a>
+                    </p>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -54,12 +66,15 @@ $tzId = $timezone;
         <div class="alert alert-error" role="alert"><?= e($flashError) ?></div>
     <?php endif; ?>
 
-    <div class="card card--compact">
-        <h2 style="margin:0 0 0.5rem;font-size:1.15rem;font-family:'DM Serif Display',Georgia,serif;font-weight:400">Meus agendamentos</h2>
-        <p class="muted" style="margin:0;font-size:0.88rem">Histórico nesta barbearia (fuso: <?= e($tzId) ?>).</p>
+    <div class="card card--premium card--compact">
+        <h2 class="portal-card__title">Meus agendamentos</h2>
+        <p class="muted portal-card__lead">Histórico nesta loja (fuso: <?= e($tzId) ?>).</p>
 
         <?php if ($appointments === []): ?>
-            <p class="muted" style="margin:1rem 0 0">Você ainda não tem agendamentos aqui. <a href="/agendar/<?= e($slug) ?>">Agendar agora</a></p>
+            <div class="portal-empty">
+                <p class="muted" style="margin:0">Você ainda não tem agendamentos aqui.</p>
+                <p style="margin:0.75rem 0 0"><a href="/agendar/<?= e($slug) ?>">Agendar agora</a></p>
+            </div>
         <?php else: ?>
             <div class="my-appointments-table-wrap">
                 <table class="table">
@@ -123,7 +138,8 @@ $tzId = $timezone;
             </div>
         <?php endif; ?>
     </div>
+    <?php require __DIR__ . '/../partials/public_platform_footer.php'; ?>
 </main>
-<script src="/assets/js/app.js" defer></script>
+<script src="<?= e(asset_version('/assets/js/app.js')) ?>" defer></script>
 </body>
 </html>

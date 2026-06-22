@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display&display=swap');
+@import url('tokens.css');
 
 :root {
   --bg: #f2efe8;
@@ -1667,9 +1668,42 @@ form.form-inline {
   min-width: 0;
 }
 
-.onboarding-checklist { display: grid; gap: 1rem; }
-.onboarding-step--done { border-left: 3px solid var(--success, #15803d); }
-.onboarding-link-input { width: 100%; font-family: monospace; font-size: 0.85rem; }
+.onboarding-checklist {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1rem;
+}
+
+.onboarding-step {
+  border-left: 3px solid var(--border);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.onboarding-step--done {
+  border-left-color: var(--ok);
+  background: linear-gradient(135deg, rgba(21, 128, 61, 0.04), transparent);
+}
+
+.onboarding-step h3 {
+  font-family: var(--cl-font-serif, 'DM Serif Display', Georgia, serif);
+  font-weight: 400;
+}
+
+.onboarding-step--done h3::after {
+  content: ' ✓';
+  color: var(--ok);
+  font-size: 0.9em;
+}
+
+.onboarding-link-input {
+  width: 100%;
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--cl-radius-sm, 10px);
+  border: 1px solid var(--cl-line-strong, var(--border-strong));
+  background: var(--cl-bg-elevated, #fffcf7);
+}
 .pagination { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
 .pill--success { background: color-mix(in srgb, #15803d 15%, #fff); color: #15803d; }
 .status-list { list-style: none; padding: 0; }

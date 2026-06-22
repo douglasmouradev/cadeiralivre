@@ -32,6 +32,7 @@ $instagram = trim((string) ($tenant['instagram_url'] ?? ''));
     <title><?= e($title) ?></title>
     <?php require __DIR__ . '/../partials/public_tenant_head.php'; ?>
     <link rel="stylesheet" href="<?= e(asset_version('/assets/css/app.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_version('/assets/css/booking.css')) ?>">
 </head>
 <body class="public-body public-theme booking-premium" style="--tenant-accent: <?= e($brandHex) ?>;">
 <main class="public-page booking-premium__main" data-booking-main data-booking-slug="<?= e($slug) ?>">
@@ -196,6 +197,7 @@ $instagram = trim((string) ($tenant['instagram_url'] ?? ''));
             </div>
         </section>
     </form>
+    <?php require __DIR__ . '/../partials/public_platform_footer.php'; ?>
 </main>
 <div id="toast-root" class="toast-root" aria-live="polite"></div>
 <script type="application/json" id="booking-barbers-json"><?= json_encode(array_map(static fn ($b) => [

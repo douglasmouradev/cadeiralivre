@@ -20,16 +20,28 @@ $apptId = (int) $appointment['id'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="<?= e($csrf) ?>">
+    <meta name="theme-color" content="<?= e($brandHex) ?>">
     <title><?= e($title) ?></title>
+    <?php require __DIR__ . '/../partials/public_tenant_head.php'; ?>
     <link rel="stylesheet" href="<?= e(asset_version('/assets/css/app.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_version('/assets/css/booking.css')) ?>">
 </head>
-<body class="public-body public-theme" style="--tenant-accent: <?= e($brandHex) ?>;">
-<main class="public-page">
-    <header class="public-header">
-        <h1 class="public-header__title">Reagendar</h1>
-        <p class="muted"><a href="/agendar/<?= e($slug) ?>/meus-agendamentos">← Voltar</a></p>
+<body class="public-body public-theme booking-premium" style="--tenant-accent: <?= e($brandHex) ?>;">
+<main class="public-page portal-page booking-premium__main">
+    <header class="store-hero store-hero--compact">
+        <div class="store-hero__overlay">
+            <div class="store-hero__brand">
+                <?php if (!empty($tenant['logo_path'])): ?>
+                    <img class="store-hero__logo" src="<?= e(tenant_logo_url($slug)) ?>" alt="">
+                <?php endif; ?>
+                <div>
+                    <h1 class="store-hero__title">Reagendar</h1>
+                    <p class="store-hero__meta muted"><a href="/agendar/<?= e($slug) ?>/meus-agendamentos">← Meus agendamentos</a></p>
+                </div>
+            </div>
+        </div>
     </header>
-    <div class="card card--compact">
+    <div class="card card--premium card--compact">
         <p>Atual: <?= e(format_datetime_in_tenant_tz((string) $appointment['start_datetime'], $tzId)) ?></p>
         <form method="post" action="/agendar/<?= e($slug) ?>/meus-agendamentos/<?= $apptId ?>/reagendar" id="reschedule-form">
             <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
@@ -45,6 +57,7 @@ $apptId = (int) $appointment['id'];
             <button type="submit" class="btn" disabled id="btn-submit">Confirmar novo horário</button>
         </form>
     </div>
+    <?php require __DIR__ . '/../partials/public_platform_footer.php'; ?>
 </main>
 <script>
 (function () {

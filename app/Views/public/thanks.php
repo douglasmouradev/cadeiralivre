@@ -28,10 +28,11 @@ $location = is_array($tenant) ? trim((string) ($tenant['address'] ?? '') . ', ' 
     <meta name="theme-color" content="<?= e($brandHex) ?>">
     <title><?= e($title) ?></title>
     <?php if (is_array($tenant) && $slug !== ''): require __DIR__ . '/../partials/public_tenant_head.php'; endif; ?>
-    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="stylesheet" href="<?= e(asset_version('/assets/css/app.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_version('/assets/css/booking.css')) ?>">
 </head>
 <body class="public-body public-theme booking-premium" style="--tenant-accent: <?= e($brandHex) ?>;">
-<main class="public-centered">
+<main class="public-centered booking-premium__main">
     <div class="auth-card auth-card--success">
         <div class="success-icon" aria-hidden="true">✓</div>
         <h1>Agendamento confirmado</h1>
@@ -90,6 +91,7 @@ $location = is_array($tenant) ? trim((string) ($tenant['address'] ?? '') . ', ' 
         <?php endif; ?>
         <p class="muted mt-1"><a href="/agendar/<?= e($slug) ?>">Fazer outro agendamento</a></p>
     </div>
+    <?php require __DIR__ . '/../partials/public_platform_footer.php'; ?>
 </main>
 </body>
 </html>

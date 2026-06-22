@@ -1,0 +1,24 @@
+/* CadeiraLivre — design tokens compartilhados */
+
+:root {
+  --cl-bg: #f7f4ef;
+  --cl-bg-elevated: #fffcf7;
+  --cl-bg-card: #ffffff;
+  --cl-bg-soft: #f3ede4;
+  --cl-line: rgba(28, 25, 23, 0.08);
+  --cl-line-strong: rgba(124, 94, 60, 0.2);
+  --cl-text: #1c1917;
+  --cl-muted: #6b6560;
+  --cl-brass: #7c5e3c;
+  --cl-brass-light: #9a7348;
+  --cl-brass-dark: #5c452e;
+  --cl-radius-sm: 10px;
+  --cl-radius-md: 16px;
+  --cl-radius-lg: 24px;
+  --cl-shadow-sm: 0 1px 2px rgba(28, 25, 23, 0.04), 0 4px 12px rgba(28, 25, 23, 0.04);
+  --cl-shadow-md: 0 8px 24px rgba(28, 25, 23, 0.07), 0 2px 6px rgba(28, 25, 23, 0.04);
+  --cl-shadow-lg: 0 24px 48px rgba(28, 25, 23, 0.09), 0 8px 16px rgba(124, 94, 60, 0.06);
+  --cl-font-serif: 'DM Serif Display', Georgia, serif;
+  --cl-font-sans: 'DM Sans', system-ui, sans-serif;
+  --cl-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}

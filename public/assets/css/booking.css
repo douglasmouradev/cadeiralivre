@@ -1,0 +1,180 @@
+/* CadeiraLivre — fluxo público de agendamento */
+
+.booking-premium.public-body {
+  background: var(--cl-bg, #f7f4ef);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124, 94, 60, 0.06), transparent),
+    radial-gradient(ellipse 40% 30% at 100% 50%, rgba(232, 220, 200, 0.25), transparent);
+}
+
+.booking-premium__main.public-page {
+  padding-bottom: 0;
+}
+
+.booking-premium .store-hero {
+  border-radius: 0 0 var(--cl-radius-lg, 24px) var(--cl-radius-lg, 24px);
+  box-shadow: var(--cl-shadow-sm);
+}
+
+.booking-premium .store-hero__title {
+  font-family: var(--cl-font-serif, 'DM Serif Display', Georgia, serif);
+  font-weight: 400;
+  font-size: clamp(1.35rem, 4vw, 1.65rem);
+}
+
+.store-hero--compact {
+  margin: 0 0 1.25rem;
+  border-radius: var(--cl-radius-md, 16px);
+}
+
+.store-hero--compact .store-hero__overlay {
+  padding: 1.15rem 1.1rem;
+}
+
+.store-hero--compact .store-hero__logo {
+  width: 56px;
+  height: 56px;
+}
+
+.store-hero--compact .store-hero__title {
+  font-size: 1.2rem;
+}
+
+.booking-premium .stepper--premium .step {
+  transition: background 0.25s var(--cl-ease-out, ease), border-color 0.25s ease, transform 0.25s ease;
+}
+
+.booking-premium .stepper--premium .step.active {
+  transform: translateY(-1px);
+}
+
+.booking-premium .stepper--premium .step.active span {
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.booking-premium .booking-panel:not([hidden]) {
+  animation: booking-panel-in 0.4s var(--cl-ease-out, ease) both;
+}
+
+@keyframes booking-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.booking-premium .pick-card:hover {
+  transform: translateY(-2px);
+}
+
+.booking-premium .pick-card.is-selected {
+  transform: translateY(-1px);
+}
+
+.booking-premium .card--premium {
+  border-radius: var(--cl-radius-md, 16px);
+}
+
+/* Sucesso */
+.auth-card--success {
+  text-align: center;
+  border-radius: var(--cl-radius-md, 16px);
+  box-shadow: var(--cl-shadow-md);
+  animation: booking-success-in 0.55s var(--cl-ease-out, ease) both;
+}
+
+.success-icon {
+  animation: booking-success-pop 0.6s var(--cl-ease-out, ease) 0.15s both;
+}
+
+@keyframes booking-success-in {
+  from { opacity: 0; transform: scale(0.98) translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes booking-success-pop {
+  from { opacity: 0; transform: scale(0.6); }
+  70% { transform: scale(1.08); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.thanks-summary {
+  text-align: left;
+  margin: 1.25rem 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--border);
+}
+
+/* Portal cliente */
+.portal-page.public-page {
+  max-width: 720px;
+}
+
+.portal-card__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+  font-family: var(--cl-font-serif, 'DM Serif Display', Georgia, serif);
+  font-weight: 400;
+}
+
+.portal-card__lead {
+  margin: 0 0 1rem;
+  font-size: 0.88rem;
+}
+
+.portal-empty {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  border: 1px dashed var(--border);
+  border-radius: var(--cl-radius-md, 16px);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.portal-empty a {
+  font-weight: 600;
+}
+
+/* Rodapé plataforma */
+.platform-footer {
+  margin-top: 2rem;
+  padding: 1.25rem 1rem 1.75rem;
+  text-align: center;
+  border-top: 1px solid var(--cl-line, rgba(28, 25, 23, 0.08));
+}
+
+.platform-footer__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--cl-muted, #6b6560);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.platform-footer__link img {
+  border-radius: 6px;
+  opacity: 0.85;
+}
+
+.platform-footer__link:hover {
+  color: var(--cl-brass-dark, #5c452e);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .booking-premium .booking-panel:not([hidden]),
+  .auth-card--success,
+  .success-icon,
+  .booking-premium .pick-card:hover,
+  .booking-premium .pick-card.is-selected {
+    animation: none;
+    transform: none;
+  }
+}
