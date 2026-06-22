@@ -76,6 +76,27 @@
     });
   }
 
+  const landingNavToggle = document.getElementById('landing-nav-toggle');
+  const landingNavOverlay = document.getElementById('landing-nav-overlay');
+  if (landingNavToggle && landingNavOverlay) {
+    const setLandingOpen = (open) => {
+      document.body.classList.toggle('landing-nav-open', open);
+      landingNavToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      landingNavToggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+      landingNavOverlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+    };
+    landingNavToggle.addEventListener('click', () => {
+      setLandingOpen(!document.body.classList.contains('landing-nav-open'));
+    });
+    landingNavOverlay.addEventListener('click', () => setLandingOpen(false));
+    document.querySelectorAll('#landing-nav a').forEach((a) => {
+      a.addEventListener('click', () => setLandingOpen(false));
+    });
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) setLandingOpen(false);
+    });
+  }
+
   const polishBarberPickCards = () => {
     const heroLogo = document.querySelector('.store-hero__logo');
     const logoSrc = heroLogo instanceof HTMLImageElement ? heroLogo.src : '';

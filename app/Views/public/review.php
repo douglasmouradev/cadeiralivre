@@ -13,7 +13,7 @@ $brandHex = tenant_brand_hex(is_array($tenant ?? null) ? (string) ($tenant['prim
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="<?= e($csrf) ?>">
     <meta name="theme-color" content="<?= e($brandHex) ?>">
     <title><?= e($title) ?></title>

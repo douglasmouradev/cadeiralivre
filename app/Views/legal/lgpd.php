@@ -8,7 +8,7 @@ declare(strict_types=1);
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title><?= e($title) ?> — <?= e(app_name()) ?></title>
     <link rel="stylesheet" href="/assets/css/app.css">
 </head>

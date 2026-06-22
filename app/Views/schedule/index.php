@@ -171,91 +171,96 @@ ob_start();
     <?php endif; ?>
 </section>
 
-<div class="card">
-    <table class="table">
-        <thead>
-        <tr><th>Data/Hora</th><th>Cliente</th><th>Serviço</th><th>Profissional</th><th>Obs.</th><th>Status</th><th>Ações</th></tr>
-        </thead>
-        <tbody>
-        <?php foreach ($appointments as $a): ?>
-            <tr>
-                <td><?= e((string) $a['start_datetime']) ?></td>
-                <td><?= e((string) $a['client_name']) ?></td>
-                <td><?= e((string) $a['service_name']) ?></td>
-                <td><?= e((string) $a['barber_name']) ?></td>
-                <td class="cell-notes"<?php
-                    $n = trim((string) ($a['notes'] ?? ''));
-                    $tip = $n !== '' ? str_replace(["\r\n", "\n", "\r"], ' · ', $n) : '';
-                    if ($tip !== '') {
-                        echo ' title="' . e($tip) . '"';
-                    }
-                ?>><?php
-                    echo $n !== '' ? e($n) : '—';
-                ?></td>
-                <td><?php
-                    $stRaw = (string) ($a['status'] ?? '');
-                    $st = AppointmentStatus::tryFrom($stRaw);
-                    echo e($st !== null ? $st->label() : $stRaw);
-                ?></td>
-                <td class="td-actions">
-                    <?php
-                    $stRaw = (string) ($a['status'] ?? '');
-                    $canConfirm = $stRaw === AppointmentStatus::Pending->value;
-                    $canComplete = in_array($stRaw, [
-                        AppointmentStatus::Pending->value,
-                        AppointmentStatus::Confirmed->value,
-                        AppointmentStatus::InProgress->value,
-                    ], true);
-                    $canCancel = $canComplete;
-                    $canDelete = in_array($stRaw, [
-                        AppointmentStatus::Cancelled->value,
-                        AppointmentStatus::NoShow->value,
-                        AppointmentStatus::Completed->value,
-                    ], true);
-                    $apptId = (int) $a['id'];
-                    ?>
-                    <?php if ($canConfirm): ?>
-                    <form method="post" action="/agenda/status" class="form-inline">
-                        <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
-                        <input type="hidden" name="appointment_id" value="<?= $apptId ?>">
-                        <input type="hidden" name="status" value="confirmed">
-                        <button class="btn secondary" type="submit">Confirmar</button>
-                    </form>
-                    <?php endif; ?>
-                    <?php if ($canComplete): ?>
-                    <form method="post" action="/agenda/status" class="form-inline" data-confirm="Marcar este agendamento como concluído?">
-                        <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
-                        <input type="hidden" name="appointment_id" value="<?= $apptId ?>">
-                        <input type="hidden" name="status" value="completed">
-                        <button class="btn secondary" type="submit">Concluir</button>
-                    </form>
-                    <?php endif; ?>
-                    <?php if ($canCancel): ?>
-                    <form method="post" action="/agenda/status" class="form-inline" data-confirm="Cancelar este agendamento?">
-                        <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
-                        <input type="hidden" name="appointment_id" value="<?= $apptId ?>">
-                        <input type="hidden" name="status" value="cancelled">
-                        <input type="hidden" name="cancellation_reason" value="Cancelado pelo painel">
-                        <button class="btn danger" type="submit">Cancelar</button>
-                    </form>
-                    <?php endif; ?>
-                    <?php if ($canDelete): ?>
-                    <form method="post" action="/agenda/<?= $apptId ?>/excluir" class="form-inline" data-confirm="Excluir este agendamento permanentemente?">
-                        <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
-                        <button class="btn danger" type="submit">Excluir</button>
-                    </form>
-                    <?php endif; ?>
-                    <?php if (!$canConfirm && !$canComplete && !$canCancel && !$canDelete): ?>
-                        <span class="muted">—</span>
-                    <?php endif; ?>
-                </td>
-            </tr>
+<div class="appt-list-wrap">
+    <h3 class="appt-list__heading page-title page-title--section">Agendamentos do período</h3>
+    <?php if ($appointments === []): ?>
+        <p class="muted appt-list__empty">Sem agendamentos no período.</p>
+    <?php else: ?>
+    <div class="appt-list">
+        <?php foreach ($appointments as $a):
+            $stRaw = (string) ($a['status'] ?? '');
+            $st = AppointmentStatus::tryFrom($stRaw);
+            $stLabel = $st !== null ? $st->label() : $stRaw;
+            $canConfirm = $stRaw === AppointmentStatus::Pending->value;
+            $canComplete = in_array($stRaw, [
+                AppointmentStatus::Pending->value,
+                AppointmentStatus::Confirmed->value,
+                AppointmentStatus::InProgress->value,
+            ], true);
+            $canCancel = $canComplete;
+            $canDelete = in_array($stRaw, [
+                AppointmentStatus::Cancelled->value,
+                AppointmentStatus::NoShow->value,
+                AppointmentStatus::Completed->value,
+            ], true);
+            $apptId = (int) $a['id'];
+            $n = trim((string) ($a['notes'] ?? ''));
+            ?>
+        <article class="appt-card card card--compact">
+            <header class="appt-card__head">
+                <time class="appt-card__when" datetime="<?= e((string) $a['start_datetime']) ?>"><?= e((string) $a['start_datetime']) ?></time>
+                <span class="pill appt-card__status"><?= e($stLabel) ?></span>
+            </header>
+            <dl class="appt-card__meta">
+                <div class="appt-card__row">
+                    <dt>Cliente</dt>
+                    <dd><?= e((string) $a['client_name']) ?></dd>
+                </div>
+                <div class="appt-card__row">
+                    <dt>Serviço</dt>
+                    <dd><?= e((string) $a['service_name']) ?></dd>
+                </div>
+                <div class="appt-card__row">
+                    <dt>Profissional</dt>
+                    <dd><?= e((string) $a['barber_name']) ?></dd>
+                </div>
+                <?php if ($n !== ''): ?>
+                <div class="appt-card__row appt-card__row--notes">
+                    <dt>Obs.</dt>
+                    <dd><?= e($n) ?></dd>
+                </div>
+                <?php endif; ?>
+            </dl>
+            <div class="appt-card__actions">
+                <?php if ($canConfirm): ?>
+                <form method="post" action="/agenda/status" class="form-inline">
+                    <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
+                    <input type="hidden" name="appointment_id" value="<?= $apptId ?>">
+                    <input type="hidden" name="status" value="confirmed">
+                    <button class="btn secondary" type="submit">Confirmar</button>
+                </form>
+                <?php endif; ?>
+                <?php if ($canComplete): ?>
+                <form method="post" action="/agenda/status" class="form-inline" data-confirm="Marcar este agendamento como concluído?">
+                    <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
+                    <input type="hidden" name="appointment_id" value="<?= $apptId ?>">
+                    <input type="hidden" name="status" value="completed">
+                    <button class="btn secondary" type="submit">Concluir</button>
+                </form>
+                <?php endif; ?>
+                <?php if ($canCancel): ?>
+                <form method="post" action="/agenda/status" class="form-inline" data-confirm="Cancelar este agendamento?">
+                    <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
+                    <input type="hidden" name="appointment_id" value="<?= $apptId ?>">
+                    <input type="hidden" name="status" value="cancelled">
+                    <input type="hidden" name="cancellation_reason" value="Cancelado pelo painel">
+                    <button class="btn danger" type="submit">Cancelar</button>
+                </form>
+                <?php endif; ?>
+                <?php if ($canDelete): ?>
+                <form method="post" action="/agenda/<?= $apptId ?>/excluir" class="form-inline" data-confirm="Excluir este agendamento permanentemente?">
+                    <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
+                    <button class="btn danger" type="submit">Excluir</button>
+                </form>
+                <?php endif; ?>
+                <?php if (!$canConfirm && !$canComplete && !$canCancel && !$canDelete): ?>
+                    <span class="muted">Sem ações disponíveis</span>
+                <?php endif; ?>
+            </div>
+        </article>
         <?php endforeach; ?>
-        <?php if ($appointments === []): ?>
-            <tr><td colspan="7" class="muted">Sem agendamentos no período.</td></tr>
-        <?php endif; ?>
-        </tbody>
-    </table>
+    </div>
+    <?php endif; ?>
 </div>
 
 <div class="modal-backdrop" id="modal-new" role="dialog" aria-modal="true">

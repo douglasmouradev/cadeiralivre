@@ -25,16 +25,17 @@ ob_start();
     <input name="q" type="search" value="<?= e($q) ?>" placeholder="Buscar nome, e-mail ou telefone" aria-label="Buscar clientes">
     <button class="btn" type="submit">Buscar</button>
 </form>
-<div class="card">
-    <table class="table">
+<div class="card card--table-mobile">
+    <div class="table-scroll">
+    <table class="table table--stack">
         <thead><tr><th>Nome</th><th>E-mail</th><th>Telefone</th><th></th></tr></thead>
         <tbody>
         <?php foreach ($result['rows'] as $r): ?>
             <tr>
-                <td><?= e((string) $r['name']) ?></td>
-                <td><?= e((string) ($r['email'] ?? '')) ?></td>
-                <td><?= e((string) ($r['phone'] ?? '')) ?></td>
-                <td class="td-actions">
+                <td data-label="Nome"><?= e((string) $r['name']) ?></td>
+                <td data-label="E-mail"><?= e((string) ($r['email'] ?? '')) ?></td>
+                <td data-label="Telefone"><?= e((string) ($r['phone'] ?? '')) ?></td>
+                <td class="td-actions" data-label="Ações">
                     <a class="btn secondary" href="/clientes/<?= (int) $r['id'] ?>">Ver</a>
                     <form method="post" action="/clientes/<?= (int) $r['id'] ?>/excluir" class="form-inline" data-confirm="Excluir <?= e((string) $r['name']) ?>?">
                         <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
@@ -45,6 +46,7 @@ ob_start();
         <?php endforeach; ?>
         </tbody>
     </table>
+    </div>
     <p class="muted">Total: <?= (int) $result['total'] ?> · Página <?= (int) $page ?> de <?= (int) ($totalPages ?? 1) ?></p>
     <?php if (($totalPages ?? 1) > 1): ?>
         <nav class="pagination" aria-label="Paginação">

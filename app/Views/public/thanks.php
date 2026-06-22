@@ -24,7 +24,7 @@ $location = is_array($tenant) ? trim((string) ($tenant['address'] ?? '') . ', ' 
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="<?= e($brandHex) ?>">
     <title><?= e($title) ?></title>
     <?php if (is_array($tenant) && $slug !== ''): require __DIR__ . '/../partials/public_tenant_head.php'; endif; ?>

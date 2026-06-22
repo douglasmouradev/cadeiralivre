@@ -10,17 +10,18 @@ ob_start();
     <h2 class="toolbar__title">Profissionais</h2>
     <a class="btn" href="/barbeiros/novo">Novo</a>
 </div>
-<div class="card">
-    <table class="table">
+<div class="card card--table-mobile">
+    <div class="table-scroll">
+    <table class="table table--stack">
         <thead><tr><th>Nome</th><th>E-mail</th><th>Comissão</th><th>Disponível</th><th></th></tr></thead>
         <tbody>
         <?php foreach ($barbers as $b): ?>
             <tr>
-                <td><?= e((string) $b['user_name']) ?></td>
-                <td><?= e((string) $b['user_email']) ?></td>
-                <td><?= e(number_format((float) $b['commission_percent'], 2, ',', '.')) ?>%</td>
-                <td><?= ((int) $b['is_available'] === 1) ? 'Sim' : 'Não' ?></td>
-                <td class="td-actions">
+                <td data-label="Nome"><?= e((string) $b['user_name']) ?></td>
+                <td data-label="E-mail"><?= e((string) $b['user_email']) ?></td>
+                <td data-label="Comissão"><?= e(number_format((float) $b['commission_percent'], 2, ',', '.')) ?>%</td>
+                <td data-label="Disponível"><?= ((int) $b['is_available'] === 1) ? 'Sim' : 'Não' ?></td>
+                <td class="td-actions" data-label="Ações">
                     <a class="btn secondary" href="/barbeiros/<?= (int) $b['id'] ?>/editar">Editar</a>
                     <form method="post" action="/barbeiros/<?= (int) $b['id'] ?>/disponibilidade">
                         <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
@@ -36,6 +37,7 @@ ob_start();
         <?php endforeach; ?>
         </tbody>
     </table>
+    </div>
 </div>
 <?php
 $content = ob_get_clean();

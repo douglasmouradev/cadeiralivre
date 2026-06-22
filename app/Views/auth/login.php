@@ -12,10 +12,10 @@ $flashError = \App\Helpers\Flash::get('error');
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="<?= e($csrf) ?>">
     <title><?= e($title) ?> — <?= e(app_name()) ?></title>
-    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="stylesheet" href="<?= e(asset_version('/assets/css/app.css')) ?>">
 </head>
 <body>
 <div class="auth-page">

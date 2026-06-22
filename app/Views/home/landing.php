@@ -11,20 +11,26 @@ $priceFmt = static fn (int $cents): string => format_money_cents($cents);
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="Agendamento online multi-tenant para barbearias, nail designers e salões. Trial grátis, portal do cliente e painel completo.">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#1a1a1a">
+    <meta name="theme-color" content="#0c0c0c">
     <title><?= e($title) ?></title>
     <link rel="stylesheet" href="<?= e(asset_version('/assets/css/app.css')) ?>">
 </head>
 <body class="landing-body">
+<div class="landing-nav-overlay" id="landing-nav-overlay" aria-hidden="true"></div>
 <header class="landing-header">
     <a href="/" class="landing-brand">
         <img src="/assets/img/cadeiralivre-logo.png" width="48" height="48" alt="<?= e(app_name()) ?>">
         <span><?= e(app_name()) ?></span>
     </a>
-    <nav class="landing-nav">
+    <button type="button" class="landing-nav-toggle" id="landing-nav-toggle" aria-controls="landing-nav" aria-expanded="false" aria-label="Abrir menu">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+    </button>
+    <nav id="landing-nav" class="landing-nav">
         <a href="#planos">Planos</a>
         <a href="/status">Status</a>
         <a href="/login" class="btn secondary">Entrar</a>
@@ -36,7 +42,7 @@ $priceFmt = static fn (int $cents): string => format_money_cents($cents);
     <section class="landing-hero">
         <div class="landing-hero__content">
             <p class="landing-eyebrow">SaaS de agendamento</p>
-            <h1>Seu negócio com agenda online profissional</h1>
+            <h1>Seu negócio com <em>agenda online</em> profissional</h1>
             <p class="landing-lead">Página pública por link, portal do cliente, equipe, relatórios e planos. Ideal para barbearias, nail designers e salões de beleza.</p>
             <div class="landing-cta">
                 <a class="btn btn--lg" href="/cadastro">Criar minha loja — 14 dias grátis</a>
@@ -62,6 +68,7 @@ $priceFmt = static fn (int $cents): string => format_money_cents($cents);
 
     <section class="landing-plans" id="planos">
         <h2>Planos</h2>
+        <p class="landing-section-lead">Comece grátis por 14 dias. Escale quando sua equipe crescer.</p>
         <div class="landing-plans-grid">
             <?php foreach ($plans as $p): ?>
                 <article class="landing-plan-card">

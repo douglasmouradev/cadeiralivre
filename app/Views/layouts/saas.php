@@ -18,10 +18,10 @@ $userName = (string) ($_SESSION['user_name'] ?? '');
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="<?= e($csrf ?? \App\Helpers\Csrf::token()) ?>">
     <title><?= e($title ?? 'Plataforma') ?> — <?= e(app_name()) ?></title>
-    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="stylesheet" href="<?= e(asset_version('/assets/css/app.css')) ?>">
 </head>
 <body class="admin-body">
 <div class="admin-shell admin-shell--saas">
