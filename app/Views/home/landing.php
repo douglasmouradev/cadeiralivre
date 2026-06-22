@@ -25,7 +25,7 @@ if ($featuredPlanIndex === null && $planCount >= 2) {
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="Agendamento online multi-tenant para barbearias, nail designers e salões. Trial grátis, portal do cliente e painel completo.">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0e0d0b">
+    <meta name="theme-color" content="#f7f4ef">
     <title><?= e($title) ?></title>
     <link rel="stylesheet" href="<?= e(asset_version('/assets/css/app.css')) ?>">
     <link rel="stylesheet" href="<?= e(asset_version('/assets/css/landing.css')) ?>">
