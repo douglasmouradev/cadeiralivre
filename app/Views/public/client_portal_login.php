@@ -26,7 +26,7 @@ $flashError = Flash::get('error');
 <main class="public-centered">
     <div class="auth-card">
         <h1 class="mt-0">Entrar como cliente</h1>
-        <p class="muted"><?= e((string) $tenant['name']) ?> — agende com sua conta.</p>
+        <p class="muted"><?= e((string) $tenant['name']) ?> — é necessário ter conta para agendar. A conta fica ativa na hora, sem confirmação por e-mail.</p>
         <?php if (is_string($flashSuccess) && $flashSuccess !== ''): ?>
             <div class="alert alert-success"><?= e($flashSuccess) ?></div>
         <?php endif; ?>
@@ -45,7 +45,7 @@ $flashError = Flash::get('error');
             </div>
             <button class="btn" type="submit">Entrar e agendar</button>
         </form>
-        <p class="muted mt-1"><a href="/cliente/<?= e($slug) ?>/cadastro">Criar conta</a> · <a href="/agendar/<?= e($slug) ?>">Agendar sem conta</a></p>
+        <p class="muted mt-1"><a href="/cliente/<?= e($slug) ?>/cadastro">Criar conta</a></p>
     </div>
 </main>
 <script src="/assets/js/app.js" defer></script>

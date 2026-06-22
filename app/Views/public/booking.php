@@ -8,10 +8,10 @@ use App\Helpers\Flash;
 /** @var list<array<string, mixed>> $services */
 /** @var list<array<string, mixed>> $barbers */
 /** @var string $slug */
-/** @var array<string, mixed>|null $portal_client */
+/** @var array<string, mixed> $portal_client */
 
 $brandHex = tenant_brand_hex(isset($tenant['primary_color']) ? (string) $tenant['primary_color'] : null);
-$portalClient = $portal_client ?? null;
+$portalClient = $portal_client;
 $flashSuccess = Flash::get('success');
 $flashError = Flash::get('error');
 ?>
@@ -35,16 +35,10 @@ $flashError = Flash::get('error');
             <h1 class="public-header__title"><?= e((string) $tenant['name']) ?></h1>
             <p class="muted"><?= e(trim((string) ($tenant['city'] ?? '') . ' ' . (string) ($tenant['state'] ?? ''))) ?></p>
             <p class="booking-portal-links muted">
-                <?php if ($portalClient !== null): ?>
-                    Olá, <strong><?= e((string) $portalClient['name']) ?></strong> —
-                    <a href="/agendar/<?= e($slug) ?>/meus-agendamentos">Meus agendamentos</a>
-                    ·
-                    <a href="/cliente/<?= e($slug) ?>/sair">Sair da conta</a>
-                <?php else: ?>
-                    <a href="/cliente/<?= e($slug) ?>/entrar">Entrar como cliente</a>
-                    ·
-                    <a href="/cliente/<?= e($slug) ?>/cadastro">Criar conta</a>
-                <?php endif; ?>
+                Olá, <strong><?= e((string) $portalClient['name']) ?></strong> —
+                <a href="/agendar/<?= e($slug) ?>/meus-agendamentos">Meus agendamentos</a>
+                ·
+                <a href="/cliente/<?= e($slug) ?>/sair">Sair da conta</a>
             </p>
         </div>
     </header>
@@ -61,10 +55,10 @@ $flashError = Flash::get('error');
         <div class="step" data-step="2" role="listitem">Profissional</div>
         <div class="step" data-step="3" role="listitem">Data</div>
         <div class="step" data-step="4" role="listitem">Horário</div>
-        <div class="step" data-step="5" role="listitem">Seus dados</div>
+        <div class="step" data-step="5" role="listitem">Confirmação</div>
     </div>
 
-    <form id="booking-form" method="post" action="/agendar/<?= e($slug) ?>" data-validate="1" class="card card--compact booking-form"<?= $portalClient !== null ? ' data-portal-client="1"' : '' ?>>
+    <form id="booking-form" method="post" action="/agendar/<?= e($slug) ?>" data-validate="1" class="card card--compact booking-form" data-portal-client="1">
         <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
         <input type="hidden" name="start_datetime" id="f-start">
         <input type="hidden" name="barber_mode" id="booking-barber-mode" value="one">
@@ -120,7 +114,7 @@ $flashError = Flash::get('error');
 
         <section class="booking-panel" data-panel="4" hidden id="slot-section" aria-live="polite">
             <h3>Horário</h3>
-            <p class="booking-help muted">Toque em um horário livre para seguir com seus dados.</p>
+            <p class="booking-help muted">Toque em um horário livre para confirmar o agendamento.</p>
             <div id="slot-skeleton" class="skeleton skeleton--block" aria-hidden="true"></div>
             <div id="slot-list" class="slot-grid" role="group" aria-label="Horários disponíveis"></div>
             <div class="form-actions">
@@ -129,17 +123,11 @@ $flashError = Flash::get('error');
         </section>
 
         <section class="booking-panel" data-panel="5" hidden>
-            <h3>Seus dados</h3>
-            <?php if ($portalClient !== null): ?>
-                <p class="muted booking-help">Os dados da sua conta são usados neste agendamento. Você pode atualizar o telefone abaixo.</p>
-                <div class="row"><label for="c-name">Nome</label><input id="c-name" name="client_name" required autocomplete="name" readonly value="<?= e((string) $portalClient['name']) ?>"></div>
-                <div class="row"><label for="c-email">E-mail</label><input id="c-email" name="client_email" type="email" autocomplete="email" readonly value="<?= e((string) ($portalClient['email'] ?? '')) ?>"></div>
-                <div class="row"><label for="c-phone">Telefone</label><input id="c-phone" name="client_phone" type="tel" autocomplete="tel" value="<?= e((string) ($portalClient['phone'] ?? '')) ?>"></div>
-            <?php else: ?>
-                <div class="row"><label for="c-name">Nome</label><input id="c-name" name="client_name" required autocomplete="name"></div>
-                <div class="row"><label for="c-email">E-mail</label><input id="c-email" name="client_email" type="email" autocomplete="email" required></div>
-                <div class="row"><label for="c-phone">Telefone</label><input id="c-phone" name="client_phone" type="tel" autocomplete="tel"></div>
-            <?php endif; ?>
+            <h3>Confirmação</h3>
+            <p class="muted booking-help">Os dados da sua conta são usados neste agendamento. Você pode atualizar o telefone abaixo.</p>
+            <div class="row"><label for="c-name">Nome</label><input id="c-name" name="client_name" required autocomplete="name" readonly value="<?= e((string) $portalClient['name']) ?>"></div>
+            <div class="row"><label for="c-email">E-mail</label><input id="c-email" name="client_email" type="email" autocomplete="email" readonly value="<?= e((string) ($portalClient['email'] ?? '')) ?>"></div>
+            <div class="row"><label for="c-phone">Telefone</label><input id="c-phone" name="client_phone" type="tel" autocomplete="tel" value="<?= e((string) ($portalClient['phone'] ?? '')) ?>"></div>
             <div class="row">
                 <label for="pay-method">Forma de pagamento (preferência)</label>
                 <select id="pay-method" name="payment_method">

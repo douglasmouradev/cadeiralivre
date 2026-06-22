@@ -26,7 +26,7 @@ $flashError = Flash::get('error');
 <main class="public-centered">
     <div class="auth-card">
         <h1 class="mt-0">Criar conta de cliente</h1>
-        <p class="muted"><?= e((string) $tenant['name']) ?> — use o mesmo e-mail se já for cliente cadastrado na barbearia (ativamos o acesso online).</p>
+        <p class="muted"><?= e((string) $tenant['name']) ?> — crie sua conta para agendar. Não enviamos e-mail de confirmação; você já pode marcar o horário em seguida.</p>
         <?php if (is_string($flashSuccess) && $flashSuccess !== ''): ?>
             <div class="alert alert-success"><?= e($flashSuccess) ?></div>
         <?php endif; ?>
@@ -53,7 +53,7 @@ $flashError = Flash::get('error');
             </div>
             <button class="btn" type="submit">Criar conta e agendar</button>
         </form>
-        <p class="muted mt-1"><a href="/cliente/<?= e($slug) ?>/entrar">Já tenho conta</a> · <a href="/agendar/<?= e($slug) ?>">Agendar sem conta</a></p>
+        <p class="muted mt-1"><a href="/cliente/<?= e($slug) ?>/entrar">Já tenho conta</a></p>
     </div>
 </main>
 <script src="/assets/js/app.js" defer></script>

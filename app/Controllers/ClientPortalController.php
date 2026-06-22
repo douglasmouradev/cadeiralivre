@@ -126,7 +126,7 @@ final class ClientPortalController extends Controller
             session_regenerate_id(true);
             $this->setPortalSession($tid, $id);
         }
-        Flash::set('success', 'Conta criada. Agende seu horário.');
+        Flash::set('success', 'Conta criada! Escolha o horário do seu atendimento.');
 
         return Response::redirect('/agendar/' . rawurlencode($slug));
     }

@@ -101,6 +101,13 @@ final class PublicBookingController extends Controller
         return Response::redirect('/agendar/' . rawurlencode($slug));
     }
 
+    private function redirectToPortalLogin(string $slug, string $message): Response
+    {
+        Flash::set('error', $message);
+
+        return Response::redirect('/cliente/' . rawurlencode($slug) . '/entrar');
+    }
+
     private function normalizePublicPaymentMethod(string $raw): ?string
     {
         $raw = trim($raw);
@@ -119,6 +126,13 @@ final class PublicBookingController extends Controller
             return Response::html($this->publicSubscriptionClosedHtml((string) $tenant['name']), 403);
         }
         $tid = (int) $tenant['id'];
+        $portal = $this->portalClientForTenant($tid);
+        if ($portal === null) {
+            return $this->redirectToPortalLogin(
+                $slug,
+                'Para agendar, crie sua conta ou entre com e-mail e senha. Não é necessário confirmar o e-mail.',
+            );
+        }
         $services = (new ServiceModel())->allForTenant($tid, true);
         $barbers = (new BarberModel())->availableBarbersForTenant($tid);
 
@@ -129,7 +143,7 @@ final class PublicBookingController extends Controller
             'barbers' => $barbers,
             'slug' => $slug,
             'csrf' => Csrf::token(),
-            'portal_client' => $this->portalClientForTenant($tid),
+            'portal_client' => $portal,
         ]);
     }
 
@@ -268,6 +282,9 @@ final class PublicBookingController extends Controller
             return Response::json(['error' => 'subscription_inactive'], 403);
         }
         $tid = (int) $tenant['id'];
+        if ($this->portalClientForTenant($tid) === null) {
+            return Response::json(['error' => 'auth_required'], 401);
+        }
         $tz = (string) ($tenant['timezone'] ?? 'America/Sao_Paulo');
         $ip = $this->request->ip() ?? '0.0.0.0';
         if (!RateLimiter::allow('slots_get:' . $ip . ':' . $slug, 90, 300)) {
@@ -311,32 +328,20 @@ final class PublicBookingController extends Controller
             return $this->bookingRedirectWithError($slug, $apptLimit);
         }
         $tz = (string) ($tenant['timezone'] ?? 'America/Sao_Paulo');
-        $clients = new ClientModel();
         $portal = $this->portalClientForTenant($tid);
-        $clientId = 0;
-        $phone = '';
-        $phoneInputPortal = '';
-        if ($portal !== null) {
-            $clientId = (int) $portal['id'];
-            $name = trim((string) $portal['name']);
-            $email = mb_strtolower(trim((string) ($portal['email'] ?? '')));
-            $phoneInputPortal = trim((string) $this->request->input('client_phone'));
-            if ($name === '') {
-                return $this->bookingRedirectWithError($slug, 'Conta sem nome. Atualize seus dados com a barbearia.');
-            }
-            if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                return $this->bookingRedirectWithError($slug, 'E-mail da conta inválido. Entre em contato com a barbearia.');
-            }
-        } else {
-            $name = trim((string) $this->request->input('client_name'));
-            $email = mb_strtolower(trim((string) $this->request->input('client_email')));
-            $phone = trim((string) $this->request->input('client_phone'));
-            if ($name === '') {
-                return $this->bookingRedirectWithError($slug, 'Informe seu nome.');
-            }
-            if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                return $this->bookingRedirectWithError($slug, 'Informe um e-mail válido para receber a confirmação.');
-            }
+        if ($portal === null) {
+            return $this->redirectToPortalLogin($slug, 'Sua sessão expirou. Entre novamente para concluir o agendamento.');
+        }
+        $clients = new ClientModel();
+        $clientId = (int) $portal['id'];
+        $name = trim((string) $portal['name']);
+        $email = mb_strtolower(trim((string) ($portal['email'] ?? '')));
+        $phoneInputPortal = trim((string) $this->request->input('client_phone'));
+        if ($name === '') {
+            return $this->bookingRedirectWithError($slug, 'Conta sem nome. Atualize seus dados com a barbearia.');
+        }
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->bookingRedirectWithError($slug, 'E-mail da conta inválido. Entre em contato com a barbearia.');
         }
         $serviceId = (int) $this->request->input('service_id');
         $barberId = (int) $this->request->input('barber_id');
@@ -381,19 +386,11 @@ final class PublicBookingController extends Controller
             }
             $lockHeld = true;
 
-            $guestName = $name;
-            $guestEmail = $email;
-            $guestPhone = $portal === null ? $phone : '';
-
             $appointmentId = Database::transaction(function () use (
                 $tid,
                 $tz,
-                $portal,
                 $clientId,
                 $phoneInputPortal,
-                $guestName,
-                $guestEmail,
-                $guestPhone,
                 $clients,
                 $serviceId,
                 $barberId,
@@ -406,50 +403,8 @@ final class PublicBookingController extends Controller
                 $svc,
                 $slotSvc,
             ): int {
-                $resolvedClientId = $clientId;
-                if ($portal !== null) {
-                    if ($phoneInputPortal !== '') {
-                        $clients->updatePhone($tid, $resolvedClientId, $phoneInputPortal);
-                    }
-                } else {
-                    $existing = $clients->findByTenantEmail($tid, $guestEmail);
-                    if ($existing !== null) {
-                        $resolvedClientId = (int) $existing['id'];
-                        $clients->update($tid, $resolvedClientId, [
-                            'name' => $guestName,
-                            'email' => $guestEmail,
-                            'phone' => $guestPhone,
-                            'birth_date' => (string) ($existing['birth_date'] ?? ''),
-                            'notes' => (string) ($existing['notes'] ?? ''),
-                        ]);
-                    } else {
-                        try {
-                            $resolvedClientId = $clients->create($tid, [
-                                'name' => $guestName,
-                                'email' => $guestEmail,
-                                'phone' => $guestPhone,
-                                'birth_date' => '',
-                                'notes' => '',
-                            ]);
-                        } catch (\PDOException $e) {
-                            $dup = str_contains($e->getMessage(), 'Duplicate') || str_contains($e->getMessage(), 'uk_clients_tenant_email');
-                            if (!$dup) {
-                                throw $e;
-                            }
-                            $race = $clients->findByTenantEmail($tid, $guestEmail);
-                            if ($race === null) {
-                                throw $e;
-                            }
-                            $resolvedClientId = (int) $race['id'];
-                            $clients->update($tid, $resolvedClientId, [
-                                'name' => $guestName,
-                                'email' => $guestEmail,
-                                'phone' => $guestPhone,
-                                'birth_date' => (string) ($race['birth_date'] ?? ''),
-                                'notes' => (string) ($race['notes'] ?? ''),
-                            ]);
-                        }
-                    }
+                if ($phoneInputPortal !== '') {
+                    $clients->updatePhone($tid, $clientId, $phoneInputPortal);
                 }
 
                 if (!$slotSvc->isPublicSlotValid($tid, $serviceId, $barberId, $startStr, $tz, $barberMode)) {
@@ -464,7 +419,7 @@ final class PublicBookingController extends Controller
                 $review = Str::randomToken(32);
                 $code = Str::confirmationCode();
                 $id = $ap->create($tid, [
-                    'client_id' => $resolvedClientId,
+                    'client_id' => $clientId,
                     'barber_id' => $barberId,
                     'service_id' => $serviceId,
                     'booked_by_user_id' => null,
@@ -480,7 +435,7 @@ final class PublicBookingController extends Controller
                     'confirmation_code' => $code,
                     'review_token' => $review,
                 ]);
-                $ap->addHistory($id, $tid, null, AppointmentStatus::Pending->value, null, $portal !== null ? 'Agendamento portal cliente' : 'Agendamento público');
+                $ap->addHistory($id, $tid, null, AppointmentStatus::Pending->value, null, 'Agendamento portal cliente');
 
                 return $id;
             });

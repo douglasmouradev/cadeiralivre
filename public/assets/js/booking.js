@@ -75,6 +75,10 @@
         credentials: 'same-origin',
       });
       if (!res.ok) {
+        if (res.status === 401) {
+          window.location.href = `/cliente/${encodeURIComponent(slug)}/entrar`;
+          return;
+        }
         if (res.status === 429) {
           renderEmpty('Muitas consultas em pouco tempo. Aguarde um instante e tente de novo.');
           window.App?.toast?.('Aguarde um instante antes de atualizar os horários.', 'warn');
