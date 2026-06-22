@@ -21,7 +21,7 @@ $apptId = (int) $appointment['id'];
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="<?= e($csrf) ?>">
     <title><?= e($title) ?></title>
-    <link rel="stylesheet" href="/assets/css/app.css?v=<?= e(asset_version()) ?>">
+    <link rel="stylesheet" href="<?= e(asset_version('/assets/css/app.css')) ?>">
 </head>
 <body class="public-body public-theme" style="--tenant-accent: <?= e($brandHex) ?>;">
 <main class="public-page">

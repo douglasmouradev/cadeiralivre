@@ -16,7 +16,7 @@ $priceFmt = static fn (int $cents): string => format_money_cents($cents);
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#1a1a1a">
     <title><?= e($title) ?></title>
-    <link rel="stylesheet" href="/assets/css/app.css?v=<?= e(asset_version()) ?>">
+    <link rel="stylesheet" href="<?= e(asset_version('/assets/css/app.css')) ?>">
 </head>
 <body class="landing-body">
 <header class="landing-header">
@@ -81,6 +81,6 @@ $priceFmt = static fn (int $cents): string => format_money_cents($cents);
 <footer class="landing-footer">
     <p>© <?= e((string) date('Y')) ?> <?= e(app_name()) ?> · <a href="/privacidade">Privacidade</a> · <a href="/termos">Termos</a> · <a href="/lgpd">LGPD</a></p>
 </footer>
-<script src="/assets/js/app.js?v=<?= e(asset_version()) ?>" defer></script>
+<script src="<?= e(asset_version('/assets/js/app.js')) ?>" defer></script>
 </body>
 </html>
