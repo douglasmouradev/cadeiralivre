@@ -24,7 +24,6 @@ $ogImage = $pageUrl !== '' ? $pageUrl . '/assets/img/cadeiralivre-logo.png' : '/
 $waPhone = preg_replace('/\D+/', '', (string) ($supportWhatsApp ?? '5571997087082')) ?: '5571997087082';
 $waMsg = rawurlencode('Olá! Tenho interesse no ' . app_name() . '.');
 $waUrl = 'https://wa.me/' . $waPhone . '?text=' . $waMsg;
-$tenantCount = max(0, (int) ($activeTenants ?? 0));
 
 $planFeatureMap = [
     'free' => ['Portal do cliente', 'Lembretes por e-mail', 'Página pública personalizada'],
@@ -137,33 +136,6 @@ $faqItems = [
                 <span class="landing-preview__caption">Exemplo real · clique para agendar</span>
                 </a>
             </aside>
-        </div>
-    </section>
-
-    <section class="landing-proof" aria-label="Prova social">
-        <div class="landing-shell landing-proof__inner">
-            <article class="landing-proof__case">
-                <img class="landing-proof__logo" src="/assets/img/brands/adriele-cardoso-logo.png" width="56" height="56" alt="Adriele Nail Design" loading="lazy">
-                <div>
-                    <p class="landing-proof__label">Loja em produção</p>
-                    <h3>Adriele Nail Design</h3>
-                    <p>Nail designer usando o <?= e(app_name()) ?> para receber agendamentos online com página própria e identidade visual.</p>
-                    <a class="landing-proof__link" href="<?= e($demoUrl) ?>" target="_blank" rel="noopener">Ver página de agendamento →</a>
-                </div>
-            </article>
-            <?php if ($tenantCount > 0): ?>
-            <ul class="landing-proof__stats">
-                <li><strong><?= e((string) $tenantCount) ?></strong><span><?= $tenantCount === 1 ? 'Loja ativa' : 'Lojas ativas' ?></span></li>
-                <li><strong>14</strong><span>Dias de trial</span></li>
-                <li><strong>LGPD</strong><span>Conformidade</span></li>
-            </ul>
-            <?php else: ?>
-            <ul class="landing-proof__stats">
-                <li><strong>14</strong><span>Dias de trial</span></li>
-                <li><strong>0</strong><span>Taxa p/ cliente</span></li>
-                <li><strong>LGPD</strong><span>Conformidade</span></li>
-            </ul>
-            <?php endif; ?>
         </div>
     </section>
 

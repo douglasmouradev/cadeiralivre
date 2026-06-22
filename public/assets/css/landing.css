@@ -485,112 +485,6 @@
   font-weight: 500;
 }
 
-/* Prova social */
-.landing-proof {
-  padding: 0 0 clamp(2.5rem, 5vw, 3.5rem);
-  border-bottom: 1px solid var(--lp-line);
-}
-
-.landing-proof__inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  gap: 1.25rem;
-}
-
-.landing-proof__case {
-  flex: 1 1 20rem;
-  display: flex;
-  gap: 1.25rem;
-  align-items: flex-start;
-  padding: 1.5rem 1.65rem;
-  background: var(--lp-bg-card);
-  border: 1px solid var(--lp-line);
-  border-radius: var(--lp-radius-md);
-  box-shadow: var(--lp-shadow-sm);
-}
-
-.landing-proof__logo {
-  flex-shrink: 0;
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
-  object-fit: cover;
-  box-shadow: var(--lp-shadow-sm);
-  border: 1px solid var(--lp-line);
-}
-
-.landing-proof__label {
-  margin: 0 0 0.35rem;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--lp-brass);
-}
-
-.landing-proof__case h3 {
-  margin: 0 0 0.45rem;
-  font-size: 1.12rem;
-}
-
-.landing-proof__case p {
-  margin: 0 0 0.75rem;
-  font-size: 0.88rem;
-  line-height: 1.6;
-  color: var(--lp-muted);
-}
-
-.landing-proof__link {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--lp-brass-dark);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(124, 94, 60, 0.3);
-  transition: color 0.2s ease;
-}
-
-.landing-proof__link:hover {
-  color: var(--lp-text);
-}
-
-.landing-proof__stats {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex: 1 1 14rem;
-  gap: 0.75rem;
-}
-
-.landing-proof__stats li {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.25rem;
-  padding: 1.15rem 1rem;
-  text-align: center;
-  background: var(--lp-bg-card);
-  border: 1px solid var(--lp-line);
-  border-radius: var(--lp-radius-md);
-  box-shadow: var(--lp-shadow-sm);
-}
-
-.landing-proof__stats strong {
-  font-family: 'DM Serif Display', Georgia, serif;
-  font-size: 1.35rem;
-  font-weight: 400;
-  color: var(--lp-text);
-  line-height: 1;
-}
-
-.landing-proof__stats span {
-  font-size: 0.72rem;
-  color: var(--lp-muted);
-  letter-spacing: 0.02em;
-}
-
 /* Section heads */
 .landing-section-head {
   margin-bottom: clamp(2.25rem, 4vw, 3.25rem);
@@ -1353,10 +1247,6 @@ body.landing-nav-open {
 
   .landing-preview__caption {
     width: min(100%, 320px);
-  }
-
-  .landing-proof__stats {
-    width: 100%;
   }
 
   .landing-cta--row {

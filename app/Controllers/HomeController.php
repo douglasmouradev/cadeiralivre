@@ -17,21 +17,11 @@ final class HomeController extends Controller
 
         $plans = (new PlanDefinitionModel())->all();
 
-        $activeTenants = 0;
-        try {
-            $activeTenants = (int) \App\Core\Database::connection()
-                ->query("SELECT COUNT(*) FROM tenants WHERE status <> 'suspended'")
-                ->fetchColumn();
-        } catch (\Throwable) {
-            $activeTenants = 0;
-        }
-
         return $this->view('home/landing', [
             'title' => app_name() . ' — Agendamento online para seu negócio',
             'plans' => $plans,
             'demoBookingUrl' => '/agendar/adriele-cardoso-nail-design',
             'baseUrl' => app_base_url(),
-            'activeTenants' => $activeTenants,
             'supportWhatsApp' => preg_replace('/\D+/', '', (string) ($_ENV['SUPPORT_WHATSAPP'] ?? '5571997087082')) ?: '5571997087082',
         ]);
     }
