@@ -14,6 +14,15 @@ $userRole = $user_role ?? (string) ($_SESSION['user_role'] ?? '');
 $brandHome = in_array($userRole, ['owner', 'receptionist', 'superadmin'], true) ? '/painel' : '/agenda';
 $flashSuccess = Flash::get('success');
 $flashError = Flash::get('error');
+$adminTenant = $admin_tenant ?? null;
+$sidebarLogoUrl = '/assets/img/cadeiralivre-logo.png';
+$sidebarLogoAlt = app_name();
+$sidebarLogoClass = 'brand__mark';
+if (is_array($adminTenant) && !empty($adminTenant['logo_path']) && !empty($adminTenant['slug'])) {
+    $sidebarLogoUrl = tenant_logo_url((string) $adminTenant['slug']);
+    $sidebarLogoAlt = (string) $adminTenant['name'];
+    $sidebarLogoClass = 'brand__mark brand__mark--tenant';
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -29,7 +38,7 @@ $flashError = Flash::get('error');
     <div class="nav-overlay" id="nav-overlay" aria-hidden="true"></div>
     <aside class="sidebar" id="admin-sidebar">
         <a href="<?= e($brandHome) ?>" class="brand brand--with-mark">
-            <img src="/assets/img/cadeiralivre-logo.png" width="120" height="120" alt="<?= e(app_name()) ?>" class="brand__mark">
+            <img src="<?= e($sidebarLogoUrl) ?>" width="120" height="120" alt="<?= e($sidebarLogoAlt) ?>" class="<?= e($sidebarLogoClass) ?>">
         </a>
         <nav class="side-nav">
             <?php if ($userRole !== 'barber'): ?>

@@ -8,6 +8,7 @@ use App\Core\Application;
 use App\Core\Request;
 use App\Core\Response;
 use App\Enums\UserRole;
+use App\Models\TenantModel;
 
 abstract class Controller
 {
@@ -29,6 +30,14 @@ abstract class Controller
         }
         if (!array_key_exists('csrf', $data)) {
             $data['csrf'] = \App\Helpers\Csrf::token();
+        }
+        if (!array_key_exists('admin_tenant', $data)) {
+            $tid = $_SESSION['tenant_id'] ?? null;
+            if ($tid !== null && $tid !== '') {
+                $data['admin_tenant'] = (new TenantModel())->findById((int) $tid);
+            } else {
+                $data['admin_tenant'] = null;
+            }
         }
         extract($data, EXTR_SKIP);
         ob_start();
