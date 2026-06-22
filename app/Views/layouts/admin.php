@@ -24,7 +24,7 @@ if (is_array($adminTenant) && !empty($adminTenant['logo_path']) && !empty($admin
     $sidebarLogoClass = 'brand__mark brand__mark--tenant';
 }
 $tenantSlug = is_array($adminTenant) ? (string) ($adminTenant['slug'] ?? '') : '';
-$showNewTenantNav = in_array($userRole, ['owner', 'superadmin'], true)
+$showNewTenantNav = $userRole === 'owner'
     && $tenantSlug !== 'adriele-cardoso-nail-design';
 ?>
 <!DOCTYPE html>

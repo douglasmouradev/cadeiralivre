@@ -16,9 +16,10 @@ final class SaasPlatformController extends Controller
         $rows = (new TenantModel())->listAllForPlatform();
 
         return $this->view('saas/tenants', [
-            'title' => 'Barbearias (plataforma)',
+            'title' => 'Lojas da plataforma',
             'tenants' => $rows,
             'csrf' => Csrf::token(),
+            'currentNav' => 'tenants',
         ]);
     }
 

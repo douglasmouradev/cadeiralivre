@@ -33,7 +33,10 @@ abstract class Controller
         }
         if (!array_key_exists('admin_tenant', $data)) {
             $tid = $_SESSION['tenant_id'] ?? null;
-            if ($tid !== null && $tid !== '') {
+            $role = (string) ($_SESSION['user_role'] ?? '');
+            if ($role === UserRole::Superadmin->value) {
+                $data['admin_tenant'] = null;
+            } elseif ($tid !== null && $tid !== '') {
                 $data['admin_tenant'] = (new TenantModel())->findById((int) $tid);
             } else {
                 $data['admin_tenant'] = null;

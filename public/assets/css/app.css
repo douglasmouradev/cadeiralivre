@@ -1353,3 +1353,26 @@ form.form-inline {
   background: transparent;
   text-align: left;
 }
+
+.saas-user {
+  margin: 0 0 1rem;
+  padding: 0 0.35rem;
+  font-size: 0.88rem;
+}
+.saas-stats {
+  margin-bottom: 1rem;
+}
+.saas-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+.pill--ok {
+  background: color-mix(in srgb, var(--ok) 14%, #fff);
+  color: var(--ok);
+}
+.pill--danger {
+  background: color-mix(in srgb, var(--danger) 12%, #fff);
+  color: var(--danger);
+}

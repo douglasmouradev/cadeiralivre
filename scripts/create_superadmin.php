@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Cria utilizador superadmin (tenant_id NULL) para gestão /saas/tenants.
+ * Cria ou atualiza superadmin da plataforma (tenant_id NULL).
  * Uso: php scripts/create_superadmin.php email@dominio.com "SenhaSegura8" "Nome"
  */
 
@@ -34,22 +34,39 @@ if (strlen($password) < 8) {
 }
 
 $users = new UserModel();
-if ($users->findByEmail($email) !== null) {
-    fwrite(STDERR, "E-mail já registado.\n");
-    exit(1);
+$existing = $users->findByEmail($email);
+$hash = password_hash($password, PASSWORD_BCRYPT);
+$pdo = Database::connection();
+
+if ($existing === null) {
+    $stmt = $pdo->prepare(
+        'INSERT INTO users (tenant_id, name, email, password_hash, role, phone, is_active, created_at, updated_at)
+         VALUES (NULL, :n, :e, :p, :r, NULL, 1, NOW(), NOW())'
+    );
+    $stmt->execute([
+        'n' => $name,
+        'e' => $email,
+        'p' => $hash,
+        'r' => UserRole::Superadmin->value,
+    ]);
+    fwrite(STDOUT, "Superadmin criado.\n");
+} else {
+    $stmt = $pdo->prepare(
+        'UPDATE users SET tenant_id = NULL, name = :n, password_hash = :p, role = :r, is_active = 1, updated_at = NOW() WHERE id = :id'
+    );
+    $stmt->execute([
+        'n' => $name,
+        'p' => $hash,
+        'r' => UserRole::Superadmin->value,
+        'id' => (int) $existing['id'],
+    ]);
+    fwrite(STDOUT, "Utilizador promovido a superadmin da plataforma.\n");
 }
 
-$pdo = Database::connection();
-$hash = password_hash($password, PASSWORD_BCRYPT);
-$stmt = $pdo->prepare(
-    'INSERT INTO users (tenant_id, name, email, password_hash, role, phone, is_active, created_at, updated_at)
-     VALUES (NULL, :n, :e, :p, :r, NULL, 1, NOW(), NOW())'
-);
-$stmt->execute([
-    'n' => $name,
-    'e' => $email,
-    'p' => $hash,
-    'r' => UserRole::Superadmin->value,
-]);
+$base = rtrim((string) ($_ENV['APP_URL'] ?? ''), '/');
 
-fwrite(STDOUT, "Superadmin criado. Entre em /login com {$email}\n");
+fwrite(STDOUT, "\n");
+fwrite(STDOUT, "Login: {$base}/login\n");
+fwrite(STDOUT, "E-mail: {$email}\n");
+fwrite(STDOUT, "Painel SaaS: {$base}/saas/tenants\n");
+fwrite(STDOUT, "\nApós entrar você verá todas as lojas da plataforma com a logo do " . (trim((string) ($_ENV['APP_NAME'] ?? '')) ?: 'CadeiraLivre') . ".\n");
