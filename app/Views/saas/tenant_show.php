@@ -109,7 +109,7 @@ ob_start();
         <h2>Plano e assinatura</h2>
         <dl class="detail-list">
             <dt>Plano atual</dt>
-            <dd><?= e((string) ($plan['name'] ?? $tenant['plan'] ?? '—')) ?></dd>
+            <dd><?= e(is_array($plan) ? (string) ($plan['name'] ?? '—') : (string) ($tenant['plan'] ?? '—')) ?></dd>
             <?php if (is_array($plan) && isset($plan['monthly_price_cents'])): ?>
             <dt>Preço mensal</dt><dd><?= e(format_money_cents((int) $plan['monthly_price_cents'])) ?></dd>
             <?php endif; ?>

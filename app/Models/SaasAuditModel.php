@@ -11,14 +11,35 @@ final class SaasAuditModel
 {
     private PDO $pdo;
 
+    /** @var bool|null */
+    private static ?bool $tableReady = null;
+
     public function __construct()
     {
         $this->pdo = Database::connection();
     }
 
+    public function isAvailable(): bool
+    {
+        if (self::$tableReady !== null) {
+            return self::$tableReady;
+        }
+        try {
+            $stmt = $this->pdo->query("SHOW TABLES LIKE 'saas_audit_logs'");
+            self::$tableReady = $stmt !== false && $stmt->fetch() !== false;
+        } catch (\Throwable) {
+            self::$tableReady = false;
+        }
+
+        return self::$tableReady;
+    }
+
     /** @param array<string, mixed>|null $meta */
     public function log(int $actorUserId, string $action, ?int $tenantId = null, ?array $meta = null): void
     {
+        if (!$this->isAvailable()) {
+            return;
+        }
         $stmt = $this->pdo->prepare(
             'INSERT INTO saas_audit_logs (actor_user_id, action, tenant_id, meta_json, created_at)
              VALUES (:actor, :action, :tenant, :meta, NOW())'
@@ -34,6 +55,9 @@ final class SaasAuditModel
     /** @return list<array<string, mixed>> */
     public function recent(int $limit = 50, ?int $tenantId = null): array
     {
+        if (!$this->isAvailable()) {
+            return [];
+        }
         $sql = 'SELECT l.*, u.name AS actor_name, u.email AS actor_email, t.name AS tenant_name
                 FROM saas_audit_logs l
                 INNER JOIN users u ON u.id = l.actor_user_id
