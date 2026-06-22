@@ -124,10 +124,7 @@ $instagram = trim((string) ($tenant['instagram_url'] ?? ''));
                         !empty($tenant['logo_path']),
                     );
                     $avatarIsBrand = empty($b['user_avatar']) && !empty($tenant['logo_path']) && $avatar !== null;
-                    $specText = barber_specialties_text($b['specialties'] ?? null);
-                    if ($specText === '' && !empty($b['bio'])) {
-                        $specText = trim((string) $b['bio']);
-                    }
+                    $specItems = barber_specialties_list($b['specialties'] ?? null);
                     ?>
                     <button type="button" class="pick-card pick-card--barber" role="option" data-barber-id="<?= (int) $b['id'] ?>">
                         <?php if ($avatar): ?>
@@ -136,8 +133,14 @@ $instagram = trim((string) ($tenant['instagram_url'] ?? ''));
                             <span class="pick-card__avatar pick-card__avatar--placeholder" aria-hidden="true"><?= e(mb_strtoupper(mb_substr((string) $b['user_name'], 0, 1))) ?></span>
                         <?php endif; ?>
                         <strong class="pick-card__title"><?= e((string) $b['user_name']) ?></strong>
-                        <?php if ($specText !== ''): ?>
-                            <span class="pick-card__desc"><?= e($specText) ?></span>
+                        <?php if ($specItems !== []): ?>
+                            <span class="pick-card__tags">
+                                <?php foreach ($specItems as $tag): ?>
+                                    <span class="pick-card__tag"><?= e($tag) ?></span>
+                                <?php endforeach; ?>
+                            </span>
+                        <?php elseif (!empty($b['bio'])): ?>
+                            <span class="pick-card__desc pick-card__desc--clamp"><?= e(trim((string) $b['bio'])) ?></span>
                         <?php endif; ?>
                     </button>
                 <?php endforeach; ?>

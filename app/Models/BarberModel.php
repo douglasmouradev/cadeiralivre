@@ -148,7 +148,7 @@ final class BarberModel
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['t' => $tenantId, 's' => $serviceId]);
 
-        return $stmt->fetchAll() ?: [];
+        return $this->hydrateBarberRows($stmt->fetchAll() ?: []);
     }
 
     /** @return list<array<string, mixed>> */
@@ -161,7 +161,26 @@ final class BarberModel
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['t' => $tenantId]);
 
-        return $stmt->fetchAll() ?: [];
+        return $this->hydrateBarberRows($stmt->fetchAll() ?: []);
+    }
+
+    /** @param array<string, mixed> $row */
+    private function hydrateBarberRow(array $row): array
+    {
+        if (array_key_exists('specialties', $row) && is_string($row['specialties'])) {
+            $decoded = json_decode($row['specialties'], true);
+            if (is_array($decoded)) {
+                $row['specialties'] = $decoded;
+            }
+        }
+
+        return $row;
+    }
+
+    /** @param list<array<string, mixed>> $rows */
+    private function hydrateBarberRows(array $rows): array
+    {
+        return array_map(fn (array $row): array => $this->hydrateBarberRow($row), $rows);
     }
 
     public function countForTenant(int $tenantId): int

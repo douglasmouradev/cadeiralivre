@@ -1069,7 +1069,7 @@ form.form-inline {
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 }
 .pick-grid--barbers {
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(172px, 1fr));
   margin-top: 0.75rem;
 }
 .pick-card {
@@ -1114,6 +1114,44 @@ form.form-inline {
   font-size: 0.85rem;
   color: var(--muted);
   line-height: 1.35;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.pick-card__desc--clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pick-card--service .pick-card__desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pick-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: center;
+  margin-top: 0.2rem;
+  max-width: 100%;
+}
+.pick-card__tag {
+  font-size: 0.72rem;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: var(--accent);
+  line-height: 1.25;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pick-card--barber .pick-card__title {
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 .pick-card__price {
   margin-top: 0.35rem;

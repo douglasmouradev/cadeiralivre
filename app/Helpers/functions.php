@@ -187,30 +187,51 @@ if (!function_exists('barber_display_avatar_url')) {
     }
 }
 
+if (!function_exists('barber_specialties_list')) {
+    /**
+     * @return list<string>
+     */
+    function barber_specialties_list(mixed $raw): array
+    {
+        if ($raw === null || $raw === '' || $raw === '[]') {
+            return [];
+        }
+        $items = null;
+        if (is_array($raw)) {
+            $items = $raw;
+        } elseif (is_string($raw)) {
+            foreach ([$raw, stripslashes($raw)] as $candidate) {
+                $decoded = json_decode($candidate, true);
+                if (is_array($decoded)) {
+                    $items = $decoded;
+                    break;
+                }
+            }
+        }
+        if ($items === null) {
+            return [];
+        }
+        $out = [];
+        foreach ($items as $item) {
+            $text = trim((string) $item);
+            if ($text !== '') {
+                $out[] = $text;
+            }
+        }
+
+        return $out;
+    }
+}
+
 if (!function_exists('barber_specialties_text')) {
     /**
      * Especialidades do profissional (JSON ou array) em texto legível.
      */
     function barber_specialties_text(mixed $raw): string
     {
-        if ($raw === null || $raw === '' || $raw === '[]') {
-            return '';
-        }
-        if (is_array($raw)) {
-            $items = array_map(strval(...), $raw);
-        } elseif (is_string($raw)) {
-            $decoded = json_decode($raw, true);
-            if (is_array($decoded)) {
-                $items = array_map(strval(...), $decoded);
-            } else {
-                return trim($raw);
-            }
-        } else {
-            return '';
-        }
-        $items = array_values(array_filter(array_map(trim(...), $items), static fn (string $s) => $s !== ''));
+        $items = barber_specialties_list($raw);
 
-        return implode(' · ', $items);
+        return $items === [] ? '' : implode(' · ', $items);
     }
 }
 
