@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gera logo HQ da Adriele Cardoso a partir da foto original."""
+"""Gera logo HQ da Adriele Cardoso a partir da arte em scripts/assets/adriele-logo-source.png."""
 
 from __future__ import annotations
 
@@ -10,19 +10,17 @@ import numpy as np
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_SOURCE = (
-    ROOT / "scripts/assets/adriele-logo-source.png"
-)
+DEFAULT_SOURCE = ROOT / "scripts/assets/adriele-logo-source.png"
 OUTPUTS = [
     ROOT / "public/assets/img/brands/adriele-cardoso-logo.png",
     ROOT / "public/assets/tenant-logos/adriele-cardoso-nail-design.png",
     ROOT / "storage/uploads/logos/adriele-cardoso.png",
 ]
 CANVAS = 1024
-BG = (250, 248, 245)
+BG = (245, 244, 240)
 
 
-def trim_content_box(im: Image.Image, threshold: int = 241, pad: int = 18) -> Image.Image:
+def trim_content_box(im: Image.Image, threshold: int = 236, pad: int = 20) -> Image.Image:
     gray = np.array(im.convert("L"))
     mask = gray < threshold
     ys, xs = np.where(mask)
@@ -35,27 +33,26 @@ def trim_content_box(im: Image.Image, threshold: int = 241, pad: int = 18) -> Im
     return im.crop((left, top, right, bottom))
 
 
-def clean_background(im: Image.Image, threshold: int = 238) -> Image.Image:
+def clean_background(im: Image.Image, threshold: int = 242) -> Image.Image:
     arr = np.array(im.convert("RGB"), dtype=np.uint8)
-    near_white = (
+    near_bg = (
         (arr[:, :, 0] > threshold)
         & (arr[:, :, 1] > threshold)
         & (arr[:, :, 2] > threshold)
     )
-    arr[near_white] = BG
+    arr[near_bg] = BG
     return Image.fromarray(arr, "RGB")
 
 
 def enhance_logo(im: Image.Image) -> Image.Image:
-    im = ImageEnhance.Contrast(im).enhance(1.07)
-    im = ImageEnhance.Color(im).enhance(1.12)
-    im = im.filter(ImageFilter.UnsharpMask(radius=1.4, percent=145, threshold=2))
-    im = ImageEnhance.Sharpness(im).enhance(1.08)
+    im = ImageEnhance.Contrast(im).enhance(1.04)
+    im = ImageEnhance.Sharpness(im).enhance(1.06)
+    im = im.filter(ImageFilter.UnsharpMask(radius=1.0, percent=115, threshold=2))
     return im
 
 
 def fit_square_canvas(logo: Image.Image, size: int = CANVAS) -> Image.Image:
-    margin = int(size * 0.09)
+    margin = int(size * 0.08)
     max_side = size - margin * 2
     ratio = min(max_side / logo.width, max_side / logo.height)
     new_w = max(1, int(logo.width * ratio))
@@ -71,20 +68,16 @@ def fit_square_canvas(logo: Image.Image, size: int = CANVAS) -> Image.Image:
 def process(source: Path) -> Image.Image:
     im = Image.open(source)
     im = ImageOps.exif_transpose(im).convert("RGB")
-    w, h = im.size
-    # Remove reflexo superior, dedos inferiores e bordas da foto.
-    im = im.crop((int(w * 0.09), int(h * 0.13), int(w * 0.91), int(h * 0.71)))
     im = trim_content_box(im)
     im = clean_background(im)
     im = enhance_logo(im)
-  # Upscale intermediário para nitidez em telas retina.
-    upscale = 1024 / max(im.width, im.height) * 1.35
+    target = int(CANVAS * 0.84)
+    upscale = target / max(im.width, im.height)
     if upscale > 1.0:
         im = im.resize(
             (int(im.width * upscale), int(im.height * upscale)),
             Image.Resampling.LANCZOS,
         )
-        im = im.filter(ImageFilter.UnsharpMask(radius=1.0, percent=120, threshold=2))
     return fit_square_canvas(im)
 
 
