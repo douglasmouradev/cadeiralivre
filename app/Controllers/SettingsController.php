@@ -53,6 +53,14 @@ final class SettingsController extends Controller
     public function updateTenant(): Response
     {
         $tid = $this->tenantId();
+        $color = trim((string) $this->request->input('primary_color'));
+        if (!preg_match('/^#[0-9A-Fa-f]{6}$/', $color)) {
+            $color = '#D4AF37';
+        }
+        $instagram = trim((string) $this->request->input('instagram_url'));
+        if ($instagram !== '' && !preg_match('#^https?://#i', $instagram)) {
+            $instagram = 'https://instagram.com/' . ltrim($instagram, '@/');
+        }
         (new TenantModel())->update($tid, [
             'name' => trim((string) $this->request->input('name')),
             'email' => mb_strtolower(trim((string) $this->request->input('email'))),
@@ -60,10 +68,12 @@ final class SettingsController extends Controller
             'address' => trim((string) $this->request->input('address')) ?: null,
             'city' => trim((string) $this->request->input('city')) ?: null,
             'state' => trim((string) $this->request->input('state')) ?: null,
-            'primary_color' => trim((string) $this->request->input('primary_color')),
+            'primary_color' => $color,
             'timezone' => trim((string) $this->request->input('timezone')),
+            'public_tagline' => trim((string) $this->request->input('public_tagline')) ?: null,
+            'instagram_url' => $instagram !== '' ? $instagram : null,
         ]);
-        Flash::set('success', 'Dados da barbearia salvos.');
+        Flash::set('success', 'Dados da loja salvos.');
 
         return Response::redirect('/configuracoes');
     }
@@ -101,6 +111,43 @@ final class SettingsController extends Controller
             }
         }
         Flash::set('success', 'Logo atualizada.');
+
+        return Response::redirect('/configuracoes');
+    }
+
+    public function uploadCover(): Response
+    {
+        $tid = $this->tenantId();
+        $files = $this->request->files();
+        $file = $files['cover'] ?? null;
+        if (!is_array($file)) {
+            Flash::set('error', 'Arquivo inválido.');
+
+            return Response::redirect('/configuracoes');
+        }
+        $cfg = $this->app->config();
+        $dir = $this->app->root() . '/storage/uploads/covers';
+        $up = new UploadService($dir, (int) ($cfg['upload_max_bytes'] ?? 2_097_152));
+        try {
+            $name = $up->storeImage($file);
+        } catch (\Throwable) {
+            Flash::set('error', 'Não foi possível enviar a capa.');
+
+            return Response::redirect('/configuracoes');
+        }
+        $tenant = (new TenantModel())->findById($tid);
+        $coverRel = 'covers/' . $name;
+        (new TenantModel())->update($tid, ['cover_path' => $coverRel]);
+        if (is_array($tenant) && isset($tenant['slug']) && is_string($tenant['slug'])) {
+            $storageFile = $this->app->root() . '/storage/uploads/' . $coverRel;
+            if (is_readable($storageFile)) {
+                try {
+                    tenant_cover_publish($this->app->root(), $tenant['slug'], $storageFile);
+                } catch (\Throwable) {
+                }
+            }
+        }
+        Flash::set('success', 'Capa da página pública atualizada.');
 
         return Response::redirect('/configuracoes');
     }

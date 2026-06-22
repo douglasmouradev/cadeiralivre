@@ -49,7 +49,7 @@ ob_start();
                 </li>
             <?php endforeach; ?>
             <?php if ($upcoming === []): ?>
-                <li class="muted">Nenhum agendamento restante hoje.</li>
+                <li class="empty-state empty-state--inline muted">Nenhum agendamento restante hoje. Configure horários em <a href="/agenda">Agenda</a> para receber reservas online.</li>
             <?php endif; ?>
         </ul>
     </article>

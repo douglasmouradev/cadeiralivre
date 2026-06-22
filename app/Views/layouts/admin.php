@@ -75,7 +75,7 @@ if (is_array($adminTenant) && !empty($adminTenant['logo_path']) && !empty($admin
             <?php if (in_array($userRole, ['owner', 'superadmin'], true)): ?>
             <a class="<?= ($nav ?? '') === 'new_tenant' ? 'active' : '' ?>" href="/registrar">
                 <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                Nova barbearia
+                Nova loja
             </a>
             <?php endif; ?>
             <?php endif; ?>

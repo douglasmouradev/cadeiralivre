@@ -79,12 +79,15 @@ return static function (Router $r): void {
     $r->add('GET', '/configuracoes/assinatura', 'SettingsController@subscription', ['AuthMiddleware', 'AdminMiddleware']);
     $r->add('POST', '/configuracoes/tenant', 'SettingsController@updateTenant', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
     $r->add('POST', '/configuracoes/logo', 'SettingsController@uploadLogo', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
+    $r->add('POST', '/configuracoes/capa', 'SettingsController@uploadCover', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
     $r->add('POST', '/configuracoes/perfil', 'SettingsController@updateProfile', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
     $r->add('POST', '/configuracoes/avatar', 'SettingsController@uploadAvatar', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
     $r->add('POST', '/configuracoes/equipe', 'SettingsController@storeStaffUser', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
 
     $r->add('GET', '/media/logo/{slug}', 'MediaController@tenantLogo', []);
     $r->add('GET', '/loja-logo/{slug}', 'MediaController@tenantLogo', []);
+    $r->add('GET', '/loja-capa/{slug}', 'MediaController@tenantCover', []);
+    $r->add('GET', '/media/avatar', 'MediaController@userAvatar', []);
 
     $r->add('GET', '/cliente/{slug}/entrar', 'ClientPortalController@showLogin', []);
     $r->add('POST', '/cliente/{slug}/entrar', 'ClientPortalController@login', ['LoginRateLimitMiddleware', 'CsrfMiddleware']);

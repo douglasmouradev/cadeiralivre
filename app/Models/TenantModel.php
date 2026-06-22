@@ -105,7 +105,7 @@ final class TenantModel
     /** @param array<string, mixed> $fields */
     public function update(int $tenantId, array $fields): void
     {
-        $allowed = ['name', 'email', 'phone', 'address', 'city', 'state', 'logo_path', 'primary_color', 'timezone'];
+        $allowed = ['name', 'email', 'phone', 'address', 'city', 'state', 'logo_path', 'cover_path', 'public_tagline', 'instagram_url', 'primary_color', 'timezone'];
         $sets = [];
         $params = ['tid' => $tenantId];
         foreach ($allowed as $col) {

@@ -102,6 +102,103 @@ if (!function_exists('tenant_logo_publish')) {
     }
 }
 
+if (!function_exists('tenant_cover_url')) {
+    function tenant_cover_url(string $slug): ?string
+    {
+        $safe = preg_replace('/[^a-zA-Z0-9\-_]/', '', $slug) ?? '';
+        if ($safe === '') {
+            return null;
+        }
+        $root = dirname(__DIR__, 2);
+        foreach (['jpg', 'jpeg', 'png', 'webp'] as $ext) {
+            $static = $root . '/public/assets/tenant-covers/' . $safe . '.' . $ext;
+            if (is_file($static)) {
+                return '/assets/tenant-covers/' . rawurlencode($safe) . '.' . $ext;
+            }
+        }
+
+        return '/loja-capa/' . rawurlencode($slug);
+    }
+}
+
+if (!function_exists('tenant_cover_publish')) {
+    function tenant_cover_publish(string $projectRoot, string $slug, string $sourceAbsolutePath): string
+    {
+        if (!is_readable($sourceAbsolutePath)) {
+            throw new \RuntimeException('Arquivo de capa ilegível.');
+        }
+        $safeSlug = preg_replace('/[^a-zA-Z0-9\-_]/', '', $slug) ?? '';
+        if ($safeSlug === '') {
+            throw new \InvalidArgumentException('Slug inválido.');
+        }
+        $ext = strtolower(pathinfo($sourceAbsolutePath, PATHINFO_EXTENSION));
+        if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+            $ext = 'jpg';
+        }
+        $basename = $safeSlug . '-cover.' . $ext;
+        $storageDir = $projectRoot . '/storage/uploads/covers';
+        if (!is_dir($storageDir) && !mkdir($storageDir, 0770, true) && !is_dir($storageDir)) {
+            throw new \RuntimeException('Não foi possível criar diretório de capas.');
+        }
+        $storagePath = $storageDir . '/' . $basename;
+        if (!copy($sourceAbsolutePath, $storagePath)) {
+            throw new \RuntimeException('Não foi possível copiar capa.');
+        }
+        $publicDir = $projectRoot . '/public/assets/tenant-covers';
+        if (!is_dir($publicDir) && !mkdir($publicDir, 0755, true) && !is_dir($publicDir)) {
+            throw new \RuntimeException('Não foi possível criar diretório público de capas.');
+        }
+        $publicPath = $publicDir . '/' . $safeSlug . '.' . $ext;
+        if (!copy($sourceAbsolutePath, $publicPath)) {
+            throw new \RuntimeException('Não foi possível publicar capa.');
+        }
+
+        return 'covers/' . $basename;
+    }
+}
+
+if (!function_exists('user_avatar_url')) {
+    function user_avatar_url(?string $avatarPath): ?string
+    {
+        if ($avatarPath === null || $avatarPath === '') {
+            return null;
+        }
+        $safe = str_replace(['..', '\\'], '', $avatarPath);
+
+        return '/media/avatar?f=' . rawurlencode($safe);
+    }
+}
+
+if (!function_exists('format_money_br')) {
+    function format_money_br(float|string $value): string
+    {
+        return 'R$ ' . number_format((float) $value, 2, ',', '.');
+    }
+}
+
+if (!function_exists('appointment_status_label')) {
+    function appointment_status_label(string $status): string
+    {
+        return match ($status) {
+            'pending' => 'Pendente',
+            'confirmed' => 'Confirmado',
+            'completed' => 'Concluído',
+            'cancelled' => 'Cancelado',
+            'no_show' => 'Não compareceu',
+            default => $status,
+        };
+    }
+}
+
+if (!function_exists('app_base_url')) {
+    function app_base_url(): string
+    {
+        $base = trim((string) ($_ENV['APP_URL'] ?? ''));
+
+        return rtrim($base !== '' ? $base : '', '/');
+    }
+}
+
 if (!function_exists('format_datetime_in_tenant_tz')) {
     /**
      * Formata data/hora guardada como relógio local da barbearia (Y-m-d H:i:s).

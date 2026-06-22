@@ -9,24 +9,44 @@ declare(strict_types=1);
 
 $canManageTeam = $canManageTeam ?? false;
 $administrativeStaff = $administrativeStaff ?? [];
+$slug = is_array($tenant) ? (string) ($tenant['slug'] ?? '') : '';
+$brandHex = tenant_brand_hex(is_array($tenant) ? (string) ($tenant['primary_color'] ?? '') : null);
+$previewUrl = $slug !== '' ? '/agendar/' . rawurlencode($slug) : '#';
 
 ob_start();
 ?>
-<p class="mb-1"><a class="btn secondary" href="/configuracoes/assinatura">Assinatura e limites do plano</a></p>
+<p class="mb-1 settings-actions">
+    <a class="btn secondary" href="/configuracoes/assinatura">Assinatura e limites do plano</a>
+    <?php if ($slug !== ''): ?>
+        <a class="btn secondary" href="<?= e($previewUrl) ?>" target="_blank" rel="noopener">Ver página pública</a>
+    <?php endif; ?>
+</p>
 <div class="grid two-col">
     <article class="card">
-        <h3>Barbearia</h3>
-        <form method="post" action="/configuracoes/tenant" data-validate="1">
+        <h3>Sua loja</h3>
+        <form method="post" action="/configuracoes/tenant" data-validate="1" id="tenant-brand-form">
             <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
             <div class="row"><label>Nome</label><input name="name" required value="<?= e((string) ($tenant['name'] ?? '')) ?>"></div>
+            <div class="row"><label>Frase de destaque (página pública)</label><input name="public_tagline" maxlength="160" placeholder="Ex.: Nail design com atendimento exclusivo" value="<?= e((string) ($tenant['public_tagline'] ?? '')) ?>"></div>
             <div class="row"><label>E-mail</label><input name="email" type="email" required value="<?= e((string) ($tenant['email'] ?? '')) ?>"></div>
             <div class="row"><label>Telefone</label><input name="phone" value="<?= e((string) ($tenant['phone'] ?? '')) ?>"></div>
+            <div class="row"><label>Instagram (URL ou @usuario)</label><input name="instagram_url" placeholder="https://instagram.com/sualoja" value="<?= e((string) ($tenant['instagram_url'] ?? '')) ?>"></div>
             <div class="row"><label>Endereço</label><input name="address" value="<?= e((string) ($tenant['address'] ?? '')) ?>"></div>
             <div class="grid-cols-2 mb-1">
                 <div><label>Cidade</label><input name="city" value="<?= e((string) ($tenant['city'] ?? '')) ?>"></div>
                 <div><label>Estado</label><input name="state" value="<?= e((string) ($tenant['state'] ?? '')) ?>"></div>
             </div>
-            <div class="row"><label>Cor destaque</label><input name="primary_color" value="<?= e((string) ($tenant['primary_color'] ?? '#D4AF37')) ?>"></div>
+            <div class="row color-picker-row">
+                <label for="primary_color">Cor destaque</label>
+                <div class="color-picker">
+                    <input type="color" id="primary_color_picker" value="<?= e($brandHex) ?>" aria-label="Selecionar cor">
+                    <input name="primary_color" id="primary_color" value="<?= e($brandHex) ?>" pattern="^#[0-9A-Fa-f]{6}$">
+                </div>
+            </div>
+            <div class="brand-preview-pill" id="brand-preview" style="--preview-accent: <?= e($brandHex) ?>">
+                <span class="brand-preview-pill__swatch"></span>
+                Prévia da cor nos botões da página pública
+            </div>
             <div class="row"><label>Fuso</label><input name="timezone" value="<?= e((string) ($tenant['timezone'] ?? 'America/Sao_Paulo')) ?>"></div>
             <button class="btn" type="submit">Salvar</button>
         </form>
@@ -34,6 +54,12 @@ ob_start();
             <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
             <div class="row"><label>Logo (PNG/JPG/WebP)</label><input type="file" name="logo" accept="image/png,image/jpeg,image/webp"></div>
             <button class="btn secondary" type="submit">Enviar logo</button>
+        </form>
+        <form method="post" action="/configuracoes/capa" enctype="multipart/form-data" class="mt-1">
+            <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
+            <div class="row"><label>Capa da página pública</label><input type="file" name="cover" accept="image/png,image/jpeg,image/webp"></div>
+            <p class="muted" style="font-size:0.88rem;margin:0 0 0.5rem">Recomendado: 1200×400 px ou proporção panorâmica.</p>
+            <button class="btn secondary" type="submit">Enviar capa</button>
         </form>
     </article>
     <article class="card">
@@ -94,6 +120,24 @@ ob_start();
     </form>
 </article>
 <?php endif; ?>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const picker = document.getElementById('primary_color_picker');
+  const text = document.getElementById('primary_color');
+  const preview = document.getElementById('brand-preview');
+  if (!picker || !text) return;
+  const sync = (fromPicker) => {
+    const v = fromPicker ? picker.value : text.value;
+    if (/^#[0-9A-Fa-f]{6}$/.test(v)) {
+      picker.value = v;
+      text.value = v;
+      if (preview) preview.style.setProperty('--preview-accent', v);
+    }
+  };
+  picker.addEventListener('input', () => sync(true));
+  text.addEventListener('input', () => sync(false));
+});
+</script>
 <?php
 $content = ob_get_clean();
 require __DIR__ . '/../layouts/admin.php';

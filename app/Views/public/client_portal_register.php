@@ -20,6 +20,7 @@ $flashError = Flash::get('error');
     <meta name="csrf-token" content="<?= e($csrf) ?>">
     <meta name="theme-color" content="<?= e($brandHex) ?>">
     <title><?= e($title) ?></title>
+    <?php require __DIR__ . '/../partials/public_tenant_head.php'; ?>
     <link rel="stylesheet" href="/assets/css/app.css">
 </head>
 <body class="public-body public-theme" style="--tenant-accent: <?= e($brandHex) ?>;">

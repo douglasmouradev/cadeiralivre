@@ -139,7 +139,7 @@ final class BarberModel
     /** @return list<array<string, mixed>> */
     public function barbersForService(int $tenantId, int $serviceId): array
     {
-        $sql = 'SELECT b.*, u.name AS user_name
+        $sql = 'SELECT b.*, u.name AS user_name, u.avatar_path AS user_avatar
                 FROM barbers b
                 INNER JOIN users u ON u.id = b.user_id
                 INNER JOIN barber_services bs ON bs.barber_id = b.id
@@ -154,7 +154,7 @@ final class BarberModel
     /** @return list<array<string, mixed>> */
     public function availableBarbersForTenant(int $tenantId): array
     {
-        $sql = 'SELECT b.*, u.name AS user_name FROM barbers b
+        $sql = 'SELECT b.*, u.name AS user_name, u.avatar_path AS user_avatar FROM barbers b
                 INNER JOIN users u ON u.id = b.user_id
                 WHERE b.tenant_id = :t AND b.is_available = 1 AND u.is_active = 1
                 ORDER BY u.name ASC';
