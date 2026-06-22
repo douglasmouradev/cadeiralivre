@@ -33,6 +33,7 @@ const DEFAULT_PASSWORD = 'Senha1234';
 const BRAND_COLOR = '#C4A052';
 const LOGO_SOURCE = 'public/assets/img/brands/adriele-cardoso-logo.png';
 const LOGO_DEST = 'logos/adriele-cardoso.png';
+// Regenerar logo HQ: python scripts/process_adriele_logo.py
 
 $logoSourcePath = $root . '/' . LOGO_SOURCE;
 if (!is_readable($logoSourcePath)) {
