@@ -45,14 +45,12 @@ def clean_background(im: Image.Image, threshold: int = 242) -> Image.Image:
 
 
 def enhance_logo(im: Image.Image) -> Image.Image:
-    im = ImageEnhance.Contrast(im).enhance(1.04)
-    im = ImageEnhance.Sharpness(im).enhance(1.06)
-    im = im.filter(ImageFilter.UnsharpMask(radius=1.0, percent=115, threshold=2))
+    im = ImageEnhance.Sharpness(im).enhance(1.03)
     return im
 
 
 def fit_square_canvas(logo: Image.Image, size: int = CANVAS) -> Image.Image:
-    margin = int(size * 0.08)
+    margin = int(size * 0.06)
     max_side = size - margin * 2
     ratio = min(max_side / logo.width, max_side / logo.height)
     new_w = max(1, int(logo.width * ratio))
@@ -69,9 +67,8 @@ def process(source: Path) -> Image.Image:
     im = Image.open(source)
     im = ImageOps.exif_transpose(im).convert("RGB")
     im = trim_content_box(im)
-    im = clean_background(im)
     im = enhance_logo(im)
-    target = int(CANVAS * 0.84)
+    target = int(CANVAS * 0.88)
     upscale = target / max(im.width, im.height)
     if upscale > 1.0:
         im = im.resize(
