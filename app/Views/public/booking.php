@@ -204,5 +204,6 @@ $instagram = trim((string) ($tenant['instagram_url'] ?? ''));
 ], $barbers), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
 <script src="<?= e(asset_version('/assets/js/app.js')) ?>" defer></script>
 <script src="<?= e(asset_version('/assets/js/booking.js')) ?>" defer></script>
+<!-- booking-ui:2025-06-22 -->
 </body>
 </html>

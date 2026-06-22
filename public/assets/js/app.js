@@ -75,4 +75,50 @@
       if (window.innerWidth > 900) setOpen(false);
     });
   }
+
+  const polishBarberPickCards = () => {
+    const heroLogo = document.querySelector('.store-hero__logo');
+    const logoSrc = heroLogo instanceof HTMLImageElement ? heroLogo.src : '';
+    document.querySelectorAll('.pick-card--barber').forEach((card) => {
+      const desc = card.querySelector('.pick-card__desc');
+      if (desc) {
+        const text = (desc.textContent || '').trim();
+        if (text.startsWith('[')) {
+          try {
+            const items = JSON.parse(text);
+            if (Array.isArray(items) && items.length > 0) {
+              const wrap = document.createElement('span');
+              wrap.className = 'pick-card__tags';
+              items.forEach((item) => {
+                const tag = document.createElement('span');
+                tag.className = 'pick-card__tag';
+                tag.textContent = String(item);
+                wrap.appendChild(tag);
+              });
+              desc.replaceWith(wrap);
+            }
+          } catch {
+            /* mantém texto original */
+          }
+        }
+      }
+      if (logoSrc) {
+        const ph = card.querySelector('.pick-card__avatar--placeholder');
+        if (ph) {
+          const img = document.createElement('img');
+          img.className = 'pick-card__avatar pick-card__avatar--brand';
+          img.src = logoSrc;
+          img.width = 56;
+          img.height = 56;
+          img.alt = '';
+          img.loading = 'lazy';
+          ph.replaceWith(img);
+        }
+      }
+    });
+  };
+
+  if (document.querySelector('.pick-card--barber')) {
+    polishBarberPickCards();
+  }
 })();

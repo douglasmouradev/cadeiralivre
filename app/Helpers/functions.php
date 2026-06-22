@@ -211,6 +211,9 @@ if (!function_exists('barber_specialties_list')) {
         $items = null;
         if (is_array($raw)) {
             $items = $raw;
+        } elseif (is_object($raw)) {
+            $decoded = json_decode(json_encode($raw, JSON_THROW_ON_ERROR), true, 512, JSON_INVALID_UTF8_SUBSTITUTE);
+            $items = is_array($decoded) ? $decoded : null;
         } elseif (is_string($raw)) {
             $candidates = [$raw, stripslashes($raw)];
             foreach ($candidates as $candidate) {
