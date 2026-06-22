@@ -12,7 +12,13 @@ ob_start();
 ?>
 <div class="toolbar">
     <h2 class="toolbar__title"><?= e((string) $client['name']) ?></h2>
-    <a class="btn secondary" href="/clientes/<?= (int) $client['id'] ?>/editar">Editar</a>
+    <div class="td-actions">
+        <a class="btn secondary" href="/clientes/<?= (int) $client['id'] ?>/editar">Editar</a>
+        <form method="post" action="/clientes/<?= (int) $client['id'] ?>/excluir" class="form-inline" data-confirm="Excluir <?= e((string) $client['name']) ?>? Esta ação não pode ser desfeita.">
+            <input type="hidden" name="_csrf_token" value="<?= e($csrf ?? \App\Helpers\Csrf::token()) ?>">
+            <button type="submit" class="btn secondary danger">Excluir</button>
+        </form>
+    </div>
 </div>
 <div class="grid two-col">
     <article class="card">

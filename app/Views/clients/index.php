@@ -28,7 +28,13 @@ ob_start();
                 <td><?= e((string) $r['name']) ?></td>
                 <td><?= e((string) ($r['email'] ?? '')) ?></td>
                 <td><?= e((string) ($r['phone'] ?? '')) ?></td>
-                <td><a class="btn secondary" href="/clientes/<?= (int) $r['id'] ?>">Ver</a></td>
+                <td class="td-actions">
+                    <a class="btn secondary" href="/clientes/<?= (int) $r['id'] ?>">Ver</a>
+                    <form method="post" action="/clientes/<?= (int) $r['id'] ?>/excluir" class="form-inline" data-confirm="Excluir <?= e((string) $r['name']) ?>?">
+                        <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
+                        <button type="submit" class="btn secondary danger">Excluir</button>
+                    </form>
+                </td>
             </tr>
         <?php endforeach; ?>
         </tbody>

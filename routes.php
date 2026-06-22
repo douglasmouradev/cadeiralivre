@@ -82,6 +82,7 @@ return static function (Router $r): void {
     $r->add('GET', '/clientes/{id}', 'ClientController@show', ['AuthMiddleware', 'AdminMiddleware']);
     $r->add('GET', '/clientes/{id}/editar', 'ClientController@editForm', ['AuthMiddleware', 'AdminMiddleware']);
     $r->add('POST', '/clientes/{id}', 'ClientController@update', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
+    $r->add('POST', '/clientes/{id}/excluir', 'ClientController@delete', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
 
     $r->add('GET', '/relatorios', 'ReportController@index', ['AuthMiddleware', 'AdminMiddleware']);
     $r->add('GET', '/relatorios/exportar\.csv', 'ReportController@exportCsv', ['AuthMiddleware', 'AdminMiddleware']);

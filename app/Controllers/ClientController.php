@@ -80,6 +80,33 @@ final class ClientController extends Controller
         return Response::redirect('/clientes/' . $id);
     }
 
+    public function delete(int $id): Response
+    {
+        $tid = $this->tenantId();
+        $m = new ClientModel();
+        $client = $m->find($tid, $id);
+        if ($client === null) {
+            Flash::set('error', 'Cliente não encontrado.');
+
+            return Response::redirect('/clientes');
+        }
+        $apptCount = $m->countAppointments($tid, $id);
+        try {
+            $m->deleteWithAppointments($tid, $id);
+        } catch (\Throwable) {
+            Flash::set('error', 'Não foi possível excluir o cliente.');
+
+            return Response::redirect('/clientes/' . $id);
+        }
+        $name = (string) ($client['name'] ?? 'Cliente');
+        $msg = $apptCount > 0
+            ? "Cliente \"{$name}\" excluído com {$apptCount} agendamento(s) vinculado(s)."
+            : "Cliente \"{$name}\" excluído.";
+        Flash::set('success', $msg);
+
+        return Response::redirect('/clientes');
+    }
+
     public function export(): Response
     {
         $tid = $this->tenantId();

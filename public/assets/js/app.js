@@ -121,4 +121,14 @@
   if (document.querySelector('.pick-card--barber')) {
     polishBarberPickCards();
   }
+
+  document.querySelectorAll('form[data-confirm]').forEach((form) => {
+    if (!(form instanceof HTMLFormElement)) return;
+    form.addEventListener('submit', (e) => {
+      const msg = form.getAttribute('data-confirm') || 'Confirmar esta ação?';
+      if (!window.confirm(msg)) {
+        e.preventDefault();
+      }
+    });
+  });
 })();

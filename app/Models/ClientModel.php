@@ -168,4 +168,36 @@ final class ClientModel
 
         return $stmt->fetchAll() ?: [];
     }
+
+    public function countAppointments(int $tenantId, int $clientId): int
+    {
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM appointments WHERE tenant_id = :t AND client_id = :c');
+        $stmt->execute(['t' => $tenantId, 'c' => $clientId]);
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    /** Remove cliente e agendamentos vinculados (histórico, pagamentos e avaliações em cascata). */
+    public function deleteWithAppointments(int $tenantId, int $clientId): void
+    {
+        $this->pdo->beginTransaction();
+        try {
+            $stmt = $this->pdo->prepare('SELECT id FROM appointments WHERE tenant_id = :t AND client_id = :c');
+            $stmt->execute(['t' => $tenantId, 'c' => $clientId]);
+            $ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            if (is_array($ids) && $ids !== []) {
+                $del = $this->pdo->prepare('DELETE FROM appointments WHERE tenant_id = :t AND client_id = :c');
+                $del->execute(['t' => $tenantId, 'c' => $clientId]);
+            }
+            $delClient = $this->pdo->prepare('DELETE FROM clients WHERE tenant_id = :t AND id = :id');
+            $delClient->execute(['t' => $tenantId, 'id' => $clientId]);
+            if ($delClient->rowCount() === 0) {
+                throw new \RuntimeException('Cliente não encontrado.');
+            }
+            $this->pdo->commit();
+        } catch (\Throwable $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    }
 }
