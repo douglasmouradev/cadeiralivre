@@ -660,13 +660,16 @@ input.field-error, select.field-error, textarea.field-error {
   padding-bottom: 1.25rem;
   border-bottom: 1px solid var(--border);
 }
-.public-header img {
-  width: 72px;
-  height: 72px;
-  object-fit: cover;
+.public-header img,
+.public-header__logo {
+  width: auto;
+  max-width: 120px;
+  height: 88px;
+  object-fit: contain;
   border-radius: 14px;
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
+  background: #faf8f5;
 }
 .public-header__title { margin: 0; }
 

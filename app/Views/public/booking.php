@@ -29,7 +29,7 @@ $flashError = Flash::get('error');
 <main class="public-page" data-booking-main data-booking-slug="<?= e($slug) ?>">
     <header class="public-header">
         <?php if (!empty($tenant['logo_path'])): ?>
-            <img src="<?= e(tenant_logo_url($slug)) ?>" alt="<?= e((string) $tenant['name']) ?>">
+            <img class="public-header__logo" src="<?= e(tenant_logo_url($slug)) ?>" alt="<?= e((string) $tenant['name']) ?>">
         <?php endif; ?>
         <div>
             <h1 class="public-header__title"><?= e((string) $tenant['name']) ?></h1>
