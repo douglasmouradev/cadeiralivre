@@ -99,23 +99,28 @@ $faqItems = [
         <div class="landing-hero__glow landing-hero__glow--a" aria-hidden="true"></div>
         <div class="landing-hero__glow landing-hero__glow--b" aria-hidden="true"></div>
         <div class="landing-shell landing-hero__grid">
-            <div class="landing-hero__copy">
-                <p class="landing-kicker"><span class="landing-kicker__dot" aria-hidden="true"></span>Agendamento para salões e barbearias</p>
+            <div class="landing-hero__copy" data-reveal>
+                <p class="landing-kicker"><span class="landing-kicker__dot" aria-hidden="true"></span>Barbearias · nails · salões</p>
                 <h1>Sua cadeira.<br>Seu horário.<br><span class="landing-accent-line">Online.</span></h1>
-                <p class="landing-lead">Um link para o cliente agendar, um painel para você comandar a equipe — sem planilha, sem troca infinita de mensagens.</p>
+                <p class="landing-lead">Pare de confirmar horário no WhatsApp. Seu cliente agenda sozinho; você vê tudo no painel — com a cara da sua loja.</p>
+                <ul class="landing-niche" aria-label="Segmentos atendidos">
+                    <li>Barbearia</li>
+                    <li>Nail design</li>
+                    <li>Estética</li>
+                </ul>
                 <div class="landing-cta landing-cta--row">
                     <a class="btn landing-btn-primary landing-btn-primary--lg" href="/cadastro">Abrir minha loja</a>
                     <a class="btn landing-btn-outline landing-btn-outline--lg" href="<?= e($demoUrl) ?>" target="_blank" rel="noopener">Ver demonstração</a>
                 </div>
                 <p class="landing-cta-note">14 dias grátis · sem cartão</p>
                 <ul class="landing-hero__stats" aria-label="Destaques">
-                    <li><strong>24h</strong><span>Agendamento online</span></li>
-                    <li><strong>100%</strong><span>Na nuvem</span></li>
+                    <li><strong>24h</strong><span>Cliente agenda sozinho</span></li>
+                    <li><strong>WhatsApp</strong><span>Lembretes automáticos</span></li>
                     <li><strong>0</strong><span>Taxa para o cliente</span></li>
                 </ul>
                 <p class="landing-hero-foot">Já tem conta? <a href="/login">Entrar no painel</a></p>
             </div>
-            <aside class="landing-preview">
+            <aside class="landing-preview" data-reveal style="--reveal-delay: 120ms">
                 <div class="landing-preview__halo" aria-hidden="true"></div>
                 <a class="landing-preview__link" href="<?= e($demoUrl) ?>" target="_blank" rel="noopener" aria-label="Ver demonstração ao vivo — Adriele Nail Design">
                 <div class="landing-preview__frame">
@@ -141,19 +146,19 @@ $faqItems = [
 
     <section class="landing-about" id="sobre">
         <div class="landing-shell landing-about__grid">
-            <header class="landing-section-head">
+            <header class="landing-section-head" data-reveal>
                 <p class="landing-kicker">Sobre o <?= e(app_name()) ?></p>
-                <h2>Uma nova experiência para quem vive de agenda</h2>
-                <p class="landing-section-lead">Sistema de gestão online para barbearias, nail designers e salões — com agendamento, portal do cliente e painel completo na nuvem.</p>
+                <h2>Agenda cheia, recepção tranquila</h2>
+                <p class="landing-section-lead">Nasceu da rotina real de salão: cliente mandando áudio às 23h, profissional sem saber o horário, dono apagando incêndio. O <?= e(app_name()) ?> centraliza tudo num link e num painel.</p>
             </header>
             <div class="landing-about__modules">
-                <article class="landing-module">
+                <article class="landing-module" data-reveal style="--reveal-delay: 0ms">
                     <span class="landing-module__icon" aria-hidden="true">01</span>
                     <span class="landing-module__tag">Painel web</span>
                     <h3>Gestão do estabelecimento</h3>
                     <p>Controle profissionais, serviços, clientes, horários e relatórios financeiros. Acesso seguro de qualquer lugar, com identidade visual da sua loja.</p>
                 </article>
-                <article class="landing-module">
+                <article class="landing-module" data-reveal style="--reveal-delay: 90ms">
                     <span class="landing-module__icon" aria-hidden="true">02</span>
                     <span class="landing-module__tag">Portal do cliente</span>
                     <h3>Agendamento sem fricção</h3>
@@ -165,22 +170,22 @@ $faqItems = [
 
     <section class="landing-goals">
         <div class="landing-shell">
-            <header class="landing-section-head landing-section-head--center">
-                <p class="landing-kicker">Nosso objetivo</p>
-                <h2>Mais tempo, mais clientes, mais faturamento</h2>
+            <header class="landing-section-head landing-section-head--center" data-reveal>
+                <p class="landing-kicker">Por que existe</p>
+                <h2>Menos DM, mais cadeira ocupada</h2>
             </header>
             <div class="landing-goals__grid">
-                <article class="landing-goal">
+                <article class="landing-goal" data-reveal style="--reveal-delay: 0ms">
                     <span class="landing-goal__icon" aria-hidden="true">01</span>
                     <h3>Otimizar seu tempo</h3>
                     <p>Organize a agenda da equipe e reduza mensagens repetidas com agendamento online e confirmações automáticas.</p>
                 </article>
-                <article class="landing-goal">
+                <article class="landing-goal" data-reveal style="--reveal-delay: 80ms">
                     <span class="landing-goal__icon" aria-hidden="true">02</span>
                     <h3>Fidelizar o cliente</h3>
                     <p>Portal próprio, lembretes antes do horário e avaliações pós-atendimento mantêm o cliente próximo da sua marca.</p>
                 </article>
-                <article class="landing-goal">
+                <article class="landing-goal" data-reveal style="--reveal-delay: 160ms">
                     <span class="landing-goal__icon" aria-hidden="true">03</span>
                     <h3>Aumentar o movimento</h3>
                     <p>Horários disponíveis 24h no link público — o cliente agenda quando quiser, mesmo fora do expediente.</p>
@@ -191,80 +196,95 @@ $faqItems = [
 
     <section class="landing-features" id="funcoes">
         <div class="landing-shell">
-            <header class="landing-section-head landing-section-head--center">
+            <header class="landing-section-head landing-section-head--center" data-reveal>
                 <p class="landing-kicker">Funcionalidades</p>
-                <h2>Tudo que você precisa para comandar a casa</h2>
-                <p class="landing-section-lead">Recursos pensados para o dia a dia do salão — do primeiro agendamento ao fechamento do mês.</p>
+                <h2>O que sua cadeira precisa no dia a dia</h2>
+                <p class="landing-section-lead">Do link de agendamento ao fechamento do caixa — sem planilha, sem app genérico de outro nicho.</p>
             </header>
-            <div class="landing-features__grid">
-                <article class="landing-feat">
-                    <h3>Agendamento online</h3>
-                    <p>Link público <span class="landing-inline-path">/agendar/sua-loja</span> com escolha de serviço, profissional e horário.</p>
-                </article>
-                <article class="landing-feat">
-                    <h3>Lembretes automáticos</h3>
-                    <p>E-mail e WhatsApp antes do horário para reduzir faltas e última hora de confirmação.</p>
-                </article>
-                <article class="landing-feat">
-                    <h3>Portal do cliente</h3>
-                    <p>Confirmação, cancelamento e reagendamento feitos pelo próprio cliente, sem ligar na recepção.</p>
-                </article>
-                <article class="landing-feat">
-                    <h3>Página da loja</h3>
-                    <p>Site de agendamento com logo, cores e dados do estabelecimento — pronto para compartilhar.</p>
-                </article>
-                <article class="landing-feat">
-                    <h3>Gestão financeira</h3>
-                    <p>Registro de pagamentos por atendimento, descontos e formas de pagamento no balcão.</p>
-                </article>
-                <article class="landing-feat">
-                    <h3>Relatórios gerenciais</h3>
-                    <p>Faturamento, ticket médio, clientes inativos e exportação CSV para análise externa.</p>
-                </article>
-                <article class="landing-feat">
-                    <h3>Comissões</h3>
-                    <p>Percentual por profissional com relatório de comissões no período que você escolher.</p>
-                </article>
-                <article class="landing-feat">
-                    <h3>Avaliações</h3>
-                    <p>Link automático após o atendimento para o cliente avaliar e você acompanhar a satisfação.</p>
-                </article>
-                <article class="landing-feat">
-                    <h3>Agenda da equipe</h3>
-                    <p>Visão por profissional, bloqueios de horário e horários especiais por data.</p>
-                </article>
-                <article class="landing-feat">
-                    <h3>Clientes e histórico</h3>
-                    <p>Cadastro, busca, paginação e exportação da base — com histórico de visitas.</p>
-                </article>
-                <article class="landing-feat">
-                    <h3>Equipe e permissões</h3>
-                    <p>Dono, recepcionista e profissional com acessos diferentes ao painel.</p>
-                </article>
-                <article class="landing-feat">
-                    <h3>PWA no celular</h3>
-                    <p>Instale o painel na tela inicial do smartphone para consultar a agenda em movimento.</p>
-                </article>
-                <article class="landing-feat landing-feat--soon">
-                    <span class="landing-feat__badge">Em breve</span>
-                    <h3>Programa de fidelidade</h3>
-                    <p>Pontos e recompensas para clientes frequentes — em desenvolvimento.</p>
-                </article>
-                <article class="landing-feat landing-feat--soon">
-                    <span class="landing-feat__badge">Em breve</span>
-                    <h3>Lista de espera</h3>
-                    <p>Cliente entra na fila quando não há horário e recebe aviso quando abrir vaga.</p>
-                </article>
-                <article class="landing-feat landing-feat--soon">
-                    <span class="landing-feat__badge">Em breve</span>
-                    <h3>Pacotes de serviços</h3>
-                    <p>Combos com desconto e controle de sessões vendidas antecipadamente.</p>
-                </article>
-                <article class="landing-feat landing-feat--soon">
-                    <span class="landing-feat__badge">Em breve</span>
-                    <h3>Pagamento online</h3>
-                    <p>Cobrança antecipada ou sinal no momento do agendamento pelo portal.</p>
-                </article>
+            <div class="landing-features__groups">
+                <div class="landing-features__group" data-reveal>
+                    <h3 class="landing-features__group-title">Cliente agenda sozinho</h3>
+                    <div class="landing-features__grid">
+                        <article class="landing-feat">
+                            <h3>Agendamento online</h3>
+                            <p>Link público <span class="landing-inline-path">/agendar/sua-loja</span> com escolha de serviço, profissional e horário.</p>
+                        </article>
+                        <article class="landing-feat">
+                            <h3>Lembretes automáticos</h3>
+                            <p>E-mail e WhatsApp antes do horário para reduzir faltas e última hora de confirmação.</p>
+                        </article>
+                        <article class="landing-feat">
+                            <h3>Portal do cliente</h3>
+                            <p>Confirmação, cancelamento e reagendamento feitos pelo próprio cliente, sem ligar na recepção.</p>
+                        </article>
+                        <article class="landing-feat">
+                            <h3>Página da loja</h3>
+                            <p>Site de agendamento com logo, cores e dados do estabelecimento — pronto para compartilhar.</p>
+                        </article>
+                    </div>
+                </div>
+                <div class="landing-features__group" data-reveal>
+                    <h3 class="landing-features__group-title">Você comanda a casa</h3>
+                    <div class="landing-features__grid">
+                        <article class="landing-feat">
+                            <h3>Gestão financeira</h3>
+                            <p>Registro de pagamentos por atendimento, descontos e formas de pagamento no balcão.</p>
+                        </article>
+                        <article class="landing-feat">
+                            <h3>Relatórios gerenciais</h3>
+                            <p>Faturamento, ticket médio, clientes inativos e exportação CSV para análise externa.</p>
+                        </article>
+                        <article class="landing-feat">
+                            <h3>Comissões</h3>
+                            <p>Percentual por profissional com relatório de comissões no período que você escolher.</p>
+                        </article>
+                        <article class="landing-feat">
+                            <h3>Avaliações</h3>
+                            <p>Link automático após o atendimento para o cliente avaliar e você acompanhar a satisfação.</p>
+                        </article>
+                        <article class="landing-feat">
+                            <h3>Agenda da equipe</h3>
+                            <p>Visão por profissional, bloqueios de horário e horários especiais por data.</p>
+                        </article>
+                        <article class="landing-feat">
+                            <h3>Clientes e histórico</h3>
+                            <p>Cadastro, busca, paginação e exportação da base — com histórico de visitas.</p>
+                        </article>
+                        <article class="landing-feat">
+                            <h3>Equipe e permissões</h3>
+                            <p>Dono, recepcionista e profissional com acessos diferentes ao painel.</p>
+                        </article>
+                        <article class="landing-feat">
+                            <h3>PWA no celular</h3>
+                            <p>Instale o painel na tela inicial do smartphone para consultar a agenda em movimento.</p>
+                        </article>
+                    </div>
+                </div>
+                <div class="landing-features__group landing-features__group--soon" data-reveal>
+                    <h3 class="landing-features__group-title">Na fila do desenvolvimento</h3>
+                    <div class="landing-features__grid landing-features__grid--soon">
+                        <article class="landing-feat landing-feat--soon">
+                            <span class="landing-feat__badge">Em breve</span>
+                            <h3>Programa de fidelidade</h3>
+                            <p>Pontos e recompensas para clientes frequentes — em desenvolvimento.</p>
+                        </article>
+                        <article class="landing-feat landing-feat--soon">
+                            <span class="landing-feat__badge">Em breve</span>
+                            <h3>Lista de espera</h3>
+                            <p>Cliente entra na fila quando não há horário e recebe aviso quando abrir vaga.</p>
+                        </article>
+                        <article class="landing-feat landing-feat--soon">
+                            <span class="landing-feat__badge">Em breve</span>
+                            <h3>Pacotes de serviços</h3>
+                            <p>Combos com desconto e controle de sessões vendidas antecipadamente.</p>
+                        </article>
+                        <article class="landing-feat landing-feat--soon">
+                            <span class="landing-feat__badge">Em breve</span>
+                            <h3>Pagamento online</h3>
+                            <p>Cobrança antecipada ou sinal no momento do agendamento pelo portal.</p>
+                        </article>
+                    </div>
+                </div>
             </div>
             <p class="landing-features__cta">
                 <a class="btn landing-btn-outline" href="/cadastro">Experimentar grátis por 14 dias</a>
@@ -274,26 +294,26 @@ $faqItems = [
 
     <section class="landing-steps" id="como-comecar">
         <div class="landing-shell">
-            <header class="landing-section-head landing-section-head--center">
+            <header class="landing-section-head landing-section-head--center" data-reveal>
                 <p class="landing-kicker">Como começar</p>
                 <h2>Três passos e sua loja no ar</h2>
             </header>
             <ol class="landing-steps__list">
-                <li class="landing-step">
+                <li class="landing-step" data-reveal style="--reveal-delay: 0ms">
                     <span class="landing-step__num">1</span>
                     <div class="landing-step__card">
                         <h3>Faça o cadastro</h3>
                         <p>Crie sua conta informando nome da loja, contato e e-mail de acesso. Sem cartão no trial.</p>
                     </div>
                 </li>
-                <li class="landing-step">
+                <li class="landing-step" data-reveal style="--reveal-delay: 100ms">
                     <span class="landing-step__num">2</span>
                     <div class="landing-step__card">
                         <h3>Configure o básico</h3>
                         <p>Cadastre serviços, profissionais e horário de funcionamento no onboarding guiado.</p>
                     </div>
                 </li>
-                <li class="landing-step">
+                <li class="landing-step" data-reveal style="--reveal-delay: 200ms">
                     <span class="landing-step__num">3</span>
                     <div class="landing-step__card">
                         <h3>Compartilhe o link</h3>
@@ -309,7 +329,7 @@ $faqItems = [
 
     <section class="landing-plans" id="planos">
         <div class="landing-shell">
-            <header class="landing-section-head landing-section-head--row">
+            <header class="landing-section-head landing-section-head--row" data-reveal>
                 <div>
                     <p class="landing-kicker">Planos</p>
                     <h2>Comece hoje, cresça no seu ritmo</h2>
@@ -323,7 +343,7 @@ $faqItems = [
                     $slug = (string) ($p['slug'] ?? '');
                     $extras = $planFeatureMap[$slug] ?? ['Portal do cliente', 'Lembretes automáticos', 'Relatórios básicos'];
                     ?>
-                <article class="<?= e($cardClass) ?>">
+                <article class="<?= e($cardClass) ?>" data-reveal style="--reveal-delay: <?= e((string) ($i * 80)) ?>ms">
                     <?php if ($isFeatured): ?>
                         <span class="landing-plan__badge">Mais escolhido</span>
                     <?php endif; ?>
@@ -350,13 +370,13 @@ $faqItems = [
 
     <section class="landing-faq" id="faq">
         <div class="landing-shell landing-faq__grid">
-            <header class="landing-section-head">
+            <header class="landing-section-head" data-reveal>
                 <p class="landing-kicker">Perguntas frequentes</p>
                 <h2>Dúvidas comuns</h2>
             </header>
             <div class="landing-faq__list">
                 <?php foreach ($faqItems as $faq): ?>
-                <details class="landing-faq__item">
+                <details class="landing-faq__item" data-reveal>
                     <summary><?= e($faq[0]) ?></summary>
                     <p><?= e($faq[1]) ?></p>
                 </details>
@@ -367,7 +387,7 @@ $faqItems = [
 
     <section class="landing-final-cta">
         <div class="landing-shell">
-            <div class="landing-final-cta__card">
+            <div class="landing-final-cta__card" data-reveal>
                 <div class="landing-final-cta__inner">
                     <p class="landing-kicker landing-kicker--light">Comece hoje</p>
                     <h2>Pronto para encher a agenda?</h2>
@@ -417,5 +437,6 @@ $faqItems = [
     ], $faqItems),
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
 <script src="<?= e(asset_version('/assets/js/app.js')) ?>" defer></script>
+<script src="<?= e(asset_version('/assets/js/landing.js')) ?>" defer></script>
 </body>
 </html>
