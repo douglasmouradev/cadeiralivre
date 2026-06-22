@@ -123,6 +123,6 @@ if ($impersonating) {
         <?= $content ?>
     </main>
 </div>
-<script src="/assets/js/app.js" defer></script>
+<script src="/assets/js/app.js?v=<?= e(asset_version()) ?>" defer></script>
 </body>
 </html>

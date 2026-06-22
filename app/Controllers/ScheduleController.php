@@ -229,6 +229,32 @@ final class ScheduleController extends Controller
             return Response::redirect('/agenda');
         }
         $from = (string) $row['status'];
+        if ($from === $to) {
+            $st = AppointmentStatus::tryFrom($from);
+            $label = $st !== null ? $st->label() : $from;
+            Flash::set('error', 'Este agendamento já está com status "' . $label . '".');
+
+            return Response::redirect('/agenda');
+        }
+        $allowed = match ($to) {
+            AppointmentStatus::Confirmed->value => in_array($from, [AppointmentStatus::Pending->value], true),
+            AppointmentStatus::Completed->value => in_array($from, [
+                AppointmentStatus::Pending->value,
+                AppointmentStatus::Confirmed->value,
+                AppointmentStatus::InProgress->value,
+            ], true),
+            AppointmentStatus::Cancelled->value => in_array($from, [
+                AppointmentStatus::Pending->value,
+                AppointmentStatus::Confirmed->value,
+                AppointmentStatus::InProgress->value,
+            ], true),
+            default => false,
+        };
+        if (!$allowed) {
+            Flash::set('error', 'Não é possível alterar o status deste agendamento.');
+
+            return Response::redirect('/agenda');
+        }
         $ap->updateStatus($tid, $id, $to, $to === AppointmentStatus::Cancelled->value ? trim((string) $this->request->input('cancellation_reason')) : null);
         $ap->addHistory($id, $tid, $from, $to, $this->userId(), null);
         if ($to === AppointmentStatus::Completed->value) {

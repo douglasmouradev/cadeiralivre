@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Enums\AppointmentStatus;
+
 /** @var string $mode */
 /** @var string $start */
 /** @var string $end */
@@ -190,27 +192,51 @@ ob_start();
                 ?>><?php
                     echo $n !== '' ? e($n) : '—';
                 ?></td>
-                <td><?= e((string) $a['status']) ?></td>
+                <td><?php
+                    $stRaw = (string) ($a['status'] ?? '');
+                    $st = AppointmentStatus::tryFrom($stRaw);
+                    echo e($st !== null ? $st->label() : $stRaw);
+                ?></td>
                 <td class="td-actions">
+                    <?php
+                    $stRaw = (string) ($a['status'] ?? '');
+                    $canConfirm = $stRaw === AppointmentStatus::Pending->value;
+                    $canComplete = in_array($stRaw, [
+                        AppointmentStatus::Pending->value,
+                        AppointmentStatus::Confirmed->value,
+                        AppointmentStatus::InProgress->value,
+                    ], true);
+                    $canCancel = $canComplete;
+                    $apptId = (int) $a['id'];
+                    ?>
+                    <?php if ($canConfirm): ?>
                     <form method="post" action="/agenda/status" class="form-inline">
                         <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
-                        <input type="hidden" name="appointment_id" value="<?= (int) $a['id'] ?>">
+                        <input type="hidden" name="appointment_id" value="<?= $apptId ?>">
                         <input type="hidden" name="status" value="confirmed">
                         <button class="btn secondary" type="submit">Confirmar</button>
                     </form>
-                    <form method="post" action="/agenda/status" class="form-inline">
+                    <?php endif; ?>
+                    <?php if ($canComplete): ?>
+                    <form method="post" action="/agenda/status" class="form-inline" data-confirm="Marcar este agendamento como concluído?">
                         <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
-                        <input type="hidden" name="appointment_id" value="<?= (int) $a['id'] ?>">
+                        <input type="hidden" name="appointment_id" value="<?= $apptId ?>">
                         <input type="hidden" name="status" value="completed">
                         <button class="btn secondary" type="submit">Concluir</button>
                     </form>
-                    <form method="post" action="/agenda/status" class="form-inline" onsubmit="return App.confirm('Cancelar?');">
+                    <?php endif; ?>
+                    <?php if ($canCancel): ?>
+                    <form method="post" action="/agenda/status" class="form-inline" data-confirm="Cancelar este agendamento?">
                         <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
-                        <input type="hidden" name="appointment_id" value="<?= (int) $a['id'] ?>">
+                        <input type="hidden" name="appointment_id" value="<?= $apptId ?>">
                         <input type="hidden" name="status" value="cancelled">
                         <input type="hidden" name="cancellation_reason" value="Cancelado pelo painel">
                         <button class="btn danger" type="submit">Cancelar</button>
                     </form>
+                    <?php endif; ?>
+                    <?php if (!$canConfirm && !$canComplete && !$canCancel): ?>
+                        <span class="muted">—</span>
+                    <?php endif; ?>
                 </td>
             </tr>
         <?php endforeach; ?>
