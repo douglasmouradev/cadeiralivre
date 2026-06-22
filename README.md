@@ -119,7 +119,7 @@ Aplicação: `http://localhost:8080` (ajuste `APP_URL` no `docker-compose.yml` s
 
 ### Superadmin da plataforma
 
-Utilizador com papel `superadmin` acessa `/saas/tenants` (lista e suspender/reativar barbearias). Criação:
+Utilizador com papel `superadmin` acessa `/saas` (dashboard, lojas, planos, billing e impersonação). Criação:
 
 ```bash
 php scripts/create_superadmin.php admin@seu-dominio.com 'SenhaSegura8' 'Nome'

@@ -1376,3 +1376,124 @@ form.form-inline {
   background: color-mix(in srgb, var(--danger) 12%, #fff);
   color: var(--danger);
 }
+
+/* SaaS platform */
+.saas-stats .stat-sub {
+  margin: 0.35rem 0 0;
+  font-size: 0.82rem;
+}
+.saas-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem 1rem;
+  align-items: end;
+}
+.saas-filters__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  grid-column: 1 / -1;
+}
+.saas-filters-card {
+  margin-bottom: 1rem;
+}
+.saas-detail-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.detail-list {
+  display: grid;
+  grid-template-columns: minmax(120px, 38%) 1fr;
+  gap: 0.35rem 1rem;
+  margin: 0;
+}
+.detail-list dt {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.detail-list dd {
+  margin: 0;
+}
+.saas-alerts-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.saas-alert-card h2 {
+  margin-top: 0;
+  font-size: 1rem;
+}
+.saas-alert-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.saas-alert-list li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.35rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.saas-alert-list li:last-child {
+  border-bottom: none;
+}
+.saas-alert-card--warn {
+  border-left: 4px solid var(--warn, #c9a227);
+}
+.saas-alert-card--danger {
+  border-left: 4px solid var(--danger);
+}
+.card-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.card-header-row h2 {
+  margin: 0;
+}
+.table--compact th,
+.table--compact td {
+  padding: 0.45rem 0.6rem;
+  font-size: 0.9rem;
+}
+.saas-plan-fields {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+.saas-plan-card h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.code-block {
+  background: var(--surface-2, #f5f5f5);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+}
+.saas-impersonate-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.saas-impersonate-banner__form {
+  margin: 0;
+}
+.saas-impersonate-exit {
+  margin-top: 0.75rem;
+  padding: 0 0.35rem;
+}
+.saas-impersonate-exit__btn {
+  width: 100%;
+}
+.admin-shell--saas .main-area {
+  min-width: 0;
+}

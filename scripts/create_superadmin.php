@@ -68,5 +68,5 @@ $base = rtrim((string) ($_ENV['APP_URL'] ?? ''), '/');
 fwrite(STDOUT, "\n");
 fwrite(STDOUT, "Login: {$base}/login\n");
 fwrite(STDOUT, "E-mail: {$email}\n");
-fwrite(STDOUT, "Painel SaaS: {$base}/saas/tenants\n");
+fwrite(STDOUT, "Painel SaaS: {$base}/saas\n");
 fwrite(STDOUT, "\nApós entrar você verá todas as lojas da plataforma com a logo do " . (trim((string) ($_ENV['APP_NAME'] ?? '')) ?: 'CadeiraLivre') . ".\n");

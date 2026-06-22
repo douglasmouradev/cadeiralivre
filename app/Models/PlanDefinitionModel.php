@@ -63,4 +63,34 @@ final class PlanDefinitionModel
 
         return $row !== false ? $row : null;
     }
+
+    /**
+     * @param array{name?: string, max_barbers?: ?int, max_appointments_per_month?: ?int, monthly_price_cents?: int, stripe_price_id?: ?string, sort_order?: int} $fields
+     */
+    public function update(int $id, array $fields): void
+    {
+        $allowed = ['name', 'max_barbers', 'max_appointments_per_month', 'monthly_price_cents', 'stripe_price_id', 'sort_order'];
+        $sets = [];
+        $params = ['id' => $id];
+        foreach ($allowed as $col) {
+            if (array_key_exists($col, $fields)) {
+                $sets[] = $col . ' = :' . $col;
+                $params[$col] = $fields[$col];
+            }
+        }
+        if ($sets === []) {
+            return;
+        }
+        $sql = 'UPDATE plan_definitions SET ' . implode(', ', $sets) . ' WHERE id = :id';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+    }
+
+    public function countTenantsOnPlan(int $planId): int
+    {
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM tenants WHERE plan_definition_id = :id');
+        $stmt->execute(['id' => $planId]);
+
+        return (int) $stmt->fetchColumn();
+    }
 }

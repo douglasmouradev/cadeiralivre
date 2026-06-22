@@ -26,6 +26,10 @@ if (is_array($adminTenant) && !empty($adminTenant['logo_path']) && !empty($admin
 $tenantSlug = is_array($adminTenant) ? (string) ($adminTenant['slug'] ?? '') : '';
 $showNewTenantNav = $userRole === 'owner'
     && $tenantSlug !== 'adriele-cardoso-nail-design';
+$impersonating = saas_impersonating();
+if ($impersonating) {
+    $brandHome = '/painel';
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -82,6 +86,12 @@ $showNewTenantNav = $userRole === 'owner'
             </a>
             <?php endif; ?>
             <?php endif; ?>
+            <?php if ($impersonating): ?>
+            <form method="post" action="/saas/impersonacao/encerrar" class="saas-impersonate-exit">
+                <input type="hidden" name="_csrf_token" value="<?= e($csrf ?? \App\Helpers\Csrf::token()) ?>">
+                <button type="submit" class="btn secondary saas-impersonate-exit__btn">Voltar à plataforma</button>
+            </form>
+            <?php endif; ?>
         </nav>
         <a class="logout-link" href="/logout">Sair</a>
     </aside>
@@ -99,6 +109,15 @@ $showNewTenantNav = $userRole === 'owner'
         <?php endif; ?>
         <?php if (is_string($flashError) && $flashError !== ''): ?>
             <div class="alert alert-error"><?= e($flashError) ?></div>
+        <?php endif; ?>
+        <?php if ($impersonating && is_array($adminTenant)): ?>
+            <div class="alert alert-warn saas-impersonate-banner">
+                A aceder ao painel de <strong><?= e((string) ($adminTenant['name'] ?? 'loja')) ?></strong> como suporte da plataforma.
+                <form method="post" action="/saas/impersonacao/encerrar" class="form-inline saas-impersonate-banner__form">
+                    <input type="hidden" name="_csrf_token" value="<?= e($csrf ?? \App\Helpers\Csrf::token()) ?>">
+                    <button type="submit" class="btn secondary">Encerrar</button>
+                </form>
+            </div>
         <?php endif; ?>
         <div id="toast-root" class="toast-root" aria-live="polite"></div>
         <?= $content ?>

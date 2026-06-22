@@ -20,11 +20,11 @@ declare(strict_types=1);
         <div class="auth-brand">
             <img src="/assets/img/cadeiralivre-logo.png" width="160" height="160" alt="<?= e(app_name()) ?>">
         </div>
-        <h1>Criar barbearia</h1>
+        <h1>Criar loja</h1>
         <form method="post" action="/registrar" data-validate="1">
             <input type="hidden" name="_csrf_token" value="<?= e($csrf) ?>">
             <div class="row">
-                <label for="shop_name">Nome da barbearia</label>
+                <label for="shop_name">Nome da loja</label>
                 <input id="shop_name" name="shop_name" required>
             </div>
             <div class="row">

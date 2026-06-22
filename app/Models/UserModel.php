@@ -129,4 +129,17 @@ final class UserModel
         $stmt = $this->pdo->prepare('UPDATE users SET avatar_path = :a, updated_at = NOW() WHERE id = :id');
         $stmt->execute(['a' => $path, 'id' => $userId]);
     }
+
+    /** @return array<string, mixed>|null */
+    public function findOwnerByTenant(int $tenantId): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT id, tenant_id, name, email, role, phone, is_active, created_at
+             FROM users WHERE tenant_id = :tid AND role = 'owner' ORDER BY id ASC LIMIT 1"
+        );
+        $stmt->execute(['tid' => $tenantId]);
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
 }

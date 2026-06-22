@@ -228,3 +228,53 @@ if (!function_exists('format_datetime_in_tenant_tz')) {
         return $dt->format('d/m/Y H:i');
     }
 }
+
+if (!function_exists('subscription_status_label')) {
+    function subscription_status_label(string $status): string
+    {
+        return match ($status) {
+            'none' => 'Sem assinatura',
+            'trialing' => 'Em trial',
+            'active' => 'Ativa',
+            'past_due' => 'Pagamento pendente',
+            'canceled' => 'Cancelada',
+            default => $status,
+        };
+    }
+}
+
+if (!function_exists('format_money_cents')) {
+    function format_money_cents(int $cents): string
+    {
+        return 'R$ ' . number_format($cents / 100, 2, ',', '.');
+    }
+}
+
+if (!function_exists('stripe_customer_url')) {
+    function stripe_customer_url(?string $customerId): ?string
+    {
+        if ($customerId === null || $customerId === '') {
+            return null;
+        }
+
+        return 'https://dashboard.stripe.com/customers/' . rawurlencode($customerId);
+    }
+}
+
+if (!function_exists('stripe_subscription_url')) {
+    function stripe_subscription_url(?string $subscriptionId): ?string
+    {
+        if ($subscriptionId === null || $subscriptionId === '') {
+            return null;
+        }
+
+        return 'https://dashboard.stripe.com/subscriptions/' . rawurlencode($subscriptionId);
+    }
+}
+
+if (!function_exists('saas_impersonating')) {
+    function saas_impersonating(): bool
+    {
+        return !empty($_SESSION['saas_impersonating']) && ($_SESSION['tenant_id'] ?? null) !== null;
+    }
+}

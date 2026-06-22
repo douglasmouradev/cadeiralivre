@@ -151,7 +151,7 @@ final class AuthController extends Controller
         $_SESSION['user_role'] = UserRole::Owner->value;
         $_SESSION['user_name'] = $owner;
         $_SESSION['user_email'] = $email;
-        Flash::set('success', 'Barbearia criada com sucesso.');
+        Flash::set('success', 'Loja criada com sucesso.');
 
         return Response::redirect('/painel');
     }

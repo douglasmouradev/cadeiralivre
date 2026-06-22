@@ -34,7 +34,7 @@ abstract class Controller
         if (!array_key_exists('admin_tenant', $data)) {
             $tid = $_SESSION['tenant_id'] ?? null;
             $role = (string) ($_SESSION['user_role'] ?? '');
-            if ($role === UserRole::Superadmin->value) {
+            if ($role === UserRole::Superadmin->value && empty($_SESSION['saas_impersonating'])) {
                 $data['admin_tenant'] = null;
             } elseif ($tid !== null && $tid !== '') {
                 $data['admin_tenant'] = (new TenantModel())->findById((int) $tid);
@@ -88,7 +88,11 @@ abstract class Controller
     protected function postAuthHomePath(): string
     {
         if ($this->userRole() === UserRole::Superadmin->value) {
-            return '/saas/tenants';
+            if (!empty($_SESSION['saas_impersonating'])) {
+                return '/painel';
+            }
+
+            return '/saas';
         }
 
         return $this->userRole() === UserRole::Barber->value ? '/agenda' : '/painel';

@@ -13,9 +13,20 @@ return static function (Router $r): void {
 
     $r->add('POST', '/webhooks/stripe', 'StripeWebhookController@handle', []);
 
+    $r->add('GET', '/saas', 'SaasPlatformController@dashboard', ['AuthMiddleware', 'SuperadminMiddleware']);
     $r->add('GET', '/saas/tenants', 'SaasPlatformController@tenants', ['AuthMiddleware', 'SuperadminMiddleware']);
+    $r->add('GET', '/saas/tenants/exportar', 'SaasPlatformController@exportTenants', ['AuthMiddleware', 'SuperadminMiddleware']);
+    $r->add('GET', '/saas/tenants/{id}', 'SaasPlatformController@tenantShow', ['AuthMiddleware', 'SuperadminMiddleware']);
     $r->add('POST', '/saas/tenants/{id}/suspender', 'SaasPlatformController@suspend', ['AuthMiddleware', 'SuperadminMiddleware', 'CsrfMiddleware']);
     $r->add('POST', '/saas/tenants/{id}/reativar', 'SaasPlatformController@activate', ['AuthMiddleware', 'SuperadminMiddleware', 'CsrfMiddleware']);
+    $r->add('POST', '/saas/tenants/{id}/plano', 'SaasPlatformController@updateTenantPlan', ['AuthMiddleware', 'SuperadminMiddleware', 'CsrfMiddleware']);
+    $r->add('POST', '/saas/tenants/{id}/impersonar', 'SaasPlatformController@impersonate', ['AuthMiddleware', 'SuperadminMiddleware', 'CsrfMiddleware']);
+    $r->add('POST', '/saas/impersonacao/encerrar', 'SaasPlatformController@stopImpersonate', ['AuthMiddleware', 'SuperadminMiddleware', 'CsrfMiddleware']);
+    $r->add('GET', '/saas/planos', 'SaasPlatformController@plans', ['AuthMiddleware', 'SuperadminMiddleware']);
+    $r->add('POST', '/saas/planos/{id}', 'SaasPlatformController@updatePlan', ['AuthMiddleware', 'SuperadminMiddleware', 'CsrfMiddleware']);
+    $r->add('GET', '/saas/loja/nova', 'SaasPlatformController@showCreateTenant', ['AuthMiddleware', 'SuperadminMiddleware']);
+    $r->add('POST', '/saas/loja/nova', 'SaasPlatformController@createTenant', ['AuthMiddleware', 'SuperadminMiddleware', 'CsrfMiddleware']);
+    $r->add('GET', '/saas/configuracoes', 'SaasPlatformController@settings', ['AuthMiddleware', 'SuperadminMiddleware']);
 
     $r->add('GET', '/login', 'AuthController@showLogin', []);
     $r->add('POST', '/login', 'AuthController@login', ['LoginRateLimitMiddleware', 'CsrfMiddleware']);
