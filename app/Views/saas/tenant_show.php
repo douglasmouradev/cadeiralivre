@@ -163,7 +163,7 @@ ob_start();
                 <tr>
                     <td class="muted"><?= e(format_datetime_in_tenant_tz((string) ($log['created_at'] ?? ''), 'America/Sao_Paulo')) ?></td>
                     <td><?= e((string) ($log['actor_name'] ?? '')) ?></td>
-                    <td><code><?= e((string) ($log['action'] ?? '')) ?></code></td>
+                    <td><?= e(saas_audit_action_label((string) ($log['action'] ?? ''))) ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>

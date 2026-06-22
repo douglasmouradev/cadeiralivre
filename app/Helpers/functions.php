@@ -278,3 +278,19 @@ if (!function_exists('saas_impersonating')) {
         return !empty($_SESSION['saas_impersonating']) && ($_SESSION['tenant_id'] ?? null) !== null;
     }
 }
+
+if (!function_exists('saas_audit_action_label')) {
+    function saas_audit_action_label(string $action): string
+    {
+        return match ($action) {
+            'tenant_create' => 'Loja criada',
+            'tenant_suspend' => 'Loja suspensa',
+            'tenant_activate' => 'Loja reativada',
+            'tenant_plan_update' => 'Plano da loja atualizado',
+            'plan_update' => 'Plano da plataforma editado',
+            'impersonate_start' => 'Acesso ao painel da loja',
+            'impersonate_stop' => 'Saída do painel da loja',
+            default => $action,
+        };
+    }
+}
