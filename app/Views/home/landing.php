@@ -59,18 +59,26 @@ if ($featuredPlanIndex === null && $planCount >= 2) {
 
 <main>
     <section class="landing-hero">
+        <div class="landing-hero__glow landing-hero__glow--a" aria-hidden="true"></div>
+        <div class="landing-hero__glow landing-hero__glow--b" aria-hidden="true"></div>
         <div class="landing-shell landing-hero__grid">
             <div class="landing-hero__copy">
-                <p class="landing-kicker">Agendamento para salões e barbearias</p>
+                <p class="landing-kicker"><span class="landing-kicker__dot" aria-hidden="true"></span>Agendamento para salões e barbearias</p>
                 <h1>Sua cadeira.<br>Seu horário.<br><span class="landing-accent-line">Online.</span></h1>
                 <p class="landing-lead">Um link para o cliente agendar, um painel para você comandar a equipe — sem planilha, sem troca infinita de mensagens.</p>
                 <div class="landing-cta">
                     <a class="btn landing-btn-primary landing-btn-primary--lg" href="/cadastro">Abrir minha loja</a>
                     <p class="landing-cta-note">14 dias grátis · sem cartão</p>
                 </div>
+                <ul class="landing-hero__stats" aria-label="Destaques">
+                    <li><strong>24h</strong><span>Agendamento online</span></li>
+                    <li><strong>100%</strong><span>Na nuvem</span></li>
+                    <li><strong>0</strong><span>Taxa para o cliente</span></li>
+                </ul>
                 <p class="landing-hero-foot">Já tem conta? <a href="/login">Entrar no painel</a></p>
             </div>
             <aside class="landing-preview" aria-hidden="true">
+                <div class="landing-preview__halo" aria-hidden="true"></div>
                 <div class="landing-preview__frame">
                     <div class="landing-preview__bar">
                         <span></span><span></span><span></span>
@@ -99,11 +107,13 @@ if ($featuredPlanIndex === null && $planCount >= 2) {
             </header>
             <div class="landing-about__modules">
                 <article class="landing-module">
+                    <span class="landing-module__icon" aria-hidden="true">01</span>
                     <span class="landing-module__tag">Painel web</span>
                     <h3>Gestão do estabelecimento</h3>
                     <p>Controle profissionais, serviços, clientes, horários e relatórios financeiros. Acesso seguro de qualquer lugar, com identidade visual da sua loja.</p>
                 </article>
                 <article class="landing-module">
+                    <span class="landing-module__icon" aria-hidden="true">02</span>
                     <span class="landing-module__tag">Portal do cliente</span>
                     <h3>Agendamento sem fricção</h3>
                     <p>Seu cliente agenda pelo link público, confirma, cancela ou reagenda sozinho — com lembretes automáticos por e-mail e WhatsApp.</p>
@@ -120,14 +130,17 @@ if ($featuredPlanIndex === null && $planCount >= 2) {
             </header>
             <div class="landing-goals__grid">
                 <article class="landing-goal">
+                    <span class="landing-goal__icon" aria-hidden="true">01</span>
                     <h3>Otimizar seu tempo</h3>
                     <p>Organize a agenda da equipe e reduza mensagens repetidas com agendamento online e confirmações automáticas.</p>
                 </article>
                 <article class="landing-goal">
+                    <span class="landing-goal__icon" aria-hidden="true">02</span>
                     <h3>Fidelizar o cliente</h3>
                     <p>Portal próprio, lembretes antes do horário e avaliações pós-atendimento mantêm o cliente próximo da sua marca.</p>
                 </article>
                 <article class="landing-goal">
+                    <span class="landing-goal__icon" aria-hidden="true">03</span>
                     <h3>Aumentar o movimento</h3>
                     <p>Horários disponíveis 24h no link público — o cliente agenda quando quiser, mesmo fora do expediente.</p>
                 </article>
@@ -227,21 +240,21 @@ if ($featuredPlanIndex === null && $planCount >= 2) {
             <ol class="landing-steps__list">
                 <li class="landing-step">
                     <span class="landing-step__num">1</span>
-                    <div>
+                    <div class="landing-step__card">
                         <h3>Faça o cadastro</h3>
                         <p>Crie sua conta informando nome da loja, contato e e-mail de acesso. Sem cartão no trial.</p>
                     </div>
                 </li>
                 <li class="landing-step">
                     <span class="landing-step__num">2</span>
-                    <div>
+                    <div class="landing-step__card">
                         <h3>Configure o básico</h3>
                         <p>Cadastre serviços, profissionais e horário de funcionamento no onboarding guiado.</p>
                     </div>
                 </li>
                 <li class="landing-step">
                     <span class="landing-step__num">3</span>
-                    <div>
+                    <div class="landing-step__card">
                         <h3>Compartilhe o link</h3>
                         <p>Envie sua página de agendamento no Instagram, WhatsApp ou QR Code na recepção.</p>
                     </div>
@@ -325,10 +338,15 @@ if ($featuredPlanIndex === null && $planCount >= 2) {
     </section>
 
     <section class="landing-final-cta">
-        <div class="landing-shell landing-final-cta__inner">
-            <h2>Pronto para encher a agenda?</h2>
-            <p>14 dias grátis · sem cartão · cancele quando quiser</p>
-            <a class="btn landing-btn-primary landing-btn-primary--lg" href="/cadastro">Começar agora</a>
+        <div class="landing-shell">
+            <div class="landing-final-cta__card">
+                <div class="landing-final-cta__inner">
+                    <p class="landing-kicker landing-kicker--light">Comece hoje</p>
+                    <h2>Pronto para encher a agenda?</h2>
+                    <p>14 dias grátis · sem cartão · cancele quando quiser</p>
+                    <a class="btn landing-btn-primary landing-btn-primary--lg" href="/cadastro">Começar agora</a>
+                </div>
+            </div>
         </div>
     </section>
 </main>
