@@ -116,6 +116,27 @@ final class PublicBookingController extends Controller
         return in_array($raw, $allowed, true) ? $raw : null;
     }
 
+    /**
+     * @param list<array<string, mixed>> $barbers
+     * @return list<array<string, mixed>>
+     */
+    private function barbersForBookingView(array $barbers, array $tenant, string $slug): array
+    {
+        $hasLogo = !empty($tenant['logo_path']);
+        $out = [];
+        foreach ($barbers as $barber) {
+            $userAvatar = isset($barber['user_avatar']) ? (string) $barber['user_avatar'] : '';
+            $avatar = barber_display_avatar_url($userAvatar !== '' ? $userAvatar : null, $slug, $hasLogo);
+            $out[] = array_merge($barber, [
+                'booking_avatar' => $avatar,
+                'booking_avatar_is_brand' => $userAvatar === '' && $hasLogo && $avatar !== null,
+                'booking_specialties' => barber_specialties_list($barber['specialties'] ?? null),
+            ]);
+        }
+
+        return $out;
+    }
+
     public function index(string $slug): Response
     {
         $tenant = $this->tenantFromSlug($slug);
@@ -134,7 +155,11 @@ final class PublicBookingController extends Controller
             );
         }
         $services = (new ServiceModel())->allForTenant($tid, true);
-        $barbers = (new BarberModel())->availableBarbersForTenant($tid);
+        $barbers = $this->barbersForBookingView(
+            (new BarberModel())->availableBarbersForTenant($tid),
+            $tenant,
+            $slug,
+        );
 
         return $this->view('public/booking', [
             'title' => 'Agendar — ' . $tenant['name'],

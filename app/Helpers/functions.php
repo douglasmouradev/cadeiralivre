@@ -187,6 +187,18 @@ if (!function_exists('barber_display_avatar_url')) {
     }
 }
 
+if (!function_exists('asset_version')) {
+    /** URL de asset estático com cache bust (?v=filemtime). */
+    function asset_version(string $publicPath): string
+    {
+        $root = dirname(__DIR__, 2);
+        $file = $root . '/public' . $publicPath;
+        $v = is_file($file) ? (string) filemtime($file) : '1';
+
+        return $publicPath . '?v=' . rawurlencode($v);
+    }
+}
+
 if (!function_exists('barber_specialties_list')) {
     /**
      * @return list<string>
@@ -200,11 +212,21 @@ if (!function_exists('barber_specialties_list')) {
         if (is_array($raw)) {
             $items = $raw;
         } elseif (is_string($raw)) {
-            foreach ([$raw, stripslashes($raw)] as $candidate) {
-                $decoded = json_decode($candidate, true);
+            $candidates = [$raw, stripslashes($raw)];
+            foreach ($candidates as $candidate) {
+                $decoded = json_decode($candidate, true, 512, JSON_INVALID_UTF8_SUBSTITUTE);
                 if (is_array($decoded)) {
                     $items = $decoded;
                     break;
+                }
+            }
+            if ($items === null && preg_match('/^\s*\[/', $raw) === 1) {
+                if (preg_match_all('/"((?:[^"\\\\]|\\\\.)*)"/u', $raw, $matches) > 0) {
+                    $items = [];
+                    foreach ($matches[1] as $piece) {
+                        $label = json_decode('"' . $piece . '"', true);
+                        $items[] = is_string($label) ? $label : $piece;
+                    }
                 }
             }
         }

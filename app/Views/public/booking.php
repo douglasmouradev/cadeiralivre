@@ -31,7 +31,7 @@ $instagram = trim((string) ($tenant['instagram_url'] ?? ''));
     <meta name="theme-color" content="<?= e($brandHex) ?>">
     <title><?= e($title) ?></title>
     <?php require __DIR__ . '/../partials/public_tenant_head.php'; ?>
-    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="stylesheet" href="<?= e(asset_version('/assets/css/app.css')) ?>">
 </head>
 <body class="public-body public-theme booking-premium" style="--tenant-accent: <?= e($brandHex) ?>;">
 <main class="public-page booking-premium__main" data-booking-main data-booking-slug="<?= e($slug) ?>">
@@ -118,13 +118,9 @@ $instagram = trim((string) ($tenant['instagram_url'] ?? ''));
             <div id="barber-select-wrap" class="pick-grid pick-grid--barbers" role="listbox" aria-label="Profissionais">
                 <?php foreach ($barbers as $b): ?>
                     <?php
-                    $avatar = barber_display_avatar_url(
-                        isset($b['user_avatar']) ? (string) $b['user_avatar'] : null,
-                        $slug,
-                        !empty($tenant['logo_path']),
-                    );
-                    $avatarIsBrand = empty($b['user_avatar']) && !empty($tenant['logo_path']) && $avatar !== null;
-                    $specItems = barber_specialties_list($b['specialties'] ?? null);
+                    $avatar = isset($b['booking_avatar']) && is_string($b['booking_avatar']) ? $b['booking_avatar'] : null;
+                    $avatarIsBrand = !empty($b['booking_avatar_is_brand']);
+                    $specItems = is_array($b['booking_specialties'] ?? null) ? $b['booking_specialties'] : barber_specialties_list($b['specialties'] ?? null);
                     ?>
                     <button type="button" class="pick-card pick-card--barber" role="option" data-barber-id="<?= (int) $b['id'] ?>">
                         <?php if ($avatar): ?>
@@ -136,7 +132,7 @@ $instagram = trim((string) ($tenant['instagram_url'] ?? ''));
                         <?php if ($specItems !== []): ?>
                             <span class="pick-card__tags">
                                 <?php foreach ($specItems as $tag): ?>
-                                    <span class="pick-card__tag"><?= e($tag) ?></span>
+                                    <span class="pick-card__tag"><?= e((string) $tag) ?></span>
                                 <?php endforeach; ?>
                             </span>
                         <?php elseif (!empty($b['bio'])): ?>
@@ -206,7 +202,7 @@ $instagram = trim((string) ($tenant['instagram_url'] ?? ''));
     'id' => (int) $b['id'],
     'name' => (string) $b['user_name'],
 ], $barbers), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
-<script src="/assets/js/app.js" defer></script>
-<script src="/assets/js/booking.js" defer></script>
+<script src="<?= e(asset_version('/assets/js/app.js')) ?>" defer></script>
+<script src="<?= e(asset_version('/assets/js/booking.js')) ?>" defer></script>
 </body>
 </html>
