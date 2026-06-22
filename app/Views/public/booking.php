@@ -117,16 +117,27 @@ $instagram = trim((string) ($tenant['instagram_url'] ?? ''));
             </div>
             <div id="barber-select-wrap" class="pick-grid pick-grid--barbers" role="listbox" aria-label="Profissionais">
                 <?php foreach ($barbers as $b): ?>
-                    <?php $avatar = user_avatar_url(isset($b['user_avatar']) ? (string) $b['user_avatar'] : null); ?>
+                    <?php
+                    $avatar = barber_display_avatar_url(
+                        isset($b['user_avatar']) ? (string) $b['user_avatar'] : null,
+                        $slug,
+                        !empty($tenant['logo_path']),
+                    );
+                    $avatarIsBrand = empty($b['user_avatar']) && !empty($tenant['logo_path']) && $avatar !== null;
+                    $specText = barber_specialties_text($b['specialties'] ?? null);
+                    if ($specText === '' && !empty($b['bio'])) {
+                        $specText = trim((string) $b['bio']);
+                    }
+                    ?>
                     <button type="button" class="pick-card pick-card--barber" role="option" data-barber-id="<?= (int) $b['id'] ?>">
                         <?php if ($avatar): ?>
-                            <img class="pick-card__avatar" src="<?= e($avatar) ?>" alt="" width="56" height="56" loading="lazy">
+                            <img class="pick-card__avatar<?= $avatarIsBrand ? ' pick-card__avatar--brand' : '' ?>" src="<?= e($avatar) ?>" alt="" width="56" height="56" loading="lazy">
                         <?php else: ?>
                             <span class="pick-card__avatar pick-card__avatar--placeholder" aria-hidden="true"><?= e(mb_strtoupper(mb_substr((string) $b['user_name'], 0, 1))) ?></span>
                         <?php endif; ?>
                         <strong class="pick-card__title"><?= e((string) $b['user_name']) ?></strong>
-                        <?php if (!empty($b['specialties'])): ?>
-                            <span class="pick-card__desc"><?= e((string) $b['specialties']) ?></span>
+                        <?php if ($specText !== ''): ?>
+                            <span class="pick-card__desc"><?= e($specText) ?></span>
                         <?php endif; ?>
                     </button>
                 <?php endforeach; ?>

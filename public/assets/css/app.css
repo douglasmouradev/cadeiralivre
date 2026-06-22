@@ -1136,6 +1136,11 @@ form.form-inline {
   font-weight: 700;
   font-size: 1.25rem;
 }
+.pick-card__avatar--brand {
+  object-fit: contain;
+  background: #f5f4f0;
+  padding: 4px;
+}
 
 .mode-toggle {
   display: flex;

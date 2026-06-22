@@ -169,6 +169,51 @@ if (!function_exists('user_avatar_url')) {
     }
 }
 
+if (!function_exists('barber_display_avatar_url')) {
+    /**
+     * Avatar do profissional no agendamento: foto do usuário ou logo da loja.
+     */
+    function barber_display_avatar_url(?string $userAvatar, string $tenantSlug, bool $tenantHasLogo): ?string
+    {
+        $avatar = user_avatar_url($userAvatar);
+        if ($avatar !== null) {
+            return $avatar;
+        }
+        if ($tenantHasLogo) {
+            return tenant_logo_url($tenantSlug);
+        }
+
+        return null;
+    }
+}
+
+if (!function_exists('barber_specialties_text')) {
+    /**
+     * Especialidades do profissional (JSON ou array) em texto legível.
+     */
+    function barber_specialties_text(mixed $raw): string
+    {
+        if ($raw === null || $raw === '' || $raw === '[]') {
+            return '';
+        }
+        if (is_array($raw)) {
+            $items = array_map(strval(...), $raw);
+        } elseif (is_string($raw)) {
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded)) {
+                $items = array_map(strval(...), $decoded);
+            } else {
+                return trim($raw);
+            }
+        } else {
+            return '';
+        }
+        $items = array_values(array_filter(array_map(trim(...), $items), static fn (string $s) => $s !== ''));
+
+        return implode(' · ', $items);
+    }
+}
+
 if (!function_exists('format_money_br')) {
     function format_money_br(float|string $value): string
     {

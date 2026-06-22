@@ -33,7 +33,26 @@ const DEFAULT_PASSWORD = 'Senha1234';
 const BRAND_COLOR = '#C4A052';
 const LOGO_SOURCE = 'public/assets/img/brands/adriele-cardoso-logo.png';
 const LOGO_DEST = 'logos/adriele-cardoso.png';
+const AVATAR_BASENAME = 'adriele-cardoso.png';
 // Regenerar logo HQ: python scripts/process_adriele_logo.py
+
+function sync_adriele_professional_avatar(string $root, string $logoSourcePath): void
+{
+    $users = new UserModel();
+    $pro = $users->findByEmail(PRO_EMAIL);
+    if ($pro === null) {
+        return;
+    }
+    $avatarDir = $root . '/storage/uploads/avatars';
+    if (!is_dir($avatarDir) && !mkdir($avatarDir, 0770, true) && !is_dir($avatarDir)) {
+        throw new RuntimeException('Não foi possível criar ' . $avatarDir);
+    }
+    $dest = $avatarDir . '/' . AVATAR_BASENAME;
+    if (!copy($logoSourcePath, $dest)) {
+        throw new RuntimeException('Não foi possível copiar avatar do profissional.');
+    }
+    $users->setAvatar((int) $pro['id'], 'avatars/' . AVATAR_BASENAME);
+}
 
 $logoSourcePath = $root . '/' . LOGO_SOURCE;
 if (!is_readable($logoSourcePath)) {
@@ -47,6 +66,7 @@ if ($existing !== null) {
     try {
         tenant_logo_publish($root, SLUG, $logoSourcePath, 'adriele-cardoso.png');
         $tenants->update((int) $existing['id'], ['logo_path' => LOGO_DEST]);
+        sync_adriele_professional_avatar($root, $logoSourcePath);
     } catch (Throwable $e) {
         fwrite(STDERR, 'Erro ao sincronizar logo: ' . $e->getMessage() . PHP_EOL);
         exit(1);
@@ -160,6 +180,8 @@ try {
             ];
         }
         (new WorkingHoursModel())->replaceWeek($tenantId, $barberId, $week);
+
+        sync_adriele_professional_avatar($root, $logoSourcePath);
     });
 } catch (Throwable $e) {
     fwrite(STDERR, 'Erro ao criar loja: ' . $e->getMessage() . PHP_EOL);
