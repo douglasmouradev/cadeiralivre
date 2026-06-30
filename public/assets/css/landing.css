@@ -1312,6 +1312,14 @@ body.landing-nav-open {
   overflow: hidden;
 }
 
+/* Header acima do overlay — senão o painel do menu fica atrás do blur */
+body.landing-nav-open .landing-header {
+  z-index: 100;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: var(--lp-bg-elevated);
+}
+
 @media (max-width: 900px) {
   .landing-hero__grid {
     grid-template-columns: 1fr;
