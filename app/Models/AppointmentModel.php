@@ -63,6 +63,23 @@ final class AppointmentModel
         return $row !== false ? $row : null;
     }
 
+    /** @return array<string, mixed>|null */
+    public function findWithClientDetails(int $tenantId, int $id): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT a.*, c.name AS client_name, c.email AS client_email, s.name AS service_name
+             FROM appointments a
+             INNER JOIN clients c ON c.id = a.client_id AND c.tenant_id = a.tenant_id
+             LEFT JOIN services s ON s.id = a.service_id AND s.tenant_id = a.tenant_id
+             WHERE a.tenant_id = :t AND a.id = :id
+             LIMIT 1'
+        );
+        $stmt->execute(['t' => $tenantId, 'id' => $id]);
+        $row = $stmt->fetch();
+
+        return $row !== false ? $row : null;
+    }
+
     public function confirmIfPending(int $tenantId, int $appointmentId, string $code): bool
     {
         $stmt = $this->pdo->prepare(

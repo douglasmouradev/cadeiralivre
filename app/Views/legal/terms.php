@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 /** @var string $title */
+/** @var string $description */
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -11,6 +12,7 @@ declare(strict_types=1);
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title><?= e($title) ?> — <?= e(app_name()) ?></title>
     <?php require __DIR__ . '/../partials/site_favicons.php'; ?>
+    <?php require __DIR__ . '/../partials/legal_head.php'; ?>
     <link rel="manifest" href="/manifest.json">
     <link rel="stylesheet" href="/assets/css/app.css">
 </head>

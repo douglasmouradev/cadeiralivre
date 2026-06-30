@@ -30,7 +30,11 @@ declare(strict_types=1);
                     <li><?= $checks['database'] ? '✓' : '✗' ?> Banco de dados</li>
                     <li><?= $checks['storage'] ? '✓' : '✗' ?> Armazenamento gravável</li>
                     <li>✓ Aplicação PHP</li>
+                    <li><?= ($checks['cron_mail'] ?? false) ? '✓' : '○' ?> Cron fila de e-mail (30 min)</li>
+                    <li><?= ($checks['cron_reminders'] ?? false) ? '✓' : '○' ?> Cron lembretes (3 h)</li>
+                    <li><?= ($checks['cron_whatsapp'] ?? false) ? '✓' : '○' ?> Cron WhatsApp (30 min)</li>
                 </ul>
+                <p class="muted" style="font-size:0.82rem">○ = cron não detectado recentemente (configure em <code>scripts/cron.example.sh</code>).</p>
                 <p class="muted" style="font-size:0.85rem">Atualizado em <?= e(date('d/m/Y H:i:s')) ?></p>
                 <p><a href="/">← Voltar ao início</a></p>
             </div>

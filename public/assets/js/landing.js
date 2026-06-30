@@ -48,4 +48,20 @@
       }, 2400);
     }
   }
+
+  const track = (name, params = {}) => {
+    if (typeof gtag === 'function') {
+      gtag('event', name, params);
+    }
+  };
+
+  document.querySelectorAll('a[href="/cadastro"], .landing-btn-primary').forEach((el) => {
+    el.addEventListener('click', () => track('cta_signup', { location: 'landing' }));
+  });
+  document.querySelector('.landing-preview__link')?.addEventListener('click', () => {
+    track('demo_click', { location: 'hero_mockup' });
+  });
+  document.querySelectorAll('.landing-plans .btn, .landing-plans a.btn').forEach((btn) => {
+    btn.addEventListener('click', () => track('plan_cta', { location: 'pricing' }));
+  });
 })();

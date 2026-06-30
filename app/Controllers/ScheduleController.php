@@ -20,6 +20,8 @@ use App\Models\ClientModel;
 use App\Models\ServiceModel;
 use App\Models\TenantModel;
 use App\Models\WorkingHoursModel;
+use App\Services\AppointmentClientNotifier;
+use App\Services\MailService;
 use App\Services\SlotService;
 use App\Services\SubscriptionService;
 use Throwable;
@@ -268,6 +270,8 @@ final class ScheduleController extends Controller
             if ($event !== null) {
                 (new TenantModel())->dispatchAppointmentWebhook($tid, $event, $updated);
             }
+            $mailCfg = require $this->app->root() . '/config/mail.php';
+            (new AppointmentClientNotifier(new MailService($mailCfg)))->notifyStatusChange($tid, $id, $to);
         }
         if ($to === AppointmentStatus::Completed->value) {
             $pm = new \App\Models\PaymentModel();

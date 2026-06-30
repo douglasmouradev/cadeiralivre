@@ -41,6 +41,20 @@ ob_start();
                 <p class="muted mt-1">Defina <code>MAIL_SMTP_HOST</code>, <code>MAIL_FROM_ADDRESS</code> e credenciais no servidor.</p>
             <?php endif; ?>
         </dd>
+        <dt>WhatsApp API</dt>
+        <dd>
+            <?php
+            $waConfigured = trim((string) ($_ENV['WHATSAPP_API_URL'] ?? '')) !== ''
+                && trim((string) ($_ENV['WHATSAPP_API_TOKEN'] ?? '')) !== '';
+            ?>
+            <?php if ($waConfigured): ?>
+                <span class="pill pill--ok">Configurado</span>
+                <p class="muted mt-1">Fila: <code>php scripts/process_whatsapp_queue.php</code></p>
+            <?php else: ?>
+                <span class="pill pill--danger">Não configurado</span>
+                <p class="muted mt-1">Defina <code>WHATSAPP_API_URL</code> e <code>WHATSAPP_API_TOKEN</code>.</p>
+            <?php endif; ?>
+        </dd>
     </dl>
 </section>
 

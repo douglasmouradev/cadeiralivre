@@ -143,10 +143,11 @@ Com `MAIL_QUEUE=true`, os envios gravam-se em `outbound_emails`. Processe com cr
 
 ```bash
 php scripts/process_mail_queue.php
+php scripts/process_whatsapp_queue.php
 php scripts/send_appointment_reminders.php
 ```
 
-Veja `scripts/cron.example.sh` para um exemplo de crontab (fila a cada 5 min, lembretes a cada hora).
+Veja `scripts/cron.example.sh` para um exemplo de crontab (fila e-mail e WhatsApp a cada 5 min, lembretes a cada hora). O endpoint `/status` mostra se os crons rodaram recentemente.
 
 ### Backup MySQL (exemplo)
 

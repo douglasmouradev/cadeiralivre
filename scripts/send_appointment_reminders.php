@@ -73,4 +73,5 @@ foreach ($rows as $row) {
     fwrite(STDOUT, "Lembrete #{$id} → {$name}\n");
 }
 
+\App\Helpers\CronHeartbeat::touch('appointment_reminders');
 fwrite(STDOUT, "Total enviados: {$sent}\n");

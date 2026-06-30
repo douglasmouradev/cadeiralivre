@@ -12,6 +12,7 @@ final class LegalController extends Controller
     {
         return $this->view('legal/privacy', [
             'title' => 'Política de privacidade',
+            'description' => 'Como o ' . app_name() . ' trata dados pessoais de lojas e clientes.',
         ]);
     }
 
@@ -19,6 +20,7 @@ final class LegalController extends Controller
     {
         return $this->view('legal/terms', [
             'title' => 'Termos de uso',
+            'description' => 'Termos de uso da plataforma ' . app_name() . '.',
         ]);
     }
 
@@ -26,6 +28,7 @@ final class LegalController extends Controller
     {
         return $this->view('legal/lgpd', [
             'title' => 'LGPD — direitos do titular',
+            'description' => 'Seus direitos sob a LGPD no ' . app_name() . '.',
         ]);
     }
 }

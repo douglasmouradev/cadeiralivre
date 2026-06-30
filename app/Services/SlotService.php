@@ -10,6 +10,7 @@ use App\Models\BarberModel;
 use App\Models\BlockedTimeModel;
 use App\Models\ServiceModel;
 use App\Models\WorkingHoursModel;
+use App\Helpers\AppointmentOverlap;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -101,7 +102,7 @@ final class SlotService
         $lastStart = $workEnd->sub(new DateInterval('PT' . $duration . 'M'));
         while ($cursor <= $lastStart) {
             $slotEnd = $cursor->add(new DateInterval('PT' . $duration . 'M'));
-            if ($this->isFree($cursor, $slotEnd, $appts, $blocks)) {
+            if (AppointmentOverlap::slotIsFree($cursor, $slotEnd, $appts, $blocks)) {
                 $out[] = [
                     'start' => $cursor->format('Y-m-d H:i:s'),
                     'barber_id' => $barberId,
@@ -140,32 +141,6 @@ final class SlotService
         }
 
         return $merged;
-    }
-
-    /**
-     * @param list<array<string, mixed>> $appointments
-     * @param list<array<string, mixed>> $blocks
-     */
-    private function isFree(DateTimeImmutable $start, DateTimeImmutable $end, array $appointments, array $blocks): bool
-    {
-        foreach ($appointments as $a) {
-            if (!in_array((string) $a['status'], ['cancelled', 'no_show'], true)) {
-                $as = new DateTimeImmutable((string) $a['start_datetime']);
-                $ae = new DateTimeImmutable((string) $a['end_datetime']);
-                if ($start < $ae && $end > $as) {
-                    return false;
-                }
-            }
-        }
-        foreach ($blocks as $b) {
-            $bs = new DateTimeImmutable((string) $b['start_datetime']);
-            $be = new DateTimeImmutable((string) $b['end_datetime']);
-            if ($start < $be && $end > $bs) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**

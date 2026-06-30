@@ -64,6 +64,9 @@ final class HomeController extends Controller
             'app' => true,
             'database' => false,
             'storage' => is_writable($this->app->root() . '/storage'),
+            'cron_mail' => \App\Helpers\CronHeartbeat::isRecent('mail_queue', 30),
+            'cron_reminders' => \App\Helpers\CronHeartbeat::isRecent('appointment_reminders', 180),
+            'cron_whatsapp' => \App\Helpers\CronHeartbeat::isRecent('whatsapp_queue', 30),
         ];
         try {
             \App\Core\Database::connection()->query('SELECT 1');

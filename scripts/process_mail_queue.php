@@ -24,6 +24,7 @@ if (empty($config['queue'])) {
 
 use App\Models\OutboundEmailModel;
 use App\Services\MailService;
+use App\Helpers\CronHeartbeat;
 
 $sendCfg = array_merge($config, ['queue' => false]);
 $mail = new MailService($sendCfg);
@@ -51,3 +52,5 @@ foreach ($rows as $row) {
         fwrite(STDERR, "Falha #{$id}: " . $e->getMessage() . "\n");
     }
 }
+
+CronHeartbeat::touch('mail_queue');
