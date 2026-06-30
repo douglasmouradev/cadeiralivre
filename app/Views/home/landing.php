@@ -18,7 +18,8 @@ if ($featuredPlanIndex === null && $planCount >= 2) {
     $featuredPlanIndex = (int) floor($planCount / 2);
 }
 
-$demoUrl = (string) ($demoBookingUrl ?? '/agendar/adriele-cardoso-nail-design');
+$demoUrl = (string) ($demoBookingUrl ?? demo_booking_url());
+$demoLabel = (string) ($demoBookingLabel ?? demo_booking_label());
 $pageUrl = rtrim((string) ($baseUrl ?? ''), '/') ?: '';
 $ogImage = $pageUrl !== '' ? $pageUrl . '/assets/img/cadeiralivre-logo.png' : '/assets/img/cadeiralivre-logo.png';
 $waPhone = preg_replace('/\D+/', '', (string) ($supportWhatsApp ?? '5571997087082')) ?: '5571997087082';
@@ -66,6 +67,7 @@ $faqItems = [
     <title><?= e($title) ?></title>
     <link rel="stylesheet" href="<?= e(asset_version('/assets/css/app.css')) ?>">
     <link rel="stylesheet" href="<?= e(asset_version('/assets/css/landing.css')) ?>">
+    <?php require __DIR__ . '/../partials/analytics.php'; ?>
 </head>
 <body class="landing-body">
 <div class="landing-nav-overlay" id="landing-nav-overlay" aria-hidden="true"></div>
@@ -122,13 +124,13 @@ $faqItems = [
             </div>
             <aside class="landing-preview" data-reveal style="--reveal-delay: 120ms">
                 <div class="landing-preview__halo" aria-hidden="true"></div>
-                <a class="landing-preview__link" href="<?= e($demoUrl) ?>" target="_blank" rel="noopener" aria-label="Ver demonstração ao vivo — Adriele Nail Design">
+                <a class="landing-preview__link" href="<?= e($demoUrl) ?>" target="_blank" rel="noopener" aria-label="Ver demonstração ao vivo — <?= e($demoLabel) ?>">
                 <div class="landing-preview__frame">
                     <div class="landing-preview__bar">
                         <span></span><span></span><span></span>
                     </div>
                     <div class="landing-preview__body">
-                        <p class="landing-preview__shop">Adriele Nail Design</p>
+                        <p class="landing-preview__shop"><?= e($demoLabel) ?></p>
                         <p class="landing-preview__date">Segunda, 22 jun · 4 horários</p>
                         <ul class="landing-preview__slots">
                             <li><span>09:00</span><em>Alongamento gel</em></li>

@@ -403,7 +403,7 @@ final class SaasPlatformController extends Controller
     public function settings(): Response
     {
         $stripeConfigured = trim((string) ($_ENV['STRIPE_SECRET_KEY'] ?? '')) !== '';
-        $mailHost = trim((string) ($_ENV['MAIL_HOST'] ?? ''));
+        $mailHost = trim((string) ($_ENV['MAIL_SMTP_HOST'] ?? ''));
 
         return $this->view('saas/settings', [
             'title' => 'Configurações',
@@ -411,7 +411,7 @@ final class SaasPlatformController extends Controller
             'appUrl' => app_base_url(),
             'appEnv' => (string) ($_ENV['APP_ENV'] ?? 'production'),
             'stripeConfigured' => $stripeConfigured,
-            'mailConfigured' => $mailHost !== '',
+            'mailConfigured' => mail_configured() && $mailHost !== '',
             'currentNav' => 'settings',
         ]);
     }

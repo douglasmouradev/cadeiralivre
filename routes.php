@@ -7,6 +7,8 @@ use App\Core\Router;
 return static function (Router $r): void {
     $r->add('GET', '/', 'HomeController@index', []);
     $r->add('GET', '/status', 'HomeController@status', []);
+    $r->add('GET', '/robots.txt', 'HomeController@robots', []);
+    $r->add('GET', '/sitemap.xml', 'HomeController@sitemap', []);
 
     $r->add('GET', '/onboarding', 'OnboardingController@index', ['AuthMiddleware', 'AdminMiddleware']);
     $r->add('POST', '/onboarding/concluir', 'OnboardingController@complete', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
@@ -95,6 +97,9 @@ return static function (Router $r): void {
 
     $r->add('GET', '/relatorios', 'ReportController@index', ['AuthMiddleware', 'AdminMiddleware']);
     $r->add('GET', '/relatorios/exportar\.csv', 'ReportController@exportCsv', ['AuthMiddleware', 'AdminMiddleware']);
+
+    $r->add('GET', '/avaliacoes', 'ReviewController@index', ['AuthMiddleware', 'AdminMiddleware']);
+    $r->add('POST', '/avaliacoes/visibilidade', 'ReviewController@toggleVisibility', ['AuthMiddleware', 'AdminMiddleware', 'CsrfMiddleware']);
 
     $r->add('GET', '/configuracoes', 'SettingsController@index', ['AuthMiddleware', 'AdminMiddleware']);
     $r->add('GET', '/configuracoes/assinatura', 'SettingsController@subscription', ['AuthMiddleware', 'AdminMiddleware']);

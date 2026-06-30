@@ -219,4 +219,18 @@ final class TenantModel
         ]);
         @file_get_contents($url, false, $ctx);
     }
+
+    /** @param array<string, mixed> $appointment */
+    public function dispatchAppointmentWebhook(int $tenantId, string $event, array $appointment): void
+    {
+        $this->dispatchWebhook($tenantId, $event, [
+            'appointment_id' => (int) ($appointment['id'] ?? 0),
+            'status' => (string) ($appointment['status'] ?? ''),
+            'start_datetime' => (string) ($appointment['start_datetime'] ?? ''),
+            'end_datetime' => (string) ($appointment['end_datetime'] ?? ''),
+            'client_id' => (int) ($appointment['client_id'] ?? 0),
+            'barber_id' => (int) ($appointment['barber_id'] ?? 0),
+            'service_id' => (int) ($appointment['service_id'] ?? 0),
+        ]);
+    }
 }

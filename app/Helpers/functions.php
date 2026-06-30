@@ -290,6 +290,47 @@ if (!function_exists('app_base_url')) {
     }
 }
 
+if (!function_exists('demo_booking_slug')) {
+    function demo_booking_slug(): string
+    {
+        $slug = trim((string) ($_ENV['DEMO_BOOKING_SLUG'] ?? ''));
+
+        return $slug !== '' ? $slug : 'adriele-cardoso-nail-design';
+    }
+}
+
+if (!function_exists('demo_booking_url')) {
+    function demo_booking_url(): string
+    {
+        return '/agendar/' . rawurlencode(demo_booking_slug());
+    }
+}
+
+if (!function_exists('demo_booking_label')) {
+    function demo_booking_label(): string
+    {
+        $label = trim((string) ($_ENV['DEMO_BOOKING_LABEL'] ?? ''));
+
+        return $label !== '' ? $label : 'Demonstração ao vivo';
+    }
+}
+
+if (!function_exists('analytics_id')) {
+    function analytics_id(): string
+    {
+        return trim((string) ($_ENV['ANALYTICS_ID'] ?? ''));
+    }
+}
+
+if (!function_exists('mail_configured')) {
+    function mail_configured(): bool
+    {
+        $from = trim((string) ($_ENV['MAIL_FROM_ADDRESS'] ?? ''));
+
+        return $from !== '' && filter_var($from, FILTER_VALIDATE_EMAIL) !== false;
+    }
+}
+
 if (!function_exists('format_datetime_in_tenant_tz')) {
     /**
      * Formata data/hora guardada como relógio local da barbearia (Y-m-d H:i:s).

@@ -21,6 +21,14 @@ final class Response
         return new self($status, ['Content-Type' => 'text/html; charset=UTF-8'], $html);
     }
 
+    /** @param array<string, string> $headers */
+    public static function text(string $body, int $status = 200, array $headers = []): self
+    {
+        $headers += ['Content-Type' => 'text/plain; charset=UTF-8'];
+
+        return new self($status, $headers, $body);
+    }
+
     public static function redirect(string $url, int $status = 302): self
     {
         return new self($status, ['Location' => $url], '');

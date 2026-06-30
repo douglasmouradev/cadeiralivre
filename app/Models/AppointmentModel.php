@@ -269,7 +269,8 @@ final class AppointmentModel
     {
         $stmt = $this->pdo->prepare(
             "SELECT a.*, c.name AS client_name, c.email AS client_email, c.phone AS client_phone,
-                    s.name AS service_name, u.name AS barber_name, t.name AS tenant_name, t.slug AS tenant_slug, t.phone AS tenant_phone
+                    s.name AS service_name, u.name AS barber_name, t.name AS tenant_name, t.slug AS tenant_slug,
+                    t.phone AS tenant_phone, t.primary_color AS tenant_primary_color
              FROM appointments a
              INNER JOIN clients c ON c.id = a.client_id
              INNER JOIN services s ON s.id = a.service_id

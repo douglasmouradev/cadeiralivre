@@ -8,6 +8,7 @@ use App\Core\Database;
 use App\Core\Response;
 use App\Enums\AppointmentStatus;
 use App\Helpers\Csrf;
+use App\Helpers\EmailTemplate;
 use App\Helpers\Flash;
 use App\Helpers\MysqlNamedLock;
 use App\Helpers\RateLimiter;
@@ -245,6 +246,10 @@ final class PublicBookingController extends Controller
                 null,
                 'Confirmado pelo cliente (portal)',
             );
+            $updated = $ap->find($tid, $appointmentId);
+            if (is_array($updated)) {
+                (new TenantModel())->dispatchAppointmentWebhook($tid, 'appointment.confirmed', $updated);
+            }
             Flash::set('success', 'Agendamento confirmado.');
         } else {
             Flash::set('error', 'Não foi possível confirmar. Tente novamente.');
@@ -292,6 +297,10 @@ final class PublicBookingController extends Controller
         }
         $ap->updateStatus($tid, $appointmentId, AppointmentStatus::Cancelled->value, 'Cancelado pelo cliente (portal)');
         $ap->addHistory($appointmentId, $tid, $from, AppointmentStatus::Cancelled->value, null, 'Portal cliente');
+        $updated = $ap->find($tid, $appointmentId);
+        if (is_array($updated)) {
+            (new TenantModel())->dispatchAppointmentWebhook($tid, 'appointment.cancelled', $updated);
+        }
         Flash::set('success', 'Agendamento cancelado.');
 
         return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos');
@@ -490,21 +499,29 @@ final class PublicBookingController extends Controller
         $cancel = $base . '/agendar/cancelar?token=' . urlencode($public);
         $confirm = $base . '/agendar/' . rawurlencode($slug) . '/confirmar?token=' . urlencode($public);
         $reviewLink = $base . '/avaliar?token=' . urlencode(is_array($apRow) ? (string) $apRow['review_token'] : '');
-        $html = '<p>Olá ' . e($name) . ',</p><p>Seu agendamento na ' . e((string) $tenant['name']) . ' está pendente de confirmação.</p>'
-            . '<p><strong>Código de confirmação:</strong> ' . e(is_array($apRow) ? (string) $apRow['confirmation_code'] : '') . '</p>'
-            . '<p>Data/hora: ' . e(format_datetime_in_tenant_tz($startStr, $tz)) . '</p>';
+        $accent = isset($tenant['primary_color']) ? (string) $tenant['primary_color'] : null;
+        $tenantName = (string) $tenant['name'];
+        $body = EmailTemplate::paragraph('Olá <strong>' . e($name) . '</strong>,')
+            . EmailTemplate::paragraph('Seu agendamento na <strong>' . e($tenantName) . '</strong> está pendente de confirmação.')
+            . EmailTemplate::paragraph('<strong>Código:</strong> ' . e(is_array($apRow) ? (string) $apRow['confirmation_code'] : ''))
+            . EmailTemplate::paragraph('<strong>Data/hora:</strong> ' . e(format_datetime_in_tenant_tz($startStr, $tz)));
         if ($apptNotes !== null && $apptNotes !== '') {
-            $html .= '<p><strong>Observações do agendamento:</strong><br>' . nl2br(e($apptNotes)) . '</p>';
+            $body .= EmailTemplate::paragraph('<strong>Observações:</strong><br>' . nl2br(e($apptNotes)));
         }
-        $html .= '<p><a href="' . e($confirm) . '">Confirmar agendamento</a></p>'
-            . '<p><a href="' . e($cancel) . '">Cancelar agendamento</a></p>'
-            . '<p>Após o atendimento, avalie: <a href="' . e($reviewLink) . '">' . e($reviewLink) . '</a></p>';
+        $body .= EmailTemplate::button($confirm, 'Confirmar agendamento', $accent)
+            . EmailTemplate::mutedLink($cancel, 'Cancelar agendamento')
+            . EmailTemplate::mutedLink($reviewLink, 'Avaliar após o atendimento');
+        $html = EmailTemplate::layout($body, $tenantName, $accent);
         if ($email !== '') {
             try {
-                $mail->send($email, $name, 'Confirmação de agendamento', $html);
+                $mail->send($email, $name, 'Confirmação de agendamento — ' . $tenantName, $html);
             } catch (Throwable $e) {
                 error_log('MailService booking confirmation failed: ' . $e->getMessage());
             }
+        }
+
+        if (is_array($apRow)) {
+            (new TenantModel())->dispatchAppointmentWebhook($tid, 'appointment.created', $apRow);
         }
 
         return Response::redirect('/agendar/' . rawurlencode($slug) . '/obrigado?token=' . urlencode($public));
@@ -561,6 +578,10 @@ final class PublicBookingController extends Controller
         $from = (string) $row['status'];
         if ($ap->confirmIfPending($tid, (int) $row['id'], $code)) {
             $ap->addHistory((int) $row['id'], $tid, $from, AppointmentStatus::Confirmed->value, null, 'Confirmado pelo cliente');
+            $updated = $ap->find($tid, (int) $row['id']);
+            if (is_array($updated)) {
+                (new TenantModel())->dispatchAppointmentWebhook($tid, 'appointment.confirmed', $updated);
+            }
         }
 
         return Response::redirect('/agendar/' . rawurlencode($slug) . '/obrigado?token=' . urlencode($token));
@@ -590,6 +611,10 @@ final class PublicBookingController extends Controller
         $from = (string) $row['status'];
         $ap->updateStatus($tid, $id, AppointmentStatus::Cancelled->value, 'Cancelado pelo cliente');
         $ap->addHistory($id, $tid, $from, AppointmentStatus::Cancelled->value, null, 'Portal público');
+        $updated = $ap->find($tid, $id);
+        if (is_array($updated)) {
+            (new TenantModel())->dispatchAppointmentWebhook($tid, 'appointment.cancelled', $updated);
+        }
 
         return $this->view('public/cancel_done', ['title' => 'Cancelado']);
     }
@@ -632,7 +657,14 @@ final class PublicBookingController extends Controller
         }
         $rating = (int) $this->request->input('rating');
         $rating = max(1, min(5, $rating));
-        $reviews->create($tid, $id, (int) $row['client_id'], $rating, trim((string) $this->request->input('comment')), true);
+        $comment = trim((string) $this->request->input('comment'));
+        $reviews->create($tid, $id, (int) $row['client_id'], $rating, $comment, true);
+        (new TenantModel())->dispatchWebhook($tid, 'appointment.reviewed', [
+            'appointment_id' => $id,
+            'rating' => $rating,
+            'comment' => $comment,
+            'client_id' => (int) $row['client_id'],
+        ]);
 
         return $this->view('public/review_done', ['title' => 'Obrigado']);
     }
@@ -739,10 +771,10 @@ final class PublicBookingController extends Controller
         $from = (string) $row['start_datetime'];
         $ap->reschedule($tid, $id, $startStr, $endStr);
         $ap->addHistory($id, $tid, (string) $row['status'], (string) $row['status'], null, 'Reagendado pelo cliente de ' . $from . ' para ' . $startStr);
-        (new TenantModel())->dispatchWebhook($tid, 'appointment.rescheduled', [
-            'appointment_id' => $id,
-            'start_datetime' => $startStr,
-        ]);
+        $updated = $ap->find($tid, $id);
+        if (is_array($updated)) {
+            (new TenantModel())->dispatchAppointmentWebhook($tid, 'appointment.rescheduled', $updated);
+        }
         Flash::set('success', 'Agendamento reagendado.');
 
         return Response::redirect('/agendar/' . rawurlencode($slug) . '/meus-agendamentos');

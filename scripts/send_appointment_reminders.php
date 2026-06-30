@@ -20,6 +20,7 @@ if (!app_load_dotenv($root)) {
 use App\Models\AppointmentModel;
 use App\Services\Integrations\WhatsAppNotificationService;
 use App\Services\MailService;
+use App\Helpers\EmailTemplate;
 
 $cfg = require $root . '/config/mail.php';
 $mail = new MailService($cfg);
@@ -40,17 +41,21 @@ foreach ($rows as $row) {
     $base = rtrim((string) ($_ENV['APP_URL'] ?? ''), '/');
     $slug = (string) ($row['tenant_slug'] ?? '');
     $portalUrl = $slug !== '' ? $base . '/agendar/' . rawurlencode($slug) . '/meus-agendamentos' : $base;
+    $accent = isset($row['tenant_primary_color']) ? (string) $row['tenant_primary_color'] : null;
 
-    $body = '<p>Olá ' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . ',</p>'
-        . '<p>Lembrete do seu agendamento em <strong>' . htmlspecialchars($tenantName, ENT_QUOTES, 'UTF-8') . '</strong>:</p>'
-        . '<ul><li>Data/hora: ' . htmlspecialchars($start, ENT_QUOTES, 'UTF-8') . '</li>'
-        . '<li>Serviço: ' . htmlspecialchars($service, ENT_QUOTES, 'UTF-8') . '</li>'
-        . '<li>Profissional: ' . htmlspecialchars($barber, ENT_QUOTES, 'UTF-8') . '</li></ul>'
-        . '<p><a href="' . htmlspecialchars($portalUrl, ENT_QUOTES, 'UTF-8') . '">Ver ou reagendar</a></p>';
+    $body = EmailTemplate::paragraph('Olá <strong>' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</strong>,')
+        . EmailTemplate::paragraph('Lembrete do seu agendamento em <strong>' . htmlspecialchars($tenantName, ENT_QUOTES, 'UTF-8') . '</strong>:')
+        . EmailTemplate::paragraph(
+            '<strong>Data/hora:</strong> ' . htmlspecialchars($start, ENT_QUOTES, 'UTF-8') . '<br>'
+            . '<strong>Serviço:</strong> ' . htmlspecialchars($service, ENT_QUOTES, 'UTF-8') . '<br>'
+            . '<strong>Profissional:</strong> ' . htmlspecialchars($barber, ENT_QUOTES, 'UTF-8')
+        )
+        . EmailTemplate::button($portalUrl, 'Ver ou reagendar', $accent);
+    $html = EmailTemplate::layout($body, $tenantName, $accent);
 
     if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
         try {
-            $mail->send($email, $name, 'Lembrete de agendamento — ' . $tenantName, $body);
+            $mail->send($email, $name, 'Lembrete de agendamento — ' . $tenantName, $html);
         } catch (Throwable $e) {
             fwrite(STDERR, "E-mail falhou #{$id}: {$e->getMessage()}\n");
             continue;

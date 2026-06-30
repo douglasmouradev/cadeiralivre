@@ -51,6 +51,7 @@ ob_start();
             <div class="row">
                 <label>Webhook (URL para automações)</label>
                 <input name="webhook_url" type="url" placeholder="https://seu-n8n.com/webhook/..." value="<?= e((string) ($tenant['webhook_url'] ?? '')) ?>">
+                <p class="muted" style="font-size:0.85rem;margin:0.35rem 0 0">Eventos: created, confirmed, cancelled, rescheduled, completed, reviewed.</p>
             </div>
             <button class="btn" type="submit">Salvar</button>
         </form>

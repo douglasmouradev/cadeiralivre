@@ -20,10 +20,42 @@ final class HomeController extends Controller
         return $this->view('home/landing', [
             'title' => app_name() . ' — Agendamento online para seu negócio',
             'plans' => $plans,
-            'demoBookingUrl' => '/agendar/adriele-cardoso-nail-design',
+            'demoBookingUrl' => demo_booking_url(),
+            'demoBookingLabel' => demo_booking_label(),
             'baseUrl' => app_base_url(),
             'supportWhatsApp' => preg_replace('/\D+/', '', (string) ($_ENV['SUPPORT_WHATSAPP'] ?? '5571997087082')) ?: '5571997087082',
         ]);
+    }
+
+    public function robots(): Response
+    {
+        $base = app_base_url();
+        $body = "User-agent: *\nAllow: /\nDisallow: /painel\nDisallow: /agenda\nDisallow: /saas\nDisallow: /login\nDisallow: /cadastro\n";
+        if ($base !== '') {
+            $body .= "\nSitemap: {$base}/sitemap.xml\n";
+        }
+
+        return Response::text($body, 200);
+    }
+
+    public function sitemap(): Response
+    {
+        $base = app_base_url();
+        $urls = [$base !== '' ? $base . '/' : '/'];
+        foreach ((new \App\Models\TenantModel())->listPublicDirectory() as $tenant) {
+            $slug = (string) ($tenant['slug'] ?? '');
+            if ($slug !== '') {
+                $urls[] = ($base !== '' ? $base : '') . '/agendar/' . rawurlencode($slug);
+            }
+        }
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+            . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+        foreach ($urls as $url) {
+            $xml .= '  <url><loc>' . htmlspecialchars($url, ENT_XML1) . '</loc></url>' . "\n";
+        }
+        $xml .= '</urlset>';
+
+        return Response::text($xml, 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
     }
 
     public function status(): Response

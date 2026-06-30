@@ -76,15 +76,20 @@ SaaS de agendamento para barbearias (**CadeiraLivre**) em **PHP 8.3**, **MySQL 8
 
 6. **(Opcional) Dados de demonstração**
 
-   O script detecta se o demo já foi importado (tenant `demo-barbearia`) e **não repete** o import.
-
-   Opção B — linha de comando (troque `root` e o nome do banco pelos valores do seu `.env`):
+   Importe manualmente o seed (o `migrate.php` **não** importa seeds automaticamente):
 
    ```bash
    mysql -h 127.0.0.1 -P 3306 -u root -p cadeira_livre_saas < database/seeds/001_demo.sql
    ```
 
-   O `-p` sozinho pede a senha; **não** use a palavra `USUARIO` — isso era só exemplo no texto antigo.
+   O `-p` sozinho pede a senha.
+
+   Variáveis opcionais no `.env` para a landing:
+
+   - `DEMO_BOOKING_SLUG` — slug da loja demo (padrão: `adriele-cardoso-nail-design`)
+   - `DEMO_BOOKING_LABEL` — nome exibido no mockup da landing
+   - `ANALYTICS_ID` — GA4 (`G-…`) ou domínio Plausible
+   - `SUPPORT_WHATSAPP` — WhatsApp de suporte comercial
 
 7. **Permissões de upload**
 
@@ -132,13 +137,16 @@ php scripts/create_superadmin.php admin@seu-dominio.com 'SenhaSegura8' 'Nome'
 - Após o trial, é necessário `subscription_status` `active` ou `trialing` (ex. via Stripe) para continuar a operar.
 - Configure `STRIPE_SECRET_KEY` e `STRIPE_WEBHOOK_SECRET`; endpoint: `POST /webhooks/stripe`. Associe `stripe_price_id` em `plan_definitions` aos preços criados no Stripe e inclua `metadata[tenant_id]` na subscrição/checkout.
 
-### Fila de e-mail
+### Fila de e-mail e lembretes
 
 Com `MAIL_QUEUE=true`, os envios gravam-se em `outbound_emails`. Processe com cron:
 
 ```bash
 php scripts/process_mail_queue.php
+php scripts/send_appointment_reminders.php
 ```
+
+Veja `scripts/cron.example.sh` para um exemplo de crontab (fila a cada 5 min, lembretes a cada hora).
 
 ### Backup MySQL (exemplo)
 

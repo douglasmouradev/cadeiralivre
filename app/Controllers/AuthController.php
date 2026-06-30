@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\Response;
 use App\Enums\UserRole;
 use App\Helpers\Csrf;
+use App\Helpers\EmailTemplate;
 use App\Helpers\Flash;
 use App\Helpers\Str;
 use App\Middleware\LoginRateLimitMiddleware;
@@ -197,9 +198,11 @@ final class AuthController extends Controller
             $mail = new MailService($cfg);
             $base = rtrim((string) ($this->app->config()['url'] ?? ''), '/');
             $link = $base . '/redefinir-senha?token=' . urlencode($plain);
-            $body = '<p>Olá ' . e((string) $user['name']) . ',</p><p>Para redefinir sua senha, acesse o link abaixo (válido por 1 hora):</p>'
-                . '<p><a href="' . e($link) . '">' . e($link) . '</a></p>';
-            $mail->send($email, (string) $user['name'], 'Redefinição de senha', $body);
+            $body = EmailTemplate::paragraph('Olá <strong>' . e((string) $user['name']) . '</strong>,')
+                . EmailTemplate::paragraph('Para redefinir sua senha, use o botão abaixo. O link é válido por 1 hora.')
+                . EmailTemplate::button($link, 'Redefinir senha');
+            $html = EmailTemplate::layout($body);
+            $mail->send($email, (string) $user['name'], 'Redefinição de senha — ' . app_name(), $html);
         }
         Flash::set('success', 'Se o e-mail existir, enviaremos instruções em instantes.');
 

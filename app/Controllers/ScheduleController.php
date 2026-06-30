@@ -257,6 +257,18 @@ final class ScheduleController extends Controller
         }
         $ap->updateStatus($tid, $id, $to, $to === AppointmentStatus::Cancelled->value ? trim((string) $this->request->input('cancellation_reason')) : null);
         $ap->addHistory($id, $tid, $from, $to, $this->userId(), null);
+        $updated = $ap->find($tid, $id);
+        if (is_array($updated)) {
+            $event = match ($to) {
+                AppointmentStatus::Confirmed->value => 'appointment.confirmed',
+                AppointmentStatus::Cancelled->value => 'appointment.cancelled',
+                AppointmentStatus::Completed->value => 'appointment.completed',
+                default => null,
+            };
+            if ($event !== null) {
+                (new TenantModel())->dispatchAppointmentWebhook($tid, $event, $updated);
+            }
+        }
         if ($to === AppointmentStatus::Completed->value) {
             $pm = new \App\Models\PaymentModel();
             if (!$pm->hasPaidForAppointment($tid, $id)) {

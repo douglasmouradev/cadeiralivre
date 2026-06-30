@@ -38,7 +38,7 @@ ob_start();
                 <span class="pill pill--ok">Configurado</span>
             <?php else: ?>
                 <span class="pill pill--danger">Não configurado</span>
-                <p class="muted mt-1">Defina <code>MAIL_HOST</code> e credenciais no servidor.</p>
+                <p class="muted mt-1">Defina <code>MAIL_SMTP_HOST</code>, <code>MAIL_FROM_ADDRESS</code> e credenciais no servidor.</p>
             <?php endif; ?>
         </dd>
     </dl>
